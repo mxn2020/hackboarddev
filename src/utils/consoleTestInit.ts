@@ -1,6 +1,16 @@
 import { testProfileUpdate, testViewportSize, testNavigationLayout } from './testHelpers';
 import { User } from '../types';
 
+interface AppTestWindow extends Window {
+  appTests: {
+    testProfileUpdate: () => Promise<unknown>;
+    testViewportSize: () => unknown;
+    testNavigationLayout: () => unknown;
+    runAllTests: () => Promise<unknown>;
+    help: () => void;
+  };
+}
+
 /**
  * Initialize test commands in the browser console for easy testing
  * @param updateUserFn - The function to update the user
@@ -12,7 +22,7 @@ export const initConsoleTests = (
 ) => {
   // Add tests to window object for console access
   if (typeof window !== 'undefined') {
-    (window as any).appTests = {
+    (window as unknown as AppTestWindow).appTests = {
       testProfileUpdate: () => testProfileUpdate(updateUserFn, currentUser),
       testViewportSize,
       testNavigationLayout: () => testNavigationLayout(currentUser, updateUserFn),

@@ -42,7 +42,7 @@ export default tseslint.config(
       '@typescript-eslint/no-non-null-assertion': 'warn',
 
       // General code quality rules
-      'no-console': ['warn', { allow: ['warn', 'error', 'log'] }],
+      'no-console': ['warn', { allow: ['warn', 'error', 'log', 'group', 'groupEnd'] }],
       'no-debugger': 'error',
       'no-duplicate-imports': 'error',
       'no-unused-expressions': 'error',
@@ -71,7 +71,7 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-console': ['warn', { allow: ['warn', 'error', 'log', 'group', 'groupEnd'] }],
       'no-debugger': 'error',
       'no-duplicate-imports': 'error',
       'no-unused-expressions': 'error',
