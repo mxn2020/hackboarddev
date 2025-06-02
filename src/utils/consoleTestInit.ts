@@ -1,4 +1,4 @@
-import { testProfileUpdate, testViewportSize, testNavigationLayout } from './testHelpers';
+import { testProfileUpdate, testViewportSize, testNavigationLayout, testPerformance } from './testHelpers';
 import { User } from '../types';
 
 interface AppTestWindow extends Window {
@@ -6,6 +6,7 @@ interface AppTestWindow extends Window {
     testProfileUpdate: () => Promise<unknown>;
     testViewportSize: () => unknown;
     testNavigationLayout: () => unknown;
+    testPerformance: () => unknown;
     runAllTests: () => Promise<unknown>;
     help: () => void;
   };
@@ -26,6 +27,7 @@ export const initConsoleTests = (
       testProfileUpdate: () => testProfileUpdate(updateUserFn, currentUser),
       testViewportSize,
       testNavigationLayout: () => testNavigationLayout(currentUser, updateUserFn),
+      testPerformance,
       runAllTests: async () => {
         console.group('🧪 Running All Tests');
 
@@ -44,12 +46,17 @@ export const initConsoleTests = (
           newLayout: navInfo.newLayout,
         });
 
+        console.log('⚡ Testing Performance');
+        const performanceResult = testPerformance();
+        console.log(performanceResult);
+
         console.groupEnd();
 
         return {
           viewport: viewportResult,
           profile: profileResult,
-          navigation: navInfo
+          navigation: navInfo,
+          performance: performanceResult
         };
       },
       help: () => {
@@ -57,6 +64,7 @@ export const initConsoleTests = (
         console.log('appTests.testProfileUpdate() - Test if profile updates work');
         console.log('appTests.testViewportSize() - Check viewport dimensions and breakpoints');
         console.log('appTests.testNavigationLayout() - Get navigation layout info');
+        console.log('appTests.testPerformance() - Measure app performance metrics');
         console.log('appTests.runAllTests() - Run all tests');
         console.groupEnd();
       }

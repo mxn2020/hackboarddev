@@ -1,5 +1,20 @@
 import { User } from '../types';
 
+interface PerformanceResourceTiming {
+  initiatorType?: string;
+  encodedBodySize?: number;
+}
+
+interface PerformanceMemory {
+  jsHeapSizeLimit: number;
+  totalJSHeapSize: number;
+  usedJSHeapSize: number;
+}
+
+interface ExtendedPerformance extends Performance {
+  memory?: PerformanceMemory;
+}
+
 /**
  * Helper function to test if the user profile update works correctly
  * This can be called from developer tools console or a test component
@@ -43,10 +58,10 @@ export const testProfileUpdate = async (
       originalValue: currentUser.name,
       newValue: updatedUser.name
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       success: false,
-      message: `Error during profile update test: ${error.message || 'Unknown error'}`,
+      message: `Error during profile update test: ${error instanceof Error ? error.message : 'Unknown error'}`,
       originalValue: currentUser.name,
       error
     };
@@ -113,12 +128,12 @@ export const testNavigationLayout = (
             ? `Successfully switched layout to ${updatedUser.preferences?.menuLayout}`
             : 'Failed to update layout preference'
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
         return {
           success: false,
           previousLayout: currentLayout,
           currentLayout,
-          message: `Error switching layout: ${error.message || 'Unknown error'}`
+          message: `Error switching layout: ${error instanceof Error ? error.message : 'Unknown error'}`
         };
       }
     }
@@ -147,10 +162,10 @@ export const testPerformance = () => {
   const resourceLoadTime = perfData.loadEventEnd - perfData.domContentLoadedEventEnd;
 
   // Get resource information
-  const resources = window.performance.getEntriesByType('resource');
+  const resources = window.performance.getEntriesByType('resource') as PerformanceResourceTiming[];
 
   // Group resources by type
-  const resourcesByType = resources.reduce((acc: Record<string, any[]>, resource: any) => {
+  const resourcesByType = resources.reduce((acc: Record<string, PerformanceResourceTiming[]>, resource: PerformanceResourceTiming) => {
     const type = resource.initiatorType || 'other';
     if (!acc[type]) acc[type] = [];
     acc[type].push(resource);
@@ -162,7 +177,7 @@ export const testPerformance = () => {
   const resourceStats: Record<string, { count: number, size: number }> = {};
 
   Object.entries(resourcesByType).forEach(([type, items]) => {
-    const encodedBodySize = items.reduce((sum, item: any) => sum + (item.encodedBodySize || 0), 0);
+    const encodedBodySize = items.reduce((sum, item: PerformanceResourceTiming) => sum + (item.encodedBodySize || 0), 0);
     resourceStats[type] = {
       count: items.length,
       size: encodedBodySize / 1024 // KB
@@ -183,10 +198,16 @@ export const testPerformance = () => {
       byType: resourceStats
     },
     // Only include memory info if the non-standard Chrome API is available
-    memory: (window.performance as any).memory ? {
-      jsHeapSizeLimit: Math.round((window.performance as any).memory.jsHeapSizeLimit / (1024 * 1024)),
-      totalJSHeapSize: Math.round((window.performance as any).memory.totalJSHeapSize / (1024 * 1024)),
-      usedJSHeapSize: Math.round((window.performance as any).memory.usedJSHeapSize / (1024 * 1024))
-    } : 'Memory API not available'
+    memory: (() => {
+      const extendedPerf = window.performance as ExtendedPerformance;
+      if (extendedPerf.memory) {
+        return {
+          jsHeapSizeLimit: Math.round(extendedPerf.memory.jsHeapSizeLimit / (1024 * 1024)),
+          totalJSHeapSize: Math.round(extendedPerf.memory.totalJSHeapSize / (1024 * 1024)),
+          usedJSHeapSize: Math.round(extendedPerf.memory.usedJSHeapSize / (1024 * 1024))
+        };
+      }
+      return 'Memory API not available';
+    })()
   };
 };
