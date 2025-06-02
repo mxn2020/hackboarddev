@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { User as UserIcon, Mail, Calendar, Save } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
   });
+  
+  // Update form data when user changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+      });
+    }
+  }, [user?.name, user?.email]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -35,11 +45,14 @@ const ProfilePage: React.FC = () => {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Update the user in the context
+      updateUser({
+        name: formData.name,
+        email: formData.email
+      });
+      
       setSuccessMessage('Profile updated successfully!');
       setIsEditing(false);
-      
-      // In a real implementation, you would update the user context
-      // updateUserProfile(response.data.user);
     } catch (error) {
       setErrorMessage('Failed to update profile. Please try again.');
       console.error('Error updating profile:', error);

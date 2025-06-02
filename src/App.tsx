@@ -17,6 +17,8 @@ import BlogEditorPage from './pages/BlogEditorPage';
 import ExamplesPage from './pages/ExamplesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
+import SettingsPage from './pages/SettingsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Protected Route Component
@@ -147,6 +149,24 @@ function AppContent() {
                 <BlogAdminProvider>
                   <BlogEditorPage />
                 </BlogAdminProvider>
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Profile and Settings Routes */}
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/settings" 
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
               </ProtectedRoute>
             } 
           />
