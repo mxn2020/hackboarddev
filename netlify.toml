@@ -16,8 +16,6 @@
   # Force fresh deployment
   external_node_modules = ["bcryptjs"]
 
-# Edge Functions are disabled - not using any
-
 [dev]
   # Let Netlify auto-detect the framework and proxy properly
   autoLaunch = false
