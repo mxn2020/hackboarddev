@@ -140,7 +140,7 @@ const NotesPage: React.FC = () => {
 
           {/* View Mode */}
           <div className="flex rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-            <button
+            <Button
               onClick={() => setViewMode('grid')}
               className={cn(
                 'px-3 py-2 text-sm flex items-center gap-2',
@@ -151,8 +151,8 @@ const NotesPage: React.FC = () => {
             >
               <Grid className="w-4 h-4" />
               Grid
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setViewMode('list')}
               className={cn(
                 'px-3 py-2 text-sm flex items-center gap-2 border-l border-gray-200 dark:border-gray-600',
@@ -163,7 +163,7 @@ const NotesPage: React.FC = () => {
             >
               <List className="w-4 h-4" />
               List
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -173,7 +173,7 @@ const NotesPage: React.FC = () => {
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by tags:</p>
             <div className="flex flex-wrap gap-2">
               {allTags.map(tag => (
-                <button
+                <Button
                   key={tag}
                   onClick={() => handleTagToggle(tag)}
                   className={cn(
@@ -185,7 +185,7 @@ const NotesPage: React.FC = () => {
                 >
                   <Tag className="w-3 h-3" />
                   {tag}
-                </button>
+                </Button>
               ))}
             </div>
           </div>

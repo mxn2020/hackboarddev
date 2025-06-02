@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useBlogAdmin } from '../contexts/BlogAdminContext';
 import { useAuth } from '../hooks/useAuth';
+import { Button } from '@/components/ui/button';
 
 interface BlogPost {
   id: string;
@@ -82,7 +83,7 @@ const BlogAdminPage: React.FC = () => {
     <div className="max-w-6xl mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Blog Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Blog Management</h1>
           <p className="text-gray-600 mt-2">Create, edit, and manage your blog posts</p>
         </div>
         <Link
@@ -106,7 +107,7 @@ const BlogAdminPage: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No blog posts yet</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No blog posts yet</h3>
           <p className="text-gray-600 mb-4">Get started by creating your first blog post.</p>
           <Link
             to="/admin/blog/new"
@@ -144,7 +145,7 @@ const BlogAdminPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                             {post.title}
                           </div>
                           <div className="text-sm text-gray-500 truncate max-w-xs">
@@ -153,7 +154,7 @@ const BlogAdminPage: React.FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                       {post.author}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -190,12 +191,12 @@ const BlogAdminPage: React.FC = () => {
                         >
                           Edit
                         </Link>
-                        <button
+                        <Button
                           onClick={() => handleDelete(post.slug)}
                           className="text-red-600 hover:text-red-900 px-3 py-1 rounded transition-colors"
                         >
                           Delete
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>

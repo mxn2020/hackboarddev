@@ -48,9 +48,9 @@ const LoginPage: React.FC = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="sr-only">
+              <Label htmlFor="email" className="sr-only">
                 Email address
-              </label>
+              </Label>
               <input
                 id="email"
                 name="email"
@@ -64,9 +64,9 @@ const LoginPage: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
+              <Label htmlFor="password" className="sr-only">
                 Password
-              </label>
+              </Label>
               <input
                 id="password"
                 name="password"

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
 import TypeWriter from './shared/TypeWriter';
+import { Button } from './ui/button';
 
 const Hero: React.FC = () => {
   const { resolvedTheme } = useTheme();
@@ -39,12 +40,12 @@ const Hero: React.FC = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-              <button className="px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-medium transition-all duration-300 shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5">
+              <Button className="px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-medium transition-all duration-300 shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5">
                 Explore Now
-              </button>
-              <button className="px-6 py-3 rounded-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium border border-gray-200 dark:border-gray-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+              </Button>
+              <Button className="px-6 py-3 rounded-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium border border-gray-200 dark:border-gray-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                 Learn More
-              </button>
+              </Button>
             </div>
             
             <div className="flex items-center justify-center gap-8 mt-12 text-gray-600 dark:text-gray-400">

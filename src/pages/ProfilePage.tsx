@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { User as UserIcon, Mail, Calendar, Save } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 const ProfilePage: React.FC = () => {
   const { user, updateUser } = useAuth();
@@ -65,7 +68,7 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto p-4 md:p-6">
       <div className="mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Your Profile</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">Your Profile</h1>
         <p className="text-gray-600 mt-2">View and edit your account information</p>
       </div>
 
@@ -81,7 +84,7 @@ const ProfilePage: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white shadow-sm rounded-lg p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 mb-6">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
           <div className="flex items-center mb-4 md:mb-0">
             <div className="bg-blue-100 text-blue-600 rounded-full p-3 mr-4">
@@ -92,12 +95,12 @@ const ProfilePage: React.FC = () => {
               <p className="text-gray-600">{user.email}</p>
             </div>
           </div>
-          <button 
+          <Button
             onClick={() => setIsEditing(!isEditing)}
             className="px-4 py-2 text-sm font-medium rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
           >
             {isEditing ? 'Cancel' : 'Edit Profile'}
-          </button>
+          </Button>
         </div>
 
         {!isEditing ? (
@@ -106,21 +109,21 @@ const ProfilePage: React.FC = () => {
               <UserIcon className="w-5 h-5 text-gray-500 mt-0.5 mr-3" />
               <div>
                 <p className="text-sm text-gray-500">Name</p>
-                <p className="text-gray-900 font-medium">{user.name}</p>
+                <p className="text-gray-900 dark:text-gray-100 font-medium">{user.name}</p>
               </div>
             </div>
             <div className="flex items-start">
               <Mail className="w-5 h-5 text-gray-500 mt-0.5 mr-3" />
               <div>
                 <p className="text-sm text-gray-500">Email</p>
-                <p className="text-gray-900 font-medium">{user.email}</p>
+                <p className="text-gray-900 dark:text-gray-100 font-medium">{user.email}</p>
               </div>
             </div>
             <div className="flex items-start">
               <Calendar className="w-5 h-5 text-gray-500 mt-0.5 mr-3" />
               <div>
                 <p className="text-sm text-gray-500">Account Created</p>
-                <p className="text-gray-900 font-medium">
+                <p className="text-gray-900 dark:text-gray-100 font-medium">
                   {new Date(user.createdAt).toLocaleDateString(undefined, {
                     year: 'numeric',
                     month: 'long',
@@ -133,10 +136,10 @@ const ProfilePage: React.FC = () => {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              <Label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Name
-              </label>
-              <input
+              </Label>
+              <Input
                 id="name"
                 name="name"
                 type="text"
@@ -147,10 +150,10 @@ const ProfilePage: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <Label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Email
-              </label>
-              <input
+              </Label>
+              <Input
                 id="email"
                 name="email"
                 type="email"
@@ -164,7 +167,7 @@ const ProfilePage: React.FC = () => {
               </p>
             </div>
             <div className="pt-4">
-              <button
+              <Button
                 type="submit"
                 disabled={isSubmitting}
                 className="flex items-center justify-center w-full md:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium transition-colors"
@@ -174,7 +177,7 @@ const ProfilePage: React.FC = () => {
                 )}
                 <Save className="w-4 h-4 mr-2" />
                 Save Changes
-              </button>
+              </Button>
             </div>
           </form>
         )}

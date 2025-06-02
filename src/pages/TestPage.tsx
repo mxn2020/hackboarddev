@@ -166,20 +166,20 @@ const TestPage: React.FC = () => {
               </p>
 
               {testResults.profileUpdate && (
-                <div className={`p-4 mb-4 rounded-md ${testResults.profileUpdate.success ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
+                <div className={`p-4 mb-4 rounded-md ${testResults.profileUpdate.success ? 'bg-green-50 dark:bg-green-950/30 border border-green-100 dark:border-green-900' : 'bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900'}`}>
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
                       {testResults.profileUpdate.success ? (
-                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                       ) : (
-                        <AlertCircle className="h-5 w-5 text-red-600" />
+                        <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
                       )}
                     </div>
                     <div className="ml-3">
-                      <h3 className={`text-sm font-medium ${testResults.profileUpdate.success ? 'text-green-800' : 'text-red-800'}`}>
+                      <h3 className={`text-sm font-medium ${testResults.profileUpdate.success ? 'text-green-800 dark:text-green-400' : 'text-red-800 dark:text-red-400'}`}>
                         {testResults.profileUpdate.success ? 'Test Passed' : 'Test Failed'}
                       </h3>
-                      <div className="mt-2 text-sm text-gray-600">
+                      <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
                         <p>{testResults.profileUpdate.message}</p>
                         {testResults.profileUpdate.originalValue && (
                           <p className="mt-1">
@@ -217,31 +217,31 @@ const TestPage: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-blue-50 rounded-md">
-                    <p className="text-sm text-gray-500">Viewport Width</p>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-md">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Viewport Width</p>
                     <p className="text-2xl font-bold">{viewportInfo.width}px</p>
                   </div>
-                  <div className="p-4 bg-green-50 rounded-md">
-                    <p className="text-sm text-gray-500">Viewport Height</p>
+                  <div className="p-4 bg-green-50 dark:bg-green-950/30 rounded-md">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Viewport Height</p>
                     <p className="text-2xl font-bold">{viewportInfo.height}px</p>
                   </div>
                 </div>
                 
-                <div className="p-4 bg-gray-50 rounded-md">
+                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-md">
                   <p className="text-sm font-medium mb-2">Device Type</p>
                   <p className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    viewportInfo.isMobile ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'
+                    viewportInfo.isMobile ? 'bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-300' : 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300'
                   }`}>
                     {viewportInfo.isMobile ? 'Mobile' : 'Desktop'}
                   </p>
                 </div>
                 
-                <div className="p-4 bg-gray-50 rounded-md">
+                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-md">
                   <p className="text-sm font-medium mb-2">Tailwind Breakpoints</p>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(viewportInfo.breakpoints).map(([breakpoint, active]) => (
                       <span key={breakpoint} className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        active ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                        active ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
                       }`}>
                         {breakpoint} {active ? '✓' : '✗'}
                       </span>
@@ -249,12 +249,12 @@ const TestPage: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="p-4 rounded-md border border-gray-200">
+                <div className="p-4 rounded-md border border-gray-200 dark:border-gray-700">
                   <p className="text-sm font-medium mb-2">Testing Instructions</p>
-                  <p className="text-sm text-gray-600 mb-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                     To test responsiveness:
                   </p>
-                  <ol className="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                  <ol className="list-decimal list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
                     <li>Resize your browser window to see how the layout adapts</li>
                     <li>Open browser dev tools and use the device simulator</li>
                     <li>Test on actual mobile devices if possible</li>
@@ -280,21 +280,21 @@ const TestPage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-around p-4 bg-gray-50 rounded-md mb-4">
+              <div className="flex items-center justify-around p-4 bg-gray-50 dark:bg-gray-800/50 rounded-md mb-4">
                 <div className="text-center">
                   <div className="flex justify-center mb-2">
-                    <Menu className={`h-8 w-8 ${navInfo.currentLayout === 'sidebar' ? 'text-blue-600' : 'text-gray-400'}`} />
+                    <Menu className={`h-8 w-8 ${navInfo.currentLayout === 'sidebar' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
                   </div>
-                  <p className={`text-sm font-medium ${navInfo.currentLayout === 'sidebar' ? 'text-blue-600' : 'text-gray-400'}`}>
+                  <p className={`text-sm font-medium ${navInfo.currentLayout === 'sidebar' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`}>
                     Sidebar Layout
                   </p>
                 </div>
-                <div className="text-2xl">→</div>
+                <div className="text-2xl dark:text-gray-400">→</div>
                 <div className="text-center">
                   <div className="flex justify-center mb-2">
-                    <Menu className={`h-8 w-8 rotate-90 ${navInfo.currentLayout === 'header' ? 'text-blue-600' : 'text-gray-400'}`} />
+                    <Menu className={`h-8 w-8 rotate-90 ${navInfo.currentLayout === 'header' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
                   </div>
-                  <p className={`text-sm font-medium ${navInfo.currentLayout === 'header' ? 'text-blue-600' : 'text-gray-400'}`}>
+                  <p className={`text-sm font-medium ${navInfo.currentLayout === 'header' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`}>
                     Header Layout
                   </p>
                 </div>
@@ -304,13 +304,13 @@ const TestPage: React.FC = () => {
                 <strong>Current Layout:</strong> {navInfo.currentLayout}
               </p>
               
-              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+              <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-500 dark:border-yellow-600 p-4 mb-6">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <Info className="h-5 w-5 text-yellow-400" />
+                    <Info className="h-5 w-5 text-yellow-400 dark:text-yellow-300" />
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm text-yellow-700">
+                    <p className="text-sm text-yellow-700 dark:text-yellow-200">
                       Switching layouts will save your preference to your user profile. The page will reload to apply the changes.
                     </p>
                   </div>
@@ -318,20 +318,20 @@ const TestPage: React.FC = () => {
               </div>
 
               {testResults.navigation && (
-                <div className={`p-4 mb-4 rounded-md ${testResults.navigation.success ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
+                <div className={`p-4 mb-4 rounded-md ${testResults.navigation.success ? 'bg-green-50 dark:bg-green-950/30 border border-green-100 dark:border-green-900' : 'bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900'}`}>
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
                       {testResults.navigation.success ? (
-                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                       ) : (
-                        <AlertCircle className="h-5 w-5 text-red-600" />
+                        <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
                       )}
                     </div>
                     <div className="ml-3">
-                      <h3 className={`text-sm font-medium ${testResults.navigation.success ? 'text-green-800' : 'text-red-800'}`}>
+                      <h3 className={`text-sm font-medium ${testResults.navigation.success ? 'text-green-800 dark:text-green-400' : 'text-red-800 dark:text-red-400'}`}>
                         {testResults.navigation.success ? 'Layout Changed' : 'Layout Change Failed'}
                       </h3>
-                      <div className="mt-2 text-sm text-gray-600">
+                      <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
                         <p>{testResults.navigation.message}</p>
                       </div>
                     </div>

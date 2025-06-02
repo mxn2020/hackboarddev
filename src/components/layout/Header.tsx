@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { Button } from '../ui/button';
+import { useTheme } from 'next-themes';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -39,16 +40,16 @@ const Header: React.FC = () => {
             <a 
               key={item}
               href="#" 
-              className="text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors duration-200"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors duration-200"
             >
               {item}
             </a>
           ))}
         </nav>
 
-        <button className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg active:shadow-sm">
+        <Button className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg active:shadow-sm">
           Get Started
-        </button>
+        </Button>
       </div>
     </header>
   );

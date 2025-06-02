@@ -5,6 +5,8 @@ import LoadingSpinner from '../shared/LoadingSpinner';
 import { Button } from '../ui/button';
 import { Send, MessageCircle } from 'lucide-react';
 import dayjs from 'dayjs';
+import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
 
 const Guestbook: React.FC = () => {
   const [entries, setEntries] = useState<GuestbookEntry[]>([]);
@@ -74,7 +76,7 @@ const Guestbook: React.FC = () => {
       {/* Add new entry form */}
       <form onSubmit={handleSubmit} className="mb-6 space-y-4">
         <div>
-          <input
+          <Input
             type="text"
             placeholder="Your name"
             value={name}
@@ -84,7 +86,7 @@ const Guestbook: React.FC = () => {
           />
         </div>
         <div>
-          <textarea
+          <Textarea
             placeholder="Your message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}

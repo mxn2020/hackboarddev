@@ -300,13 +300,13 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             {isAuthenticated && (
-              <button
+              <Button
                 onClick={toggleSidebar}
                 className="inline-flex items-center justify-center p-2 rounded-md text-foreground hover:text-primary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary md:hidden" // Only show on mobile if sidebar is present
                 aria-label="Toggle sidebar"
               >
                 <Menu className="h-6 w-6" />
-              </button>
+              </Button>
             )}
             <Link to="/" className="flex items-center gap-2 ml-2 md:ml-0">
               {/* <Sparkles className="h-6 w-6 text-primary" /> */} {/* Replace with your logo/icon */}
@@ -361,9 +361,9 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
                       <Link to="/settings" className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center" onClick={() => setUserMenuOpen(false)}>
                         <Settings className="h-4 w-4 mr-2" /> Settings
                       </Link>
-                      <button onClick={() => { setUserMenuOpen(false); logout(); }} className="block w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center">
+                      <Button onClick={() => { setUserMenuOpen(false); logout(); }} className="block w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center">
                         <LogOut className="h-4 w-4 mr-2" /> Sign out
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </div>

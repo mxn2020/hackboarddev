@@ -56,9 +56,9 @@ const RegisterPage: React.FC = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="sr-only">
+              <Label htmlFor="name" className="sr-only">
                 Full name
-              </label>
+              </Label>
               <input
                 id="name"
                 name="name"
@@ -72,9 +72,9 @@ const RegisterPage: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="email" className="sr-only">
+              <Label htmlFor="email" className="sr-only">
                 Email address
-              </label>
+              </Label>
               <input
                 id="email"
                 name="email"
@@ -88,9 +88,9 @@ const RegisterPage: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
+              <Label htmlFor="password" className="sr-only">
                 Password
-              </label>
+              </Label>
               <input
                 id="password"
                 name="password"
@@ -104,9 +104,9 @@ const RegisterPage: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="confirmPassword" className="sr-only">
+              <Label htmlFor="confirmPassword" className="sr-only">
                 Confirm Password
-              </label>
+              </Label>
               <input
                 id="confirmPassword"
                 name="confirmPassword"

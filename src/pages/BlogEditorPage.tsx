@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useBlogAdmin } from '../contexts/BlogAdminContext';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 
 const BlogEditorPage: React.FC = () => {
   const { slug } = useParams();
@@ -96,7 +100,7 @@ const BlogEditorPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
           {isEditing ? 'Edit Blog Post' : 'Create New Blog Post'}
         </h1>
         <p className="text-gray-600 mt-2">
@@ -112,10 +116,10 @@ const BlogEditorPage: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Title *
-          </label>
-          <input
+          </Label>
+          <Input
             type="text"
             id="title"
             name="title"
@@ -128,10 +132,10 @@ const BlogEditorPage: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="summary" className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="summary" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Summary
-          </label>
-          <textarea
+          </Label>
+          <Textarea
             id="summary"
             name="summary"
             rows={3}
@@ -143,9 +147,9 @@ const BlogEditorPage: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Featured Image URL
-          </label>
+          </Label>
           <input
             type="url"
             id="imageUrl"
@@ -158,9 +162,9 @@ const BlogEditorPage: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="tags" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Tags
-          </label>
+          </Label>
           <input
             type="text"
             id="tags"
@@ -174,10 +178,10 @@ const BlogEditorPage: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Content *
-          </label>
-          <textarea
+          </Label>
+          <Textarea
             id="content"
             name="content"
             required
@@ -193,14 +197,14 @@ const BlogEditorPage: React.FC = () => {
         </div>
 
         <div className="flex justify-between items-center pt-6 border-t border-gray-200">
-          <button
+          <Button
             type="button"
             onClick={() => navigate('/admin/blog')}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 transition-colors"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={saving}
             className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center"
@@ -209,7 +213,7 @@ const BlogEditorPage: React.FC = () => {
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
             )}
             {saving ? 'Saving...' : (isEditing ? 'Update Post' : 'Create Post')}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

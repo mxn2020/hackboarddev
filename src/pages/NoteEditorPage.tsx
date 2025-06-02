@@ -6,6 +6,8 @@ import { Note } from '../types';
 import { Save, ArrowLeft, Eye, EyeOff, Tag, Plus, X } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { cn } from '../utils/cn';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 const NoteEditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -182,9 +184,9 @@ const NoteEditorPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-4">
             {/* Category */}
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Category:
-              </label>
+              </Label>
               <select
                 value={note.category || 'general'}
                 onChange={(e) => setNote(prev => ({ ...prev, category: e.target.value }))}
@@ -202,7 +204,7 @@ const NoteEditorPage: React.FC = () => {
 
             {/* Public Toggle */}
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 type="button"
                 onClick={() => setNote(prev => ({ ...prev, isPublic: !prev.isPublic }))}
                 className={cn(
@@ -223,15 +225,15 @@ const NoteEditorPage: React.FC = () => {
                     Private
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* Tags */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Tags:
-            </label>
+            </Label>
             
             {/* Existing Tags */}
             <div className="flex flex-wrap gap-2 mb-3">
@@ -242,13 +244,13 @@ const NoteEditorPage: React.FC = () => {
                 >
                   <Tag className="w-3 h-3" />
                   {tag}
-                  <button
+                  <Button
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
                     className="ml-1 hover:text-red-600 dark:hover:text-red-400"
                   >
                     <X className="w-3 h-3" />
-                  </button>
+                  </Button>
                 </span>
               ))}
             </div>
@@ -285,7 +287,7 @@ const NoteEditorPage: React.FC = () => {
 
         {/* Content Editor */}
         <div className="p-6">
-          <textarea
+          <Textarea
             placeholder="Start writing your note..."
             value={note.content || ''}
             onChange={(e) => setNote(prev => ({ ...prev, content: e.target.value }))}

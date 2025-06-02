@@ -28,13 +28,13 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             {isAuthenticated && !showMenu && (
-              <button
+              <Button
                 onClick={toggleSidebar}
                 className="inline-flex items-center justify-center p-2 rounded-md text-foreground hover:text-primary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary md:hidden"
                 aria-label="Toggle sidebar"
               >
                 <Menu className="h-6 w-6" />
-              </button>
+              </Button>
             )}
             <Link to="/" className="flex items-center gap-2 ml-2 md:ml-0">
               <img src="/logo.svg" alt="App Logo" className="h-7 w-7" />
@@ -49,8 +49,8 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
             <>
               {/* Mobile Menu Button */}
               <div className="md:hidden">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
                   onClick={toggleSidebar}
                   className="ml-2"
@@ -59,7 +59,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
                   <Menu className="h-5 w-5" />
                 </Button>
               </div>
-            
+
               {/* Desktop Navigation */}
               <nav className="hidden md:flex items-center space-x-4">
                 {isAuthenticated && (
@@ -127,9 +127,9 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
                 </Link>
                 <div className="relative">
                   <Button variant="ghost" size="icon" onClick={toggleUserMenu} aria-label="User Menu">
-                     <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground uppercase text-xs">
-                       {user?.name?.charAt(0) || 'U'}
-                     </div>
+                    <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground uppercase text-xs">
+                      {user?.name?.charAt(0) || 'U'}
+                    </div>
                   </Button>
                   {userMenuOpen && (
                     <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-popover ring-1 ring-border focus:outline-none">
@@ -141,16 +141,19 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
                             Admin
                           </span>
                         )}
-                      </div>
-                      <Link to="/profile" className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center" onClick={() => setUserMenuOpen(false)}>
+                        </div>
+                        <Link to="/profile" className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center" onClick={() => setUserMenuOpen(false)}>
                         <User className="h-4 w-4 mr-2" /> Profile
-                      </Link>
-                      <Link to="/settings" className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center" onClick={() => setUserMenuOpen(false)}>
+                        </Link>
+                        <Link to="/settings" className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center" onClick={() => setUserMenuOpen(false)}>
                         <Settings className="h-4 w-4 mr-2" /> Settings
-                      </Link>
-                      <button onClick={() => { setUserMenuOpen(false); logout(); }} className="block w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center">
+                        </Link>
+                        <button
+                        onClick={() => { setUserMenuOpen(false); logout(); }}
+                        className="block w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center cursor-pointer"
+                        >
                         <LogOut className="h-4 w-4 mr-2" /> Sign out
-                      </button>
+                        </button>
                     </div>
                   )}
                 </div>

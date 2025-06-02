@@ -22,27 +22,27 @@ const TestResultPanel: React.FC<TestResultPanelProps> = ({
   const statusConfig = {
     success: {
       icon: CheckCircle,
-      bgColor: 'bg-green-50 border-green-100',
-      textColor: 'text-green-800',
-      iconColor: 'text-green-600',
+      bgColor: 'bg-green-50 dark:bg-green-950/30 border-green-100 dark:border-green-900',
+      textColor: 'text-green-800 dark:text-green-400',
+      iconColor: 'text-green-600 dark:text-green-400',
     },
     error: {
       icon: AlertCircle,
-      bgColor: 'bg-red-50 border-red-100',
-      textColor: 'text-red-800',
-      iconColor: 'text-red-600',
+      bgColor: 'bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900',
+      textColor: 'text-red-800 dark:text-red-400',
+      iconColor: 'text-red-600 dark:text-red-400',
     },
     warning: {
       icon: AlertTriangle,
-      bgColor: 'bg-yellow-50 border-yellow-100',
-      textColor: 'text-yellow-800',
-      iconColor: 'text-yellow-600',
+      bgColor: 'bg-yellow-50 dark:bg-yellow-950/30 border-yellow-100 dark:border-yellow-900',
+      textColor: 'text-yellow-800 dark:text-yellow-400',
+      iconColor: 'text-yellow-600 dark:text-yellow-400',
     },
     info: {
       icon: Info,
-      bgColor: 'bg-blue-50 border-blue-100',
-      textColor: 'text-blue-800',
-      iconColor: 'text-blue-600',
+      bgColor: 'bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900',
+      textColor: 'text-blue-800 dark:text-blue-400',
+      iconColor: 'text-blue-600 dark:text-blue-400',
     },
   };
 
@@ -58,10 +58,10 @@ const TestResultPanel: React.FC<TestResultPanelProps> = ({
           <h3 className={`text-sm font-medium ${textColor}`}>
             {title}
           </h3>
-          <div className="mt-2 text-sm text-gray-600">
+          <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             <p>{message}</p>
             {details && Object.entries(details).length > 0 && (
-              <div className="mt-3 border-t border-gray-200 pt-3">
+              <div className="mt-3 border-t border-gray-200 dark:border-gray-700 pt-3">
                 {Object.entries(details).map(([key, value]) => (
                   <div key={key} className="grid grid-cols-3 gap-2 mb-1">
                     <span className="text-xs font-medium">{key}:</span>
