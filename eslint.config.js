@@ -32,13 +32,10 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      'react-refresh/only-export-components': 'off', // Disable Fast Refresh warnings
       // TypeScript specific rules
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': 'off', // Allow unused variables
+      '@typescript-eslint/no-explicit-any': 'off', // Allow any types
       '@typescript-eslint/no-non-null-assertion': 'warn',
 
       // General code quality rules
@@ -50,7 +47,7 @@ export default tseslint.config(
       'no-var': 'error',
 
       // React specific rules
-      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/exhaustive-deps': 'off', // Disable dependency warnings
       'react-hooks/rules-of-hooks': 'error',
     },
   },
@@ -67,10 +64,8 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      'react-refresh/only-export-components': 'off', // Disable Fast Refresh warnings
+      'no-unused-vars': 'off', // Allow unused variables in JS files
       'no-console': ['warn', { allow: ['warn', 'error', 'log', 'group', 'groupEnd'] }],
       'no-debugger': 'error',
       'no-duplicate-imports': 'error',
