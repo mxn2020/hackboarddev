@@ -1,0 +1,107 @@
+import React, { useState } from 'react';
+import { Search, PlusCircle, Bell, Settings, User, LogOut, Menu, Sun, Moon, BookOpen, Home as HomeIcon, Info } from 'lucide-react';
+import { Link, NavLink } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { useTheme } from 'next-themes';
+import { Button } from '../ui/button';
+
+interface NavbarProps {
+  toggleSidebar: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
+  const { user, logout, isAuthenticated } = useAuth();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const toggleUserMenu = () => setUserMenuOpen(!userMenuOpen);
+
+  const handleThemeToggle = () => {
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+  };
+
+  return (
+    <header className="sticky top-0 bg-background/80 dark:bg-gray-900/80 backdrop-blur-lg shadow-sm z-30 border-b border-border">
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            {isAuthenticated && (
+              <button
+                onClick={toggleSidebar}
+                className="inline-flex items-center justify-center p-2 rounded-md text-foreground hover:text-primary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary md:hidden"
+                aria-label="Toggle sidebar"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
+            )}
+            <Link to="/" className="flex items-center gap-2 ml-2 md:ml-0">
+              <img src="/logo.svg" alt="App Logo" className="h-7 w-7" />
+              <span className="font-semibold text-lg text-foreground">
+                AppTemplate
+              </span>
+            </Link>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center space-x-4">
+            <NavLink to="/" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Home</NavLink>
+            <NavLink to="/blog" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Blog</NavLink>
+            {isAuthenticated && <NavLink to="/dashboard" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Notes</NavLink>}
+            <NavLink to="/examples" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Examples</NavLink>
+          </nav>
+
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleThemeToggle}
+              aria-label="Toggle theme"
+            >
+              {resolvedTheme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </Button>
+
+            {isAuthenticated ? (
+              <>
+                <Link to="/notes/new">
+                  <Button variant="ghost" size="icon" aria-label="New Note">
+                    <PlusCircle className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <div className="relative">
+                  <Button variant="ghost" size="icon" onClick={toggleUserMenu} aria-label="User Menu">
+                     <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground uppercase text-xs">
+                       {user?.name?.charAt(0) || 'U'}
+                     </div>
+                  </Button>
+                  {userMenuOpen && (
+                    <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-popover ring-1 ring-border focus:outline-none">
+                      <div className="px-4 py-2 text-sm text-popover-foreground border-b border-border">
+                        <p className="font-medium">{user?.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                      </div>
+                      <Link to="/profile" className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center" onClick={() => setUserMenuOpen(false)}>
+                        <User className="h-4 w-4 mr-2" /> Profile
+                      </Link>
+                      <Link to="/settings" className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center" onClick={() => setUserMenuOpen(false)}>
+                        <Settings className="h-4 w-4 mr-2" /> Settings
+                      </Link>
+                      <button onClick={() => { setUserMenuOpen(false); logout(); }} className="block w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center">
+                        <LogOut className="h-4 w-4 mr-2" /> Sign out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <Link to="/login">
+                <Button variant="default" size="sm">Login</Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Navbar;

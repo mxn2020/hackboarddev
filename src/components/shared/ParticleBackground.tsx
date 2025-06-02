@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from 'next-themes';
 
 interface Particle {
   x: number;
@@ -17,7 +17,7 @@ const ParticleBackground: React.FC = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const particlesRef = useRef<Particle[]>([]);
   const animationRef = useRef<number>(0);
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   // Initialize canvas dimensions
   useEffect(() => {
@@ -25,7 +25,7 @@ const ParticleBackground: React.FC = () => {
       if (canvasRef.current) {
         setDimensions({
           width: window.innerWidth,
-          height: window.innerHeight
+          height: document.documentElement.scrollHeight
         });
       }
     };
@@ -69,7 +69,7 @@ const ParticleBackground: React.FC = () => {
 
     const lightColors = ['#3B82F6', '#8B5CF6', '#EC4899', '#06B6D4'];
     const darkColors = ['#93C5FD', '#C4B5FD', '#FBCFE8', '#67E8F9'];
-    const colors = theme === 'dark' ? darkColors : lightColors;
+    const colors = resolvedTheme === 'dark' ? darkColors : lightColors;
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
@@ -159,7 +159,7 @@ const ParticleBackground: React.FC = () => {
     return () => {
       cancelAnimationFrame(animationRef.current);
     };
-  }, [dimensions, mousePosition, theme]);
+  }, [dimensions, mousePosition, resolvedTheme]);
 
   return (
     <canvas 

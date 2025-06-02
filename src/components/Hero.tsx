@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useTheme } from '../context/ThemeContext';
-import TypeWriter from './TypeWriter';
+import { useTheme } from 'next-themes';
+import TypeWriter from './shared/TypeWriter';
 
 const Hero: React.FC = () => {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
