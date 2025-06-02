@@ -18,24 +18,24 @@ export const initConsoleTests = (
       testNavigationLayout: () => testNavigationLayout(currentUser, updateUserFn),
       runAllTests: async () => {
         console.group('🧪 Running All Tests');
-        
+
         console.log('📱 Testing Viewport Size');
         const viewportResult = testViewportSize();
         console.log(viewportResult);
-        
+
         console.log('🧑‍💼 Testing Profile Update');
         const profileResult = await testProfileUpdate(updateUserFn, currentUser);
         console.log(profileResult);
-        
+
         console.log('🧭 Testing Navigation Layout');
         const navInfo = testNavigationLayout(currentUser, updateUserFn);
         console.log({
           currentLayout: navInfo.currentLayout,
           newLayout: navInfo.newLayout,
         });
-        
+
         console.groupEnd();
-        
+
         return {
           viewport: viewportResult,
           profile: profileResult,
@@ -51,7 +51,7 @@ export const initConsoleTests = (
         console.groupEnd();
       }
     };
-    
+
     console.log('%c🧪 App Test Suite Initialized!', 'color: purple; font-weight: bold; font-size: 14px;');
     console.log('Type %cappTests.help()%c to see available commands', 'font-weight: bold; color: blue;', 'font-weight: normal;');
   }

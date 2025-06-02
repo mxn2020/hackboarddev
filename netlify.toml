@@ -16,6 +16,10 @@
   # Force fresh deployment
   external_node_modules = ["bcryptjs"]
 
+# Disable Edge Functions since we're not using any
+[edge_functions]
+  # Empty config to prevent Deno installation
+
 [dev]
   # Let Netlify auto-detect the framework and proxy properly
   autoLaunch = false

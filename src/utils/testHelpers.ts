@@ -16,15 +16,15 @@ export const testProfileUpdate = async (
     };
   }
 
-  const testName = `${currentUser.name || currentUser.username} (Test Update ${new Date().toISOString().slice(0, 10)})`;
-  
-  console.log(`Testing profile update with name: ${testName}`);
-  
+  const testName = `${currentUser.name} (Test Update ${new Date().toISOString().slice(0, 10)})`;
+
+  console.warn(`Testing profile update with name: ${testName}`);
+
   try {
     const updatedUser = await updateUserFn({
       name: testName
     });
-    
+
     if (!updatedUser) {
       return {
         success: false,
@@ -32,12 +32,12 @@ export const testProfileUpdate = async (
         originalValue: currentUser.name
       };
     }
-    
+
     const success = updatedUser.name === testName;
-    
+
     return {
       success,
-      message: success 
+      message: success
         ? `Profile update successful! Name changed to "${testName}"`
         : `Profile update failed. Expected "${testName}" but got "${updatedUser.name || 'undefined'}"`,
       originalValue: currentUser.name,
@@ -61,7 +61,7 @@ export const testViewportSize = () => {
   const width = window.innerWidth;
   const height = window.innerHeight;
   const isMobile = width < 768; // Common breakpoint for mobile devices
-  
+
   return {
     width,
     height,
@@ -104,12 +104,12 @@ export const testNavigationLayout = (
             menuLayout: newLayout
           }
         });
-        
+
         return {
           success: Boolean(updatedUser),
           previousLayout: currentLayout,
           currentLayout: updatedUser?.preferences?.menuLayout || currentLayout,
-          message: updatedUser 
+          message: updatedUser
             ? `Successfully switched layout to ${updatedUser.preferences?.menuLayout}`
             : 'Failed to update layout preference'
         };
@@ -140,15 +140,15 @@ export const testPerformance = () => {
 
   // Get performance timing metrics
   const perfData = window.performance.timing;
-  
+
   // Calculate key metrics
   const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
   const domReadyTime = perfData.domComplete - perfData.domLoading;
   const resourceLoadTime = perfData.loadEventEnd - perfData.domContentLoadedEventEnd;
-  
+
   // Get resource information
   const resources = window.performance.getEntriesByType('resource');
-  
+
   // Group resources by type
   const resourcesByType = resources.reduce((acc: Record<string, any[]>, resource: any) => {
     const type = resource.initiatorType || 'other';
@@ -156,11 +156,11 @@ export const testPerformance = () => {
     acc[type].push(resource);
     return acc;
   }, {});
-  
+
   // Calculate total resource size if available
   let totalResourceSize = 0;
   const resourceStats: Record<string, { count: number, size: number }> = {};
-  
+
   Object.entries(resourcesByType).forEach(([type, items]) => {
     const encodedBodySize = items.reduce((sum, item: any) => sum + (item.encodedBodySize || 0), 0);
     resourceStats[type] = {
@@ -169,7 +169,7 @@ export const testPerformance = () => {
     };
     totalResourceSize += encodedBodySize;
   });
-  
+
   return {
     supported: true,
     timing: {
