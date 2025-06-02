@@ -4,7 +4,7 @@ import { api } from '../utils/api';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { Note } from '../types';
 import { Edit, Trash2, Calendar, Tag, ArrowLeft, Share, Eye, EyeOff } from 'lucide-react';
-import Button from '../components/ui/button';
+import { Button } from '../components/ui/button';
 import { cn } from '../utils/cn';
 
 const NoteDetailPage: React.FC = () => {

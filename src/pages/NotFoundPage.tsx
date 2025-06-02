@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Search, ArrowLeft } from 'lucide-react';
-import Button from '../components/ui/button';
+import { Home, ArrowLeft } from 'lucide-react';
+import { Button } from '../components/ui/button';
 
 const NotFoundPage: React.FC = () => {
   return (
@@ -12,60 +12,45 @@ const NotFoundPage: React.FC = () => {
           404
         </div>
         
-        {/* Error Message */}
-        <div className="space-y-3">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Page Not Found
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
-            The page you're looking for doesn't exist or has been moved.
+        <div className="space-y-2">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Page Not Found</h1>
+          <p className="text-muted-foreground max-w-sm mx-auto">
+            Sorry, we couldn't find the page you're looking for. It might have been moved or deleted.
           </p>
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-6">
-          <Link to="/dashboard">
-            <Button className="inline-flex items-center gap-2">
-              <Home className="w-4 h-4" />
-              Go to Dashboard
-            </Button>
-          </Link>
+        
+        <div className="pt-6 flex flex-wrap gap-4 justify-center">
+          <Button asChild variant="outline">
+            <Link to="/" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Go Back
+            </Link>
+          </Button>
           
-          <button 
-            onClick={() => window.history.back()}
-            className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Go Back
-          </button>
+          <Button asChild>
+            <Link to="/" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Home Page
+            </Link>
+          </Button>
         </div>
-
-        {/* Additional Help */}
-        <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            Looking for something specific?
-          </p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            <Link 
-              to="/notes" 
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              My Notes
-            </Link>
-            <span className="text-gray-300 dark:text-gray-600">•</span>
-            <Link 
-              to="/blog" 
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              Blog
-            </Link>
-            <span className="text-gray-300 dark:text-gray-600">•</span>
-            <Link 
-              to="/examples" 
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              Examples
-            </Link>
+        
+        {/* Extra suggestions */}
+        <div className="mt-10 pt-10 border-t border-border">
+          <div className="text-sm text-muted-foreground">
+            <p className="mb-4 font-medium">You might want to check:</p>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/" className="underline hover:text-primary">Homepage</Link>
+              </li>
+              <li>
+                <Link to="/blog" className="underline hover:text-primary">Blog</Link>
+              </li>
+              <li>
+                <Link to="/examples" className="underline hover:text-primary">Examples</Link>
+              </li>
+              {/* Add links to other key sections */}
+            </ul>
           </div>
         </div>
       </div>

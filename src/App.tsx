@@ -55,7 +55,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 function AppContent() {
   const auth = useAuth();
-  
+
   // Initialize console tests when the app starts
   React.useEffect(() => {
     // Only in development mode
@@ -65,31 +65,31 @@ function AppContent() {
       });
     }
   }, [auth.user, auth.updateUser]);
-  
+
   return (
     <Router>
       <Routes>
-        {/* Home Page - No MainLayout */}
+        {/* Home Page has its own layout */}
         <Route path="/" element={<HomePage />} />
-        
+
         {/* Routes with MainLayout */}
-        <Route path="/" element={<MainLayout />}>
+        <Route element={<MainLayout />}>
           {/* Public Routes */}
-          <Route 
-            path="login" 
+          <Route
+            path="login"
             element={
               <PublicRoute>
                 <LoginPage />
               </PublicRoute>
-            } 
+            }
           />
-          <Route 
-            path="register" 
+          <Route
+            path="register"
             element={
               <PublicRoute>
                 <RegisterPage />
               </PublicRoute>
-            } 
+            }
           />
 
           {/* Public Blog Routes */}
@@ -98,111 +98,111 @@ function AppContent() {
           <Route path="examples" element={<ExamplesPage />} />
 
           {/* Protected Routes */}
-          <Route 
-            path="dashboard" 
+          <Route
+            path="dashboard"
             element={
               <ProtectedRoute>
                 <DashboardPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="notes" 
+          <Route
+            path="notes"
             element={
               <ProtectedRoute>
                 <NotesPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="notes/new" 
+          <Route
+            path="notes/new"
             element={
               <ProtectedRoute>
                 <NoteEditorPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="notes/:id" 
+          <Route
+            path="notes/:id"
             element={
               <ProtectedRoute>
                 <NoteDetailPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="notes/:id/edit" 
+          <Route
+            path="notes/:id/edit"
             element={
               <ProtectedRoute>
                 <NoteEditorPage />
               </ProtectedRoute>
-            } 
+            }
           />
 
           {/* Blog Admin Routes */}
-          <Route 
-            path="admin/blog" 
+          <Route
+            path="admin/blog"
             element={
               <ProtectedRoute>
                 <BlogAdminProvider>
                   <BlogAdminPage />
                 </BlogAdminProvider>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="admin/blog/new" 
+          <Route
+            path="admin/blog/new"
             element={
               <ProtectedRoute>
                 <BlogAdminProvider>
                   <BlogEditorPage />
                 </BlogAdminProvider>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="admin/blog/:slug/edit" 
+          <Route
+            path="admin/blog/:slug/edit"
             element={
               <ProtectedRoute>
                 <BlogAdminProvider>
                   <BlogEditorPage />
                 </BlogAdminProvider>
               </ProtectedRoute>
-            } 
+            }
           />
 
           {/* Profile and Settings Routes */}
-          <Route 
-            path="profile" 
+          <Route
+            path="profile"
             element={
               <ProtectedRoute>
                 <ProfilePage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="settings" 
+          <Route
+            path="settings"
             element={
               <ProtectedRoute>
                 <SettingsPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          
+
           {/* Test Tools Route */}
-          <Route 
-            path="test" 
+          <Route
+            path="test"
             element={
               <ProtectedRoute>
                 <TestPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          
+
           {/* 404 */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
-        </Routes>
+      </Routes>
     </Router>
   );
 }

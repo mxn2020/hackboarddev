@@ -3,7 +3,8 @@ import { useAuth } from '../hooks/useAuth';
 import { 
   testProfileUpdate, 
   testViewportSize,
-  testNavigationLayout
+  testNavigationLayout,
+  testPerformance
 } from '../utils/testHelpers';
 import { 
   Tabs, 
@@ -20,17 +21,28 @@ import {
   CardTitle,
 } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { CheckCircle, AlertCircle, ScreenShare, User, Menu, Info } from 'lucide-react';
+import { 
+  CheckCircle, 
+  AlertCircle, 
+  ScreenShare, 
+  User, 
+  Menu, 
+  Info, 
+  Gauge,
+  TestTube 
+} from 'lucide-react';
 
 const TestPage: React.FC = () => {
   const { user, updateUser } = useAuth();
-  const [testResults, setTestResults] = useState<any>({});
+  const [testResults, setTestResults] = useState<Record<string, any>>({});
   const [viewportInfo, setViewportInfo] = useState(testViewportSize());
   const [navInfo, setNavInfo] = useState(testNavigationLayout(user, updateUser));
+  const [performanceData, setPerformanceData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({
     profileTest: false,
     navTest: false,
-    viewportTest: false
+    viewportTest: false,
+    perfTest: false
   });
 
   // Function to run the profile update test
@@ -70,14 +82,36 @@ const TestPage: React.FC = () => {
     setIsLoading(prev => ({ ...prev, navTest: true }));
     try {
       const layoutInfo = testNavigationLayout(user, updateUser);
-      const result = await layoutInfo.switchLayout();
-      setNavInfo(testNavigationLayout(user, updateUser));
-      setTestResults(prev => ({ 
-        ...prev, 
-        navigation: result
-      }));
+      if (layoutInfo && layoutInfo.switchLayout) {
+        const result = await layoutInfo.switchLayout();
+        setNavInfo(testNavigationLayout(user, updateUser));
+        setTestResults(prev => ({ 
+          ...prev, 
+          navigation: result
+        }));
+      }
     } finally {
       setIsLoading(prev => ({ ...prev, navTest: false }));
+    }
+  };
+  
+  // Function to run performance tests
+  const runPerformanceTest = () => {
+    setIsLoading(prev => ({ ...prev, perfTest: true }));
+    try {
+      const result = testPerformance();
+      setPerformanceData(result);
+      setTestResults(prev => ({ 
+        ...prev, 
+        performance: {
+          success: result.supported,
+          message: result.supported 
+            ? `Page load time: ${result.timing?.pageLoadTime || 'N/A'}ms, Resources: ${result.resources?.total || 'N/A'}`
+            : result.message
+        }
+      }));
+    } finally {
+      setIsLoading(prev => ({ ...prev, perfTest: false }));
     }
   };
 
@@ -125,7 +159,7 @@ const TestPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <p className="mb-4">
-                <strong>Current username:</strong> {user?.name || user?.username || 'Not logged in'}
+                <strong>Current username:</strong> {user?.name || 'Not logged in'}
               </p>
               <p className="text-sm text-muted-foreground mb-6">
                 This test will add a timestamp to your current name and attempt to save it to the database.

@@ -124,3 +124,69 @@ export const testNavigationLayout = (
     }
   };
 };
+
+/**
+ * Helper function to measure performance metrics of the application
+ * @returns Performance metrics including load time, resource count, etc.
+ */
+export const testPerformance = () => {
+  // Check if performance API is available
+  if (typeof window === 'undefined' || !window.performance) {
+    return {
+      supported: false,
+      message: 'Performance API not supported in this browser'
+    };
+  }
+
+  // Get performance timing metrics
+  const perfData = window.performance.timing;
+  
+  // Calculate key metrics
+  const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
+  const domReadyTime = perfData.domComplete - perfData.domLoading;
+  const resourceLoadTime = perfData.loadEventEnd - perfData.domContentLoadedEventEnd;
+  
+  // Get resource information
+  const resources = window.performance.getEntriesByType('resource');
+  
+  // Group resources by type
+  const resourcesByType = resources.reduce((acc: Record<string, any[]>, resource: any) => {
+    const type = resource.initiatorType || 'other';
+    if (!acc[type]) acc[type] = [];
+    acc[type].push(resource);
+    return acc;
+  }, {});
+  
+  // Calculate total resource size if available
+  let totalResourceSize = 0;
+  let resourceStats: Record<string, { count: number, size: number }> = {};
+  
+  Object.entries(resourcesByType).forEach(([type, items]) => {
+    const encodedBodySize = items.reduce((sum, item: any) => sum + (item.encodedBodySize || 0), 0);
+    resourceStats[type] = {
+      count: items.length,
+      size: encodedBodySize / 1024 // KB
+    };
+    totalResourceSize += encodedBodySize;
+  });
+  
+  return {
+    supported: true,
+    timing: {
+      pageLoadTime: pageLoadTime, // ms
+      domReadyTime: domReadyTime, // ms
+      resourceLoadTime: resourceLoadTime, // ms
+    },
+    resources: {
+      total: resources.length,
+      totalSize: totalResourceSize / 1024, // KB
+      byType: resourceStats
+    },
+    // Only include memory info if the non-standard Chrome API is available
+    memory: (window.performance as any).memory ? {
+      jsHeapSizeLimit: Math.round((window.performance as any).memory.jsHeapSizeLimit / (1024 * 1024)),
+      totalJSHeapSize: Math.round((window.performance as any).memory.totalJSHeapSize / (1024 * 1024)),
+      usedJSHeapSize: Math.round((window.performance as any).memory.usedJSHeapSize / (1024 * 1024))
+    } : 'Memory API not available'
+  };
+};

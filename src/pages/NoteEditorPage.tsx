@@ -4,7 +4,7 @@ import { api } from '../utils/api';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { Note } from '../types';
 import { Save, ArrowLeft, Eye, EyeOff, Tag, Plus, X } from 'lucide-react';
-import Button from '../components/ui/button';
+import { Button } from '../components/ui/button';
 import { cn } from '../utils/cn';
 
 const NoteEditorPage: React.FC = () => {
