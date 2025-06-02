@@ -87,11 +87,22 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(null);
   };
 
-  const updateUser = (userData: Partial<User>) => {
+  const updateUser = async (userData: Partial<User>) => {
     if (user) {
-      const updatedUser = { ...user, ...userData };
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      try {
+        // Make API call to update user in the database
+        const response = await api.put('/auth/profile', userData);
+        
+        if (response.data.user) {
+          const updatedUser = response.data.user;
+          setUser(updatedUser);
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          return updatedUser;
+        }
+      } catch (error: any) {
+        console.error('Error updating user profile:', error);
+        throw new Error(error.response?.data?.error || error.message || 'Failed to update profile');
+      }
     }
   };
 

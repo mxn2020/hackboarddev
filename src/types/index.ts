@@ -5,6 +5,9 @@ export interface User {
   email: string;
   name: string;
   createdAt: string;
+  preferences?: {
+    menuLayout: 'sidebar' | 'header';
+  };
 }
 
 export interface Note {
@@ -59,7 +62,7 @@ export interface AuthContextType {
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
-  updateUser: (userData: Partial<User>) => void;
+  updateUser: (userData: Partial<User>) => Promise<User | undefined>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;

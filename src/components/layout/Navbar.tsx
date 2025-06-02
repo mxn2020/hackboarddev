@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, PlusCircle, Bell, Settings, User, LogOut, Menu, Sun, Moon, BookOpen, Home as HomeIcon, Info } from 'lucide-react';
+import { PlusCircle, Settings, User, LogOut, Menu, Sun, Moon, BookOpen, Home as HomeIcon, Info, FileText } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from 'next-themes';
@@ -7,11 +7,13 @@ import { Button } from '../ui/button';
 
 interface NavbarProps {
   toggleSidebar: () => void;
+  showMenu?: boolean;
+  isFixed?: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
+const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixed = false }) => {
   const { user, logout, isAuthenticated } = useAuth();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const toggleUserMenu = () => setUserMenuOpen(!userMenuOpen);
@@ -21,11 +23,11 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   };
 
   return (
-    <header className="sticky top-0 bg-background/80 dark:bg-gray-900/80 backdrop-blur-lg shadow-sm z-30 border-b border-border">
+    <header className={`${isFixed ? 'fixed' : 'sticky'} top-0 w-full bg-background/80 dark:bg-gray-900/80 backdrop-blur-lg shadow-sm z-30 border-b border-border`}>
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            {isAuthenticated && (
+            {isAuthenticated && !showMenu && (
               <button
                 onClick={toggleSidebar}
                 className="inline-flex items-center justify-center p-2 rounded-md text-foreground hover:text-primary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary md:hidden"
@@ -43,12 +45,60 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
           </div>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-4">
-            <NavLink to="/" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Home</NavLink>
-            <NavLink to="/blog" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Blog</NavLink>
-            {isAuthenticated && <NavLink to="/dashboard" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Notes</NavLink>}
-            <NavLink to="/examples" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Examples</NavLink>
-          </nav>
+          {showMenu && (
+            <>
+              {/* Mobile Menu Button */}
+              <div className="md:hidden">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={toggleSidebar}
+                  className="ml-2"
+                  aria-label="Menu"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </div>
+            
+              {/* Desktop Navigation */}
+              <nav className="hidden md:flex items-center space-x-4">
+                {isAuthenticated && (
+                  <>
+                    <NavLink to="/dashboard" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+                      <div className="flex items-center">
+                        <HomeIcon className="h-4 w-4 mr-1" />
+                        Dashboard
+                      </div>
+                    </NavLink>
+                    <NavLink to="/notes" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+                      <div className="flex items-center">
+                        <FileText className="h-4 w-4 mr-1" />
+                        Notes
+                      </div>
+                    </NavLink>
+                    <NavLink to="/admin/blog" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+                      <div className="flex items-center">
+                        <BookOpen className="h-4 w-4 mr-1" />
+                        Blog Admin
+                      </div>
+                    </NavLink>
+                  </>
+                )}
+                <NavLink to="/blog" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+                  <div className="flex items-center">
+                    <BookOpen className="h-4 w-4 mr-1" />
+                    Blog
+                  </div>
+                </NavLink>
+                <NavLink to="/examples" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+                  <div className="flex items-center">
+                    <Info className="h-4 w-4 mr-1" />
+                    Examples
+                  </div>
+                </NavLink>
+              </nav>
+            </>
+          )}
 
           <div className="flex items-center space-x-2">
             <Button

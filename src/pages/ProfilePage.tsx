@@ -37,24 +37,17 @@ const ProfilePage: React.FC = () => {
     setErrorMessage('');
     setSuccessMessage('');
 
-    // For now, simulating an API update since we don't have the API implemented yet
     try {
-      // Here we would make an API call to update the user profile
-      // const response = await api.put('/user/profile', formData);
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update the user in the context
-      updateUser({
+      // Call the updateUser function which now makes an API call
+      await updateUser({
         name: formData.name,
         email: formData.email
       });
       
       setSuccessMessage('Profile updated successfully!');
       setIsEditing(false);
-    } catch (error) {
-      setErrorMessage('Failed to update profile. Please try again.');
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Failed to update profile. Please try again.');
       console.error('Error updating profile:', error);
     } finally {
       setIsSubmitting(false);

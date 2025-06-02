@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Bell, Moon, Sun, Monitor, Shield, Key, Eye, EyeOff, Save, Mail } from 'lucide-react';
 
 const SettingsPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('general');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -14,6 +14,7 @@ const SettingsPage: React.FC = () => {
     theme: 'system',
     notifications: true,
     emailNotifications: true,
+    menuLayout: user?.preferences?.menuLayout || 'sidebar',
   });
 
   // Security settings
@@ -59,6 +60,13 @@ const SettingsPage: React.FC = () => {
       } else {
         // System theme detection would go here
       }
+
+      // Update user preferences
+      await updateUser({
+        preferences: {
+          menuLayout: generalSettings.menuLayout
+        }
+      });
       
       setSuccessMessage('Settings saved successfully!');
     } catch (error) {
@@ -211,6 +219,41 @@ const SettingsPage: React.FC = () => {
                     <label htmlFor="theme-dark" className="ml-3 block text-sm font-medium text-gray-700 flex items-center">
                       <Moon className="mr-2 h-5 w-5 text-gray-400" />
                       Dark
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6">
+                <label className="text-base font-medium text-gray-900">Menu Layout</label>
+                <p className="text-sm text-gray-500 mb-3">Choose your preferred navigation layout</p>
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <input
+                      id="menu-sidebar"
+                      name="menuLayout"
+                      type="radio"
+                      value="sidebar"
+                      checked={generalSettings.menuLayout === 'sidebar'}
+                      onChange={handleGeneralChange}
+                      className="h-4 w-4 text-blue-600 border-gray-300"
+                    />
+                    <label htmlFor="menu-sidebar" className="ml-3 block text-sm font-medium text-gray-700">
+                      Sidebar Menu
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="menu-header"
+                      name="menuLayout"
+                      type="radio"
+                      value="header"
+                      checked={generalSettings.menuLayout === 'header'}
+                      onChange={handleGeneralChange}
+                      className="h-4 w-4 text-blue-600 border-gray-300"
+                    />
+                    <label htmlFor="menu-header" className="ml-3 block text-sm font-medium text-gray-700">
+                      Header Menu
                     </label>
                   </div>
                 </div>

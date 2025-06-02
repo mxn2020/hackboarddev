@@ -46,6 +46,11 @@ exports.handler = async (event) => {
           return await handleGetMe(event);
         }
         break;
+      case 'PUT':
+        if (action === 'profile') {
+          return await handleUpdateProfile(event);
+        }
+        break;
       case 'DELETE':
         if (action === 'logout') {
           return await handleLogout(event);
@@ -310,6 +315,98 @@ async function handleLogout(event) {
       statusCode: 500,
       headers: corsHeaders,
       body: JSON.stringify({ error: 'Failed to logout' }),
+    };
+  }
+}
+
+async function handleUpdateProfile(event) {
+  try {
+    // Verify token
+    const authHeader = event.headers.authorization || event.headers.Authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return {
+        statusCode: 401,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'No token provided' }),
+      };
+    }
+
+    const token = authHeader.substring(7);
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // Get user data
+    const userData = await redis.get(`user:${decoded.userId}`);
+    if (!userData) {
+      return {
+        statusCode: 404,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'User not found' }),
+      };
+    }
+
+    // Safely parse user data
+    let user;
+    try {
+      user = typeof userData === 'string' ? JSON.parse(userData) : userData;
+    } catch (parseError) {
+      console.error('Failed to parse user data:', parseError);
+      return {
+        statusCode: 500,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'Invalid user data' }),
+      };
+    }
+
+    // Parse request body
+    let body;
+    if (typeof event.body === 'string') {
+      body = JSON.parse(event.body);
+    } else if (event.body && typeof event.body === 'object') {
+      body = event.body;
+    } else {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'Invalid request body' }),
+      };
+    }
+
+    // Update user fields
+    const updatedUser = {
+      ...user,
+      name: body.name || user.name || user.username,
+      email: body.email || user.email,
+      preferences: body.preferences || user.preferences,
+      updatedAt: new Date().toISOString()
+    };
+
+    // If email is changed, we need to update the email index
+    if (body.email && body.email !== user.email) {
+      // Remove old email index
+      await redis.del(`user:email:${user.email}`);
+      // Add new email index
+      await redis.set(`user:email:${body.email}`, user.id);
+    }
+
+    // Save updated user
+    await redis.set(`user:${user.id}`, JSON.stringify(updatedUser));
+
+    // Return user data without password
+    const { password: _, ...userWithoutPassword } = updatedUser;
+
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        user: userWithoutPassword
+      }),
+    };
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: 'Failed to update profile' }),
     };
   }
 }
