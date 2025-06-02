@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import TypeWriter from '../components/shared/TypeWriter';
 import ParticleBackground from '../components/shared/ParticleBackground';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from 'next-themes';
-import { BookOpen, Info, Home as HomeIcon, FileText, Users, Sun, Moon } from 'lucide-react';
+import { BookOpen, Info, Home as HomeIcon, FileText, Users, Sun, Moon, Calendar, User, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { api } from '../utils/api';
+import { BlogPost } from '../types';
+import dayjs from 'dayjs';
 
 const HomePage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { setTheme, resolvedTheme } = useTheme();
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
   
   const handleThemeToggle = () => {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
@@ -21,6 +26,26 @@ const HomePage: React.FC = () => {
     "Build Modern Web Apps",
     "Powered by Vite & Tailwind"
   ];
+
+  // Fetch blog posts for the homepage preview
+  useEffect(() => {
+    const fetchBlogPosts = async () => {
+      try {
+        setLoadingPosts(true);
+        const response = await api.get('/blog');
+        if (response.data.success) {
+          // Get only the latest 3 posts for homepage preview
+          setBlogPosts(response.data.data.slice(0, 3));
+        }
+      } catch (error) {
+        console.error('Error fetching blog posts:', error);
+        // Keep loading state to false even on error so page still renders
+      } finally {
+        setLoadingPosts(false);
+      }
+    };
+    fetchBlogPosts();
+  }, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -323,33 +348,91 @@ const HomePage: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {/* Sample blog posts - these would typically come from your API */}
-            <div className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300">
-              <div className="h-48 bg-gradient-to-br from-blue-400 to-purple-500"></div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-3">Getting Started with React and TypeScript</h3>
-                <p className="text-muted-foreground mb-4 line-clamp-2">Learn how to set up a new project with React and TypeScript using Vite.</p>
-                <Link to="/blog/getting-started" className="text-primary hover:text-primary/80 font-medium text-sm">Read More</Link>
+            {loadingPosts ? (
+              // Loading skeleton for blog posts
+              Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="bg-card border border-border rounded-xl overflow-hidden animate-pulse">
+                  <div className="h-48 bg-muted"></div>
+                  <div className="p-6 space-y-3">
+                    <div className="h-4 bg-muted rounded w-3/4"></div>
+                    <div className="h-3 bg-muted rounded"></div>
+                    <div className="h-3 bg-muted rounded w-5/6"></div>
+                    <div className="h-8 bg-muted rounded w-24 mt-4"></div>
+                  </div>
+                </div>
+              ))
+            ) : blogPosts.length > 0 ? (
+              // Real blog posts
+              blogPosts.map((post) => (
+                <div key={post.id} className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  {post.imageUrl ? (
+                    <div className="h-48 overflow-hidden">
+                      <img 
+                        src={post.imageUrl} 
+                        alt={post.title}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-48 bg-gradient-to-br from-blue-400 to-purple-500"></div>
+                  )}
+                  <div className="p-6">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        <span>{dayjs(post.publishedDate).format('MMM DD, YYYY')}</span>
+                      </div>
+                      {post.author && (
+                        <div className="flex items-center gap-1">
+                          <User className="h-4 w-4" />
+                          <span>{post.author}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <h3 className="text-xl font-semibold mb-3 hover:text-primary transition-colors">
+                      <Link to={`/blog/${post.slug}`}>
+                        {post.title}
+                      </Link>
+                    </h3>
+                    
+                    <p className="text-muted-foreground mb-4 line-clamp-2">
+                      {post.summary || 'No summary available.'}
+                    </p>
+                    
+                    {post.tags && post.tags.length > 0 && (
+                      <div className="flex items-center gap-2 mb-4">
+                        <Tag className="h-4 w-4 text-muted-foreground" />
+                        <div className="flex gap-2 flex-wrap">
+                          {post.tags.slice(0, 3).map((tag, index) => (
+                            <span 
+                              key={index}
+                              className="px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded-md"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          {post.tags.length > 3 && (
+                            <span className="text-xs text-muted-foreground">
+                              +{post.tags.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    <Link to={`/blog/${post.slug}`} className="text-primary hover:text-primary/80 font-medium text-sm">
+                      Read More
+                    </Link>
+                  </div>
+                </div>
+              ))
+            ) : (
+              // No posts fallback
+              <div className="col-span-full text-center py-8">
+                <p className="text-muted-foreground">No blog posts available yet. Check back soon!</p>
               </div>
-            </div>
-            
-            <div className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300">
-              <div className="h-48 bg-gradient-to-br from-green-400 to-teal-500"></div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-3">Building a Modern UI with Tailwind CSS</h3>
-                <p className="text-muted-foreground mb-4 line-clamp-2">Discover how to create beautiful interfaces using Tailwind's utility-first approach.</p>
-                <Link to="/blog/tailwind-ui" className="text-primary hover:text-primary/80 font-medium text-sm">Read More</Link>
-              </div>
-            </div>
-            
-            <div className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300">
-              <div className="h-48 bg-gradient-to-br from-red-400 to-orange-500"></div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-3">Authentication Best Practices</h3>
-                <p className="text-muted-foreground mb-4 line-clamp-2">Learn how to implement secure authentication in your React applications.</p>
-                <Link to="/blog/auth-best-practices" className="text-primary hover:text-primary/80 font-medium text-sm">Read More</Link>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
