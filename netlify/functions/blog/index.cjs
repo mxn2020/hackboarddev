@@ -92,8 +92,8 @@ exports.handler = async (event, context) => {
     return { statusCode: 500, headers, body: JSON.stringify({ success: false, error: 'Redis not available' }) };
   }
   
-  // Seed posts on first call
-  await seedBlogPosts();
+  // Seed posts on first call - DISABLED for role-based system
+  // await seedBlogPosts();
 
   // Handle both direct function calls and API redirects
   let pathForParsing = event.path;
@@ -185,6 +185,7 @@ exports.handler = async (event, context) => {
         content,
         summary: summary || '',
         author: user.email || 'Anonymous',
+        authorId: user.userId, // Store the author's user ID
         publishedDate: new Date().toISOString(),
         tags: JSON.stringify(Array.isArray(tags) ? tags : []),
         imageUrl: imageUrl || '',
@@ -215,6 +216,14 @@ exports.handler = async (event, context) => {
       const existingPost = await redis.hgetall(`blog:post:${slug}`);
       if (!existingPost || !existingPost.id) {
         return { statusCode: 404, headers, body: JSON.stringify({ success: false, error: 'Post not found' }) };
+      }
+
+      // Check permissions: user can only edit their own posts, admin can edit any post
+      const isAdmin = user.role === 'admin';
+      const isOwner = existingPost.authorId === user.userId;
+      
+      if (!isAdmin && !isOwner) {
+        return { statusCode: 403, headers, body: JSON.stringify({ success: false, error: 'You can only edit your own blog posts' }) };
       }
 
       const { title, content, summary, tags, imageUrl } = data;
@@ -289,6 +298,14 @@ exports.handler = async (event, context) => {
       const existingPost = await redis.hgetall(`blog:post:${slug}`);
       if (!existingPost || !existingPost.id) {
         return { statusCode: 404, headers, body: JSON.stringify({ success: false, error: 'Post not found' }) };
+      }
+
+      // Check permissions: user can only delete their own posts, admin can delete any post
+      const isAdmin = user.role === 'admin';
+      const isOwner = existingPost.authorId === user.userId;
+      
+      if (!isAdmin && !isOwner) {
+        return { statusCode: 403, headers, body: JSON.stringify({ success: false, error: 'You can only delete your own blog posts' }) };
       }
 
       await redis.del(`blog:post:${slug}`);

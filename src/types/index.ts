@@ -4,6 +4,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  role: 'user' | 'admin';
   createdAt: string;
   preferences?: {
     menuLayout: 'sidebar' | 'header';
@@ -40,6 +41,7 @@ export interface BlogPost {
   slug: string;
   title: string;
   author?: string;
+  authorId?: string;
   publishedDate: string; // ISO Date string
   summary: string;
   content: string; // Markdown content

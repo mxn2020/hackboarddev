@@ -17,7 +17,8 @@
     "deploy:prod": "netlify deploy --prod",
     "validate-env": "./validate-env.sh",
     "clean": "rm -rf dist node_modules/.vite",
-    "test-api": "curl -X GET http://localhost:8888/.netlify/functions/notes"
+    "test-api": "curl -X GET http://localhost:8888/.netlify/functions/notes",
+    "seed:admin": "node scripts/seed-admin.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -60,6 +61,7 @@
     "cookie": "^1.0.2",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.13",
+    "dotenv": "^16.5.0",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.2",

@@ -119,8 +119,10 @@ async function handleRegister(event) {
     const user = {
       id: userId,
       username,
+      name: username, // Add name field for consistency
       email,
       password: hashedPassword,
+      role: 'user', // Default role for new users
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -130,7 +132,11 @@ async function handleRegister(event) {
     await redis.set(`user:email:${email}`, userId);
 
     // Generate JWT token
-    const token = jwt.sign({ userId, email }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ 
+      userId, 
+      email,
+      role: 'user'
+    }, JWT_SECRET, { expiresIn: '7d' });
 
     // Return user data without password
     const { password: _, ...userWithoutPassword } = user;
@@ -223,7 +229,11 @@ async function handleLogin(event) {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ 
+      userId: user.id, 
+      email: user.email,
+      role: user.role || 'user'
+    }, JWT_SECRET, { expiresIn: '7d' });
 
     // Return user data without password
     const { password: _, ...userWithoutPassword } = user;

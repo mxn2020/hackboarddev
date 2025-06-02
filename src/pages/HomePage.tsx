@@ -4,11 +4,16 @@ import TypeWriter from '../components/shared/TypeWriter';
 import ParticleBackground from '../components/shared/ParticleBackground';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from 'next-themes';
-import { BookOpen, Info, Home as HomeIcon, FileText, Users, Sun, Moon, Calendar, User, Tag } from 'lucide-react';
+import { 
+  BookOpen, Info, Home as HomeIcon, FileText, Users, Sun, Moon, Calendar, User, Tag,
+  Shield, Database, Zap, Globe, Code2, Layers, Smartphone, Lock, 
+  Cloud, Palette, RefreshCw, Activity, Cog
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { api } from '../utils/api';
 import { BlogPost } from '../types';
 import dayjs from 'dayjs';
+import { ShadcnLogo, VitejsLogo, TailwindcssLogo, ReactLogo, TypescriptLogo, UpstashLogo, NetlifyLogo, ZodLogo } from './Logos';
 
 const HomePage: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -218,7 +223,7 @@ const HomePage: React.FC = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-16">Key Features</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-6">
                 <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -232,7 +237,7 @@ const HomePage: React.FC = () => {
                 <FileText className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
               <h3 className="text-xl font-semibold mb-3">Notes Management</h3>
-              <p className="text-muted-foreground">Create, edit, and organize your notes with categories and tags.</p>
+              <p className="text-muted-foreground">Create, edit, and organize your notes with categories and tags. Fully private and secure.</p>
             </div>
             
             <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
@@ -240,95 +245,351 @@ const HomePage: React.FC = () => {
                 <BookOpen className="w-6 h-6 text-pink-600 dark:text-pink-400" />
               </div>
               <h3 className="text-xl font-semibold mb-3">Blog Platform</h3>
-              <p className="text-muted-foreground">Publish and manage blog posts with a clean, responsive design.</p>
+              <p className="text-muted-foreground">Publish and manage blog posts with public reading and secure admin controls.</p>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6">
+                <Shield className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">API Security</h3>
+              <p className="text-muted-foreground">Multi-level security: public APIs for demos, auth-required for personal data, and admin controls for content.</p>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mb-6">
+                <Database className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Redis Database</h3>
+              <p className="text-muted-foreground">Lightning-fast data storage with Upstash Redis for optimal performance and reliability.</p>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-cyan-100 dark:bg-cyan-900/30 rounded-full flex items-center justify-center mb-6">
+                <Zap className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Real-time Features</h3>
+              <p className="text-muted-foreground">Live counter updates, instant guestbook posts, and dynamic content loading for engaging user experience.</p>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6">
+                <Globe className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Serverless Architecture</h3>
+              <p className="text-muted-foreground">Built on Netlify Functions for infinite scalability, zero server maintenance, and global edge deployment.</p>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900/30 rounded-full flex items-center justify-center mb-6">
+                <Smartphone className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Responsive Design</h3>
+              <p className="text-muted-foreground">Mobile-first design that looks perfect on any device with Tailwind CSS and modern UI components.</p>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mb-6">
+                <Palette className="w-6 h-6 text-rose-600 dark:text-rose-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Dark Mode Support</h3>
+              <p className="text-muted-foreground">Beautiful dark and light themes with system preference detection and smooth transitions.</p>
             </div>
           </div>
         </div>
       </section>
       
-      {/* Tech Stack Section */}
-      <section className="relative z-10 py-12 md:py-20">
+      {/* Developer Features Section */}
+      <section className="relative z-10 py-12 md:py-20 bg-gradient-to-br from-violet-500/10 to-indigo-500/10 dark:from-violet-600/20 dark:to-indigo-600/20 backdrop-blur-sm">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Powered By</h2>
-          <p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto mb-12">
-            Built with modern technologies for performance, reliability, and developer experience.
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Developer Experience</h2>
+          <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto mb-12">
+            Built with developer productivity in mind. Everything you need to ship fast and maintain easily.
           </p>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-8 justify-items-center">
-            {/* React */}
-            <div className="flex flex-col items-center">
-              <div className="h-16 w-16 mb-3 flex items-center justify-center">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" className="max-h-full max-w-full" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center mb-4">
+                <Code2 className="w-6 h-6 text-violet-600 dark:text-violet-400" />
               </div>
-              <span className="text-sm font-medium">React</span>
+              <h3 className="text-lg font-semibold mb-2">TypeScript Ready</h3>
+              <p className="text-sm text-muted-foreground">Full TypeScript support with strict type checking and IntelliSense.</p>
             </div>
-            
-            {/* Tailwind */}
-            <div className="flex flex-col items-center">
-              <div className="h-16 w-16 mb-3 flex items-center justify-center">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg" alt="Tailwind CSS" className="max-h-full max-w-full" />
+
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-4">
+                <Layers className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <span className="text-sm font-medium">Tailwind CSS</span>
+              <h3 className="text-lg font-semibold mb-2">Component Library</h3>
+              <p className="text-sm text-muted-foreground">Pre-built shadcn/ui components for rapid development.</p>
             </div>
-            
-            {/* Shadcn UI */}
-            <div className="flex flex-col items-center">
-              <div className="h-16 w-16 mb-3 flex items-center justify-center bg-black rounded-full p-2">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" className="max-h-full max-w-full">
-                  <path fill="#fff" d="M165.7 84.3a8.1 8.1 0 0 0-11.4 0l-62 62a8.1 8.1 0 0 0 11.4 11.4l62-62c3.1-3.1 3.1-8.2 0-11.4ZM128 40a88 88 0 1 0 88 88 88.1 88.1 0 0 0-88-88Zm0 160a72 72 0 1 1 72-72 72.1 72.1 0 0 1-72 72Z"/>
+
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mb-4">
+                <RefreshCw className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Hot Reload</h3>
+              <p className="text-sm text-muted-foreground">Instant development feedback with Vite's lightning-fast HMR.</p>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4">
+                <Cog className="w-6 h-6 text-red-600 dark:text-red-400" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Zero Config</h3>
+              <p className="text-sm text-muted-foreground">Preconfigured build tools, linting, and deployment ready.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Architecture Highlights */}
+      <section className="relative z-10 py-12 md:py-20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Modern Architecture</h2>
+            <p className="text-lg text-muted-foreground">
+              Built on proven technologies and best practices for production-ready applications.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Security First</h3>
+              <p className="text-muted-foreground">JWT authentication, secure API endpoints, and protection against common vulnerabilities.</p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Activity className="w-8 h-8 text-green-600 dark:text-green-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Performance Optimized</h3>
+              <p className="text-muted-foreground">Code splitting, lazy loading, and optimized bundles for lightning-fast user experience.</p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Cloud className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Cloud Native</h3>
+              <p className="text-muted-foreground">Serverless functions, global CDN, and automatic scaling for worldwide performance.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tech Stack Section */}
+      <section className="relative z-10 py-12 md:py-20 bg-gradient-to-br from-slate-500/10 to-gray-500/10 dark:from-slate-600/20 dark:to-gray-600/20 backdrop-blur-sm">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Built with Modern Tech Stack</h2>
+            <p className="text-lg text-muted-foreground">
+              Powered by cutting-edge technologies for optimal performance and developer experience.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-5xl mx-auto">
+            <div className="flex flex-col items-center p-4 bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-16 h-16 mb-3 flex items-center justify-center">
+                <ReactLogo size="64px" />
+              </div>
+              <h3 className="font-semibold text-sm">React</h3>
+              <p className="text-xs text-muted-foreground text-center">Frontend Library</p>
+            </div>
+
+            <div className="flex flex-col items-center p-4 bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-16 h-16 mb-3 flex items-center justify-center">
+                <TypescriptLogo size="64px" />
+              </div>
+              <h3 className="font-semibold text-sm">TypeScript</h3>
+              <p className="text-xs text-muted-foreground text-center">Type Safety</p>
+            </div>
+
+            <div className="flex flex-col items-center p-4 bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-16 h-16 mb-3 flex items-center justify-center">
+                <VitejsLogo size="64px" />
+              </div>
+              <h3 className="font-semibold text-sm">Vite</h3>
+              <p className="text-xs text-muted-foreground text-center">Build Tool</p>
+            </div>
+
+            <div className="flex flex-col items-center p-4 bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-16 h-16 mb-3 flex items-center justify-center">
+                <ShadcnLogo size="64px" />
+              </div>
+              <h3 className="font-semibold text-sm">shadcn/ui</h3>
+              <p className="text-xs text-muted-foreground text-center">UI Components</p>
+            </div>
+
+            <div className="flex flex-col items-center p-4 bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-16 h-16 mb-3 flex items-center justify-center">
+                <TailwindcssLogo size="64px" />
+              </div>
+              <h3 className="font-semibold text-sm">Tailwind</h3>
+              <p className="text-xs text-muted-foreground text-center">CSS Framework</p>
+            </div>
+
+            <div className="flex flex-col items-center p-4 bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-16 h-16 mb-3 flex items-center justify-center">
+                <UpstashLogo size="64px" />
+              </div>
+              <h3 className="font-semibold text-sm">Upstash Redis</h3>
+              <p className="text-xs text-muted-foreground text-center">Database</p>
+            </div>
+
+            <div className="flex flex-col items-center p-4 bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-16 h-16 mb-3 flex items-center justify-center">
+                <NetlifyLogo size="64px" />
+              </div>
+              <h3 className="font-semibold text-sm">Netlify</h3>
+              <p className="text-xs text-muted-foreground text-center">Deployment</p>
+            </div>
+
+            <div className="flex flex-col items-center p-4 bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-16 h-16 mb-3 flex items-center justify-center">
+                <ZodLogo size="64px" />
+              </div>
+              <h3 className="font-semibold text-sm">Zod</h3>
+              <p className="text-xs text-muted-foreground text-center">Schema Validation</p>
+            </div>
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-muted-foreground mb-6">
+              Plus many more powerful tools: shadcn/ui, Lucide Icons, JWT, bcrypt, and more
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              <span className="flex items-center gap-1.5 px-3 py-1 bg-secondary text-secondary-foreground text-xs rounded-full">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="0.8" fill="none"/>
+                  <circle cx="6" cy="6" r="2" fill="currentColor"/>
+                  <path d="M6 2L7 5L6 6L5 5Z" fill="currentColor"/>
+                  <path d="M10 6L7 7L6 6L7 5Z" fill="currentColor"/>
+                  <path d="M6 10L5 7L6 6L7 7Z" fill="currentColor"/>
+                  <path d="M2 6L5 5L6 6L5 7Z" fill="currentColor"/>
                 </svg>
-              </div>
-              <span className="text-sm font-medium">shadcn/ui</span>
-            </div>
-            
-            {/* Zustand */}
-            <div className="flex flex-col items-center">
-              <div className="h-16 w-16 mb-3 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="max-h-full max-w-full">
-                  <path fill="currentColor" d="M16.43 0c-1.285.023-2.482.447-3.325 1.146a5.28 5.28 0 0 0-.652.596C11.596 1.007 10.4.584 9.117.562 4.953.503 2.522 5.146 5.289 10.42a15.96 15.96 0 0 0 1.057 1.72l.574.794a15.591 15.591 0 0 0 .774 1.06 14.976 14.976 0 0 0 1.77 1.886c1.178 1.074 2.258 1.67 3.12 1.67.208 0 .405-.027.586-.082.52-.143.942-.5 1.245-.876.304.375.725.733 1.245.876.182.055.378.082.585.082.863 0 1.943-.596 3.121-1.67a15.001 15.001 0 0 0 2.172-2.381c.203-.282.404-.577.597-.884l.408-.564c.145-.199.271-.375.397-.57A7.541 7.541 0 0 0 24 7.667c0-3.616-2.57-7.674-7.57-7.667zm-4.43 13.433a1.976 1.976 0 0 0-1.42.612A1.985 1.985 0 0 0 10 15.6c0 1.104.896 2 2 2s2-.896 2-2c0-.737-.406-1.375-1-1.722-.183-.101-.379-.167-.587-.19a2.235 2.235 0 0 0-.413 0zm4 0a1.976 1.976 0 0 0-1.42.612c-.364.365-.58.864-.58 1.555 0 1.104.896 2 2 2s2-.896 2-2c0-.737-.406-1.375-1-1.722-.183-.101-.379-.167-.587-.19a2.235 2.235 0 0 0-.413 0z"/>
+                Lucide Icons
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1 bg-secondary text-secondary-foreground text-xs rounded-full">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="3" width="10" height="6" rx="1" stroke="currentColor" strokeWidth="0.8" fill="none"/>
+                  <path d="M3 3V2a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" stroke="currentColor" strokeWidth="0.8"/>
+                  <circle cx="6" cy="6" r="1" fill="currentColor"/>
                 </svg>
-              </div>
-              <span className="text-sm font-medium">Zustand</span>
-            </div>
-            
-            {/* Zod */}
-            <div className="flex flex-col items-center">
-              <div className="h-16 w-16 mb-3 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="max-h-full max-w-full">
-                  <path fill="#18B6F6" d="m14.1 24-3.6-3.62 7.4-7.39 3.62 3.61zm8.5-14.25-3.61-3.61 1.26-1.26 3.61 3.6zM14.1 3.75l3.62-3.6L14.1 0l-3.61 3.62z"/>
-                  <path fill="#0784C3" d="m14.1 24-3.6-3.62h7.28l-3.61 3.62h-.07zm3.8-17.5-3.62 3.62h7.22zm-3.73-2.75L21 3.68h-7.22zm-3.68 17.5H3.3l7.2-7.4-3.63-3.6 3.63-3.62L21.38 16.5h-7.27z"/>
-                  <path fill="#0C63A6" d="M10.49 10.12h7.27L3.92 24l10.6-13.88z"/>
-                  <path fill="#0C63A6" d="M10.5 3.75 3.92 0l6.57 7.38V3.75z"/>
+                JWT Auth
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1 bg-secondary text-secondary-foreground text-xs rounded-full">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="0.8" fill="none"/>
+                  <path d="M4 6L5.5 7.5L8 4.5" stroke="currentColor" strokeWidth="1" fill="none"/>
                 </svg>
-              </div>
-              <span className="text-sm font-medium">Zod</span>
-            </div>
-            
-            {/* Netlify */}
-            <div className="flex flex-col items-center">
-              <div className="h-16 w-16 mb-3 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" className="max-h-full max-w-full">
-                  <path fill="#20C6B7" d="M28.589 14.135l-.014-.006c-.008-.003-.016-.006-.023-.013a.11.11 0 0 1-.028-.093l.773-4.726 3.625 3.626-3.77 1.604a.083.083 0 0 1-.033.006h-.015c-.005-.003-.01-.007-.02-.017a1.716 1.716 0 0 0-.495-.381zm5.258-.288 3.876 3.876c.805.806 1.208 1.208 1.355 1.674.022.069.04.138.054.209l-9.263-3.923a.728.728 0 0 0-.015-.006c-.037-.015-.08-.032-.08-.07 0-.038.044-.056.081-.071l.012-.005 3.98-1.684zm5.127 7.003c-.2.376-.59.766-1.25 1.427l-4.37 4.369L27 25.469V25c0-.075-.015-.148-.044-.219a1.901 1.901 0 0 0-.5-.768l-.005-.005-.005-.006a2.055 2.055 0 0 0-.731-.44l-.013-.006-.006-.003-.017-.006-.115-.048-.011-.005-.008-.003-.063-.031H25.5c0-.063-.013-.121-.038-.175l-.008-.018a1.537 1.537 0 0 0-.538-.65l-.007-.005-.005-.006a2.063 2.063 0 0 0-.918-.328c-.025-.001-.05-.004-.075-.004s-.05.003-.075.004a2.063 2.063 0 0 0-.918.329l-.007.004-.005.006c-.267.21-.456.421-.538.65l-.008.018c-.025.054-.038.112-.038.175h-.014l-.063.031-.008.003-.011.006-.115.047-.017.006-.006.003-.013.006c-.284.121-.535.267-.731.44l-.005.006-.005.005a1.899 1.899 0 0 0-.5.769c-.029.07-.044.144-.044.219v.469l-6.401 2.769-4.362-4.37c-.66-.66-1.05-1.051-1.25-1.427a2.026 2.026 0 0 1-.143-.578l15.825 6.704c.232.098.232.369 0 .467l-7.686 3.260 8.997-1.36c.7566-.992.5012-.633.5206-.995.17-.327-.047-.6-.21-.787l-.015-.017 7.566-3.208c.504-.214.87-.577.87-.985s-.366-.771-.87-.985L20.397 10.88l8.807 3.729c.466.197.78.634.79 1.143a1.369 1.369 0 0 1-.289.885c.015.012.03.022.044.035l.055.056c.214.214.445.4.573.633.095.175.142.362.142.557 0 .145-.027.287-.082.423l-.004.01-.017.428z"/>
-                  <path fill="#20C6B7" d="M7.734 28.242c-.18-.386-.29-.775-.307-1.145l-.003-.053-.003-.053c0-1.555 1.187-3.328 2.547-3.63.128-.029.257-.043.386-.043a1.54 1.54 0 0 1 .14.006c.05.005.1.011.15.019l.077.015c.049.011.097.025.145.041l.107.036c.05.019.097.04.143.063l.096.05c.049.027.095.056.139.087.014.01.028.019.041.029.006.004.011.008.017.012l5.792 5.793-6.56 2.805c-.527.226-.827.4-1.114.547a7.366 7.366 0 0 1-.43.209c-.302.139-.594.245-.885.345l-.9.027c-.208.063-.417.127-.629.201l-.15.005c-.202.066-.397.155-.576.265-.0702.044-.1354.096-.1932.148-.0604.054-.1163.108-.162.17-.0836.112-.144.238-.18.375a1.411 1.411 0 0 0-.0234.308 1.212 1.212 0 0 1-.0225-.257c-.0026-.073-.004-.146-.004-.221 0-.21.005-.424.018-.656v-.024l.006-.146c.001-.024.002-.047.004-.071v-.012c.01-.195.027-.396.05-.605a13.233 13.233 0 0 1 .224-1.441v-.003c.057-.023.111-.054.161-.086a2.13 2.13 0 0 0 .43-.392c.153-.177.292-.375.416-.594a5.61 5.61 0 0 0 .134-.25c.096-.191.183-.391.264-.599l.003-.009v-.003a6.801 6.801 0 0 0 .225-.657l.106-.323c.064-.215.117-.431.156-.645l.037-.24a4.55 4.55 0 0 0 .023-.626v-.024c-.002-.044-.004-.088-.008-.133l-.013-.138-.022-.133c-.007-.041-.016-.082-.026-.123a1.952 1.952 0 0 0-.249-.654l-.017-.03a2.157 2.157 0 0 0-.139-.21 2.134 2.134 0 0 0-.494-.488l-.009-.006-.009-.006c-.251-.175-.563-.284-.918-.304l-.07-.003-.07-.001c-.492 0-.95.253-1.332.537l-.01.008-.01.007c-.859.637-1.473 1.53-1.794 2.12-.063.115-.115.23-.155.341l-.019.055-.003.009c-.034.108-.057.219-.069.332a1.923 1.923 0 0 0-.008.073c-.001.015-.002.03-.002.046h-.007c-.001.024-.002.047-.002.071v.008a1.03 1.03 0 0 0 .008.129v.009c.008.086.024.17.048.252l.001.003.001.003c.029.098.068.193.117.285.084.158.192.312.325.454l.075.077.098.094.1.089c.032.027.065.054.099.08l.099.074c.033.023.067.046.102.068.068.045.138.087.21.126.072.039.145.076.22.11l.036.017c.001 0 .002.001.003.002l.227.104.058.026 6.474 2.8.85.037.113.05a.763.763 0 0 1-.146-.083 1.283 1.283 0 0 1-.175-.15c-.528-.525-1.26-1.254-1.744-1.738l-9.257-9.256a.766.766 0 0 1-.175-.244l-.003-.006-.003-.006a.822.822 0 0 1-.063-.32v-.046-.047a.668.668 0 0 1 .676-.654h.048a.673.673 0 0 1 .135.015h.005l.005.001c.189.04.33.168.442.28l11.794 11.796-6.073 1.512-.292.073-.084.02a2.52 2.52 0 0 0-.147.04l-.134.04c-.043.014-.085.028-.127.043l-.123.045a2.385 2.385 0 0 0-.208.086c-.03.013-.061.028-.091.043a1.235 1.235 0 0 0-.101.053c-.361.209-.661.503-.879.838v.001h-.001a2.185 2.185 0 0 0-.233.576l-.007.028-.008.028c-.036.145-.061.29-.076.428L.526 30.574l6.758-1.687c.082-.02.107-.126.034-.162-.358-.177-.706-.763-.787-1.322a1.985 1.985 0 0 1 .017-.62l.023-.091c.143-.526.482-.807 1.16-1.009.119-.036.238-.07.359-.101l.142-.036a14.38 14.38 0 0 0 .288-.079c.195-.054.392-.111.581-.175l.142-.046.14-.047c.093-.032.186-.064.278-.097l.136-.049c.045-.017.09-.033.134-.051a4.413 4.413 0 0 0 .753-.353l.035-.022.017-.01-3.003-1.098z"/>
+                bcrypt
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1 bg-secondary text-secondary-foreground text-xs rounded-full">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2 6L6 2L10 6L6 10Z" stroke="currentColor" strokeWidth="0.8" fill="none"/>
+                  <circle cx="6" cy="6" r="1.5" fill="currentColor"/>
                 </svg>
-              </div>
-              <span className="text-sm font-medium">Netlify</span>
-            </div>
-            
-            {/* Upstash */}
-            <div className="flex flex-col items-center">
-              <div className="h-16 w-16 mb-3 flex items-center justify-center">
-                <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" className="max-h-full max-w-full">
-                  <path fill="#00E9A3" d="M224 128a96 96 0 1 0-96 96 96 96 0 0 0 96-96Z"/>
-                  <path fill="#fff" d="m57.814 128-.015 44.473 38.754-22.282.016-44.329-38.755 22.138Z"/>
-                  <path fill="#fff" d="m146.665 106.199-38.624 22.28-.015 44.33 38.624-22.282.015-44.328Z"/>
-                  <path fill="#fff" d="m57.678 83.718-.015 44.33 38.755-22.282.015-44.33-38.755 22.282Z"/>
-                  <path fill="#fff" d="m146.978 61.869-38.624 22.282-.016 44.33 38.625-22.282.015-44.33Z"/>
-                  <path fill="#fff" d="m159.4 150.69-.015 44.28 38.755-22.281.015-44.28L159.4 150.69Z"/>
-                  <path fill="#fff" d="m159.364 150.382 38.624-22.281.016-44.33-38.625 22.28-.015 44.33Z"/>
+                Axios
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1 bg-secondary text-secondary-foreground text-xs rounded-full">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="0.8" fill="none"/>
+                  <path d="M6 3V6L8 8" stroke="currentColor" strokeWidth="1" fill="none"/>
                 </svg>
+                Day.js
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1 bg-secondary text-secondary-foreground text-xs rounded-full">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="6" cy="4" r="2" fill="currentColor"/>
+                  <circle cx="6" cy="8" r="2" stroke="currentColor" strokeWidth="0.8" fill="none"/>
+                  <path d="M4 6h4" stroke="currentColor" strokeWidth="0.8"/>
+                </svg>
+                next-themes
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Live Demo Section */}
+      <section className="relative z-10 py-12 md:py-20 bg-accent/20 backdrop-blur-sm">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Try It Live</h2>
+            <p className="text-lg text-muted-foreground">
+              Experience the power of our real-time features right here on the homepage.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            {/* Quick Stats Preview */}
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                App Statistics
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-accent/30 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">12</div>
+                  <div className="text-sm text-muted-foreground">Total Notes</div>
+                </div>
+                <div className="text-center p-4 bg-accent/30 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">3</div>
+                  <div className="text-sm text-muted-foreground">Blog Posts</div>
+                </div>
+                <div className="text-center p-4 bg-accent/30 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">8</div>
+                  <div className="text-sm text-muted-foreground">Categories</div>
+                </div>
+                <div className="text-center p-4 bg-accent/30 rounded-lg">
+                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">156</div>
+                  <div className="text-sm text-muted-foreground">Users</div>
+                </div>
               </div>
-              <span className="text-sm font-medium">Upstash</span>
+              <Link to="/examples" className="mt-4 inline-flex items-center text-primary hover:text-primary/80 font-medium">
+                See Live Examples
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+
+            {/* Feature Highlights */}
+            <div className="bg-card border border-border rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <Zap className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                What You Get
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-sm">Secure user authentication with JWT</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm">Real-time data with Redis backend</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span className="text-sm">Responsive design for all devices</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span className="text-sm">Serverless architecture</span>
+                </div>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <Link to="/login" className="flex-1">
+                  <Button variant="default" className="w-full">Get Started</Button>
+                </Link>
+                <Link to="/blog" className="flex-1">
+                  <Button variant="outline" className="w-full">Learn More</Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

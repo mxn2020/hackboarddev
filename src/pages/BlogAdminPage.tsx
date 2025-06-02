@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useBlogAdmin } from '../contexts/BlogAdminContext';
+import { useAuth } from '../hooks/useAuth';
 
 interface BlogPost {
   id: string;
@@ -16,10 +17,26 @@ interface BlogPost {
 }
 
 const BlogAdminPage: React.FC = () => {
+  const { user } = useAuth();
   const { fetchPosts, deletePost } = useBlogAdmin();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Check if user is admin
+  if (user?.role !== 'admin') {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-4">You need admin privileges to access this page.</p>
+          <Link to="/blog" className="text-blue-600 hover:underline">
+            Go back to Blog
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const loadPosts = async () => {
     try {

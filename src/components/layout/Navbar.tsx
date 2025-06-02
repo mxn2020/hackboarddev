@@ -76,12 +76,14 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
                         Notes
                       </div>
                     </NavLink>
-                    <NavLink to="/admin/blog" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-                      <div className="flex items-center">
-                        <BookOpen className="h-4 w-4 mr-1" />
-                        Blog Admin
-                      </div>
-                    </NavLink>
+                    {user?.role === 'admin' && (
+                      <NavLink to="/admin/blog" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+                        <div className="flex items-center">
+                          <BookOpen className="h-4 w-4 mr-1" />
+                          Blog Admin
+                        </div>
+                      </NavLink>
+                    )}
                     <NavLink to="/test" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
                       <div className="flex items-center">
                         <TestTube className="h-4 w-4 mr-1" />
@@ -134,6 +136,11 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
                       <div className="px-4 py-2 text-sm text-popover-foreground border-b border-border">
                         <p className="font-medium">{user?.name}</p>
                         <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                        {user?.role === 'admin' && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 mt-1">
+                            Admin
+                          </span>
+                        )}
                       </div>
                       <Link to="/profile" className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center" onClick={() => setUserMenuOpen(false)}>
                         <User className="h-4 w-4 mr-2" /> Profile
