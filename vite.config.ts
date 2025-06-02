@@ -37,7 +37,7 @@ export default defineConfig({
         manualChunks: {
           // React core
           'react-vendor': ['react', 'react-dom'],
-          
+
           // Radix UI components (largest dependency group)
           'radix-ui': [
             '@radix-ui/react-accordion',
@@ -67,7 +67,7 @@ export default defineConfig({
             '@radix-ui/react-toggle-group',
             '@radix-ui/react-tooltip'
           ],
-          
+
           // Utility libraries
           'utils': [
             'clsx',
@@ -76,14 +76,14 @@ export default defineConfig({
             'tailwindcss-animate',
             'lucide-react'
           ],
-          
+
           // Form and validation
           'forms': [
             'react-hook-form',
             '@hookform/resolvers',
             'zod'
           ],
-          
+
           // Data visualization and UI components
           'ui-libs': [
             'recharts',
@@ -94,22 +94,22 @@ export default defineConfig({
             'vaul',
             'sonner'
           ],
-          
+
           // Date and time
           'date-utils': ['date-fns', 'dayjs', 'react-day-picker'],
-          
+
           // Markdown and content
           'content': ['react-markdown', 'remark-gfm'],
-          
+
           // Routing
           'router': ['react-router-dom'],
-          
+
           // State management and themes
           'state': ['zustand', 'next-themes'],
-          
+
           // API and networking
           'api': ['axios', '@upstash/redis', 'cloudinary'],
-          
+
           // Other utilities
           'misc': [
             'nanoid',
@@ -132,7 +132,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: [
-      'react', 
+      'react',
       'react-dom',
       'react-router-dom',
       'zustand',

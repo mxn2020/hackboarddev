@@ -1,1 +1,7 @@
+#!/usr/bin/env sh
+
+# Add Node.js and local node_modules to PATH
+export PATH="/opt/homebrew/bin:$PWD/node_modules/.bin:$PATH"
+
+# Run lint-staged
 npx lint-staged
