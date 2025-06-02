@@ -6,6 +6,7 @@ import { useAuth } from './hooks/useAuth';
 import MainLayout from './components/layout/MainLayout';
 
 // Pages
+import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
 import NotesPage from './pages/NotesPage';
 import NoteDetailPage from './pages/NoteDetailPage';
@@ -19,6 +20,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
+import TestPage from './pages/TestPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Protected Route Component
@@ -52,13 +54,29 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 function AppContent() {
+  const auth = useAuth();
+  
+  // Initialize console tests when the app starts
+  React.useEffect(() => {
+    // Only in development mode
+    if (process.env.NODE_ENV === 'development') {
+      import('./utils/consoleTestInit').then(({ initConsoleTests }) => {
+        initConsoleTests(auth.updateUser, auth.user);
+      });
+    }
+  }, [auth.user, auth.updateUser]);
+  
   return (
     <Router>
-      <MainLayout>
-        <Routes>
+      <Routes>
+        {/* Home Page - No MainLayout */}
+        <Route path="/" element={<HomePage />} />
+        
+        {/* Routes with MainLayout */}
+        <Route path="/" element={<MainLayout />}>
           {/* Public Routes */}
           <Route 
-            path="/login" 
+            path="login" 
             element={
               <PublicRoute>
                 <LoginPage />
@@ -66,7 +84,7 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/register" 
+            path="register" 
             element={
               <PublicRoute>
                 <RegisterPage />
@@ -75,13 +93,13 @@ function AppContent() {
           />
 
           {/* Public Blog Routes */}
-          <Route path="/blog" element={<BlogListPage />} />
-          <Route path="/blog/:slug" element={<BlogPostPage />} />
-          <Route path="/examples" element={<ExamplesPage />} />
+          <Route path="blog" element={<BlogListPage />} />
+          <Route path="blog/:slug" element={<BlogPostPage />} />
+          <Route path="examples" element={<ExamplesPage />} />
 
           {/* Protected Routes */}
           <Route 
-            path="/dashboard" 
+            path="dashboard" 
             element={
               <ProtectedRoute>
                 <DashboardPage />
@@ -89,7 +107,7 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/notes" 
+            path="notes" 
             element={
               <ProtectedRoute>
                 <NotesPage />
@@ -97,7 +115,7 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/notes/new" 
+            path="notes/new" 
             element={
               <ProtectedRoute>
                 <NoteEditorPage />
@@ -105,7 +123,7 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/notes/:id" 
+            path="notes/:id" 
             element={
               <ProtectedRoute>
                 <NoteDetailPage />
@@ -113,7 +131,7 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/notes/:id/edit" 
+            path="notes/:id/edit" 
             element={
               <ProtectedRoute>
                 <NoteEditorPage />
@@ -123,7 +141,7 @@ function AppContent() {
 
           {/* Blog Admin Routes */}
           <Route 
-            path="/admin/blog" 
+            path="admin/blog" 
             element={
               <ProtectedRoute>
                 <BlogAdminProvider>
@@ -133,7 +151,7 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/admin/blog/new" 
+            path="admin/blog/new" 
             element={
               <ProtectedRoute>
                 <BlogAdminProvider>
@@ -143,7 +161,7 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/admin/blog/:slug/edit" 
+            path="admin/blog/:slug/edit" 
             element={
               <ProtectedRoute>
                 <BlogAdminProvider>
@@ -155,7 +173,7 @@ function AppContent() {
 
           {/* Profile and Settings Routes */}
           <Route 
-            path="/profile" 
+            path="profile" 
             element={
               <ProtectedRoute>
                 <ProfilePage />
@@ -163,21 +181,28 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/settings" 
+            path="settings" 
             element={
               <ProtectedRoute>
                 <SettingsPage />
               </ProtectedRoute>
             } 
           />
-
-          {/* Redirects */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          
+          {/* Test Tools Route */}
+          <Route 
+            path="test" 
+            element={
+              <ProtectedRoute>
+                <TestPage />
+              </ProtectedRoute>
+            } 
+          />
           
           {/* 404 */}
           <Route path="*" element={<NotFoundPage />} />
+        </Route>
         </Routes>
-      </MainLayout>
     </Router>
   );
 }

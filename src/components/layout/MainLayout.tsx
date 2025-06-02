@@ -1,15 +1,12 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
+import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import ParticleBackground from '../shared/ParticleBackground';
 import { useAuth } from '../../hooks/useAuth';
 
-interface MainLayoutProps {
-  children: ReactNode;
-}
-
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+const MainLayout: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   // Make sure to use the latest user preference value
@@ -36,7 +33,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           )}
           <main className={`flex-grow p-4 md:p-6 overflow-y-auto ${menuLayout === 'header' ? 'mt-16' : ''}`}>
             <div className="container mx-auto">
-              {children}
+              <Outlet />
             </div>
           </main>
           <Footer />

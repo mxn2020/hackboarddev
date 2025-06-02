@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusCircle, Settings, User, LogOut, Menu, Sun, Moon, BookOpen, Home as HomeIcon, Info, FileText } from 'lucide-react';
+import { PlusCircle, Settings, User, LogOut, Menu, Sun, Moon, BookOpen, Home as HomeIcon, Info, FileText, TestTube } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from 'next-themes';
@@ -80,6 +80,12 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
                       <div className="flex items-center">
                         <BookOpen className="h-4 w-4 mr-1" />
                         Blog Admin
+                      </div>
+                    </NavLink>
+                    <NavLink to="/test" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+                      <div className="flex items-center">
+                        <TestTube className="h-4 w-4 mr-1" />
+                        Test Suite
                       </div>
                     </NavLink>
                   </>

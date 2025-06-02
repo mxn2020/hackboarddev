@@ -7,7 +7,8 @@ import {
   User, 
   X,
   BookOpen,
-  FlaskConical
+  FlaskConical,
+  TestTube
 } from 'lucide-react';
 import { Button } from '../ui/button';
 
@@ -27,6 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     { name: 'Examples', href: '/examples', icon: FlaskConical },
     { name: 'Profile', href: '/profile', icon: User },
     { name: 'Settings', href: '/settings', icon: Settings },
+    { name: 'Test Suite', href: '/test', icon: TestTube },
   ];
 
   return (
