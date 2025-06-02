@@ -15,7 +15,7 @@ const RedisCounter: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await api.get('/examples/counter');
+      const response = await api.get('/counter');
       if (response.data.success) {
         setCounterData(response.data.data);
       } else {
@@ -37,7 +37,7 @@ const RedisCounter: React.FC = () => {
     try {
       setIsIncrementing(true);
       setError(null);
-      const response = await api.post('/examples/counter');
+      const response = await api.post('/counter');
       if (response.data.success) {
         setCounterData(response.data.data);
       } else {
@@ -54,7 +54,7 @@ const RedisCounter: React.FC = () => {
   const resetCounter = async () => {
     try {
       setError(null);
-      const response = await api.delete('/examples/counter');
+      const response = await api.delete('/counter');
       if (response.data.success) {
         setCounterData({ count: 0 });
       } else {

@@ -19,7 +19,7 @@ const Guestbook: React.FC = () => {
   const fetchEntries = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get('/examples/guestbook');
+      const response = await api.get('/guestbook');
       if (response.data.success) {
         setEntries(response.data.data);
       }
@@ -42,7 +42,7 @@ const Guestbook: React.FC = () => {
     try {
       setIsSubmitting(true);
       setError(null);
-      const response = await api.post('/examples/guestbook', {
+      const response = await api.post('/guestbook', {
         name: name.trim(),
         message: message.trim()
       });
