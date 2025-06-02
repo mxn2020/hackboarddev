@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
+import { Label } from '../components/ui/label';
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -11,7 +12,7 @@ const RegisterPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const { register } = useAuth();
   const navigate = useNavigate();
 

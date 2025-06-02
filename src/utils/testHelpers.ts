@@ -159,7 +159,7 @@ export const testPerformance = () => {
   
   // Calculate total resource size if available
   let totalResourceSize = 0;
-  let resourceStats: Record<string, { count: number, size: number }> = {};
+  const resourceStats: Record<string, { count: number, size: number }> = {};
   
   Object.entries(resourcesByType).forEach(([type, items]) => {
     const encodedBodySize = items.reduce((sum, item: any) => sum + (item.encodedBodySize || 0), 0);

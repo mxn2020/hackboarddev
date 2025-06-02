@@ -24,22 +24,7 @@ const BlogAdminPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Check if user is admin
-  if (user?.role !== 'admin') {
-    return (
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-4">You need admin privileges to access this page.</p>
-          <Link to="/blog" className="text-blue-600 hover:underline">
-            Go back to Blog
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const loadPosts = async () => {
+  const loadPosts = React.useCallback(async () => {
     try {
       setLoading(true);
       const fetchedPosts = await fetchPosts();
@@ -51,7 +36,7 @@ const BlogAdminPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchPosts]);
 
   const handleDelete = async (slug: string) => {
     if (!confirm('Are you sure you want to delete this post?')) {
@@ -68,8 +53,25 @@ const BlogAdminPage: React.FC = () => {
   };
 
   useEffect(() => {
-    loadPosts();
-  }, []);
+    if (user?.role === 'admin') {
+      loadPosts();
+    }
+  }, [loadPosts, user?.role]);
+
+  // Check if user is admin after hooks
+  if (user?.role !== 'admin') {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-4">You need admin privileges to access this page.</p>
+          <Link to="/blog" className="text-blue-600 hover:underline">
+            Go back to Blog
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
