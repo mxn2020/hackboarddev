@@ -15,7 +15,7 @@ const RedisCounter: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await api.get('/counter');
+      const response = await api.get('/examples/counter');
       if (response.data.success) {
         setCounterData(response.data.data);
       } else {
@@ -37,7 +37,7 @@ const RedisCounter: React.FC = () => {
     try {
       setIsIncrementing(true);
       setError(null);
-      const response = await api.post('/counter');
+      const response = await api.post('/examples/counter');
       if (response.data.success) {
         setCounterData(response.data.data);
       } else {
@@ -54,7 +54,7 @@ const RedisCounter: React.FC = () => {
   const resetCounter = async () => {
     try {
       setError(null);
-      const response = await api.delete('/counter');
+      const response = await api.delete('/examples/counter');
       if (response.data.success) {
         setCounterData({ count: 0 });
       } else {
@@ -72,7 +72,7 @@ const RedisCounter: React.FC = () => {
         <Hash className="h-6 w-6 text-primary" />
         <h2 className="text-2xl font-semibold text-foreground">Redis Counter</h2>
       </div>
-      
+
       <p className="text-muted-foreground mb-6">
         A simple counter using Redis INCR command. Demonstrates atomic operations and persistence.
       </p>
@@ -102,7 +102,7 @@ const RedisCounter: React.FC = () => {
 
           {/* Action buttons */}
           <div className="flex gap-3 justify-center">
-            <Button 
+            <Button
               onClick={incrementCounter}
               disabled={isIncrementing}
               className="flex-1 max-w-xs"
@@ -119,8 +119,8 @@ const RedisCounter: React.FC = () => {
                 </>
               )}
             </Button>
-            
-            <Button 
+
+            <Button
               variant="outline"
               onClick={resetCounter}
               disabled={isIncrementing}

@@ -19,7 +19,7 @@ const Guestbook: React.FC = () => {
   const fetchEntries = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get('/guestbook');
+      const response = await api.get('/examples/guestbook');
       if (response.data.success) {
         setEntries(response.data.data);
       }
@@ -42,11 +42,11 @@ const Guestbook: React.FC = () => {
     try {
       setIsSubmitting(true);
       setError(null);
-      const response = await api.post('/guestbook', { 
-        name: name.trim(), 
-        message: message.trim() 
+      const response = await api.post('/examples/guestbook', {
+        name: name.trim(),
+        message: message.trim()
       });
-      
+
       if (response.data.success) {
         setName('');
         setMessage('');
@@ -68,7 +68,7 @@ const Guestbook: React.FC = () => {
         <MessageCircle className="h-6 w-6 text-primary" />
         <h2 className="text-2xl font-semibold text-foreground">Guestbook</h2>
       </div>
-      
+
       <p className="text-muted-foreground mb-6">
         Leave a message for other visitors! Messages are stored in Redis using LPUSH.
       </p>
@@ -98,8 +98,8 @@ const Guestbook: React.FC = () => {
         {error && (
           <p className="text-red-500 text-sm">{error}</p>
         )}
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={isSubmitting || !name.trim() || !message.trim()}
           className="w-full"
         >
@@ -131,7 +131,7 @@ const Guestbook: React.FC = () => {
         ) : (
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {entries.map((entry, index) => (
-              <div 
+              <div
                 key={index}
                 className="p-4 bg-secondary rounded-lg"
               >
