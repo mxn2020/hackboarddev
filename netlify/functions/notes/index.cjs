@@ -25,8 +25,19 @@ async function authenticateUser(event) {
   }
 
   const token = authHeader.substring(7);
-  const decoded = jwt.verify(token, JWT_SECRET);
-  return decoded.userId;
+
+  // Check if token is valid and not just empty or malformed
+  if (!token || token.trim() === '' || token === 'null' || token === 'undefined') {
+    throw new Error('Invalid token format');
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    return decoded.userId;
+  } catch (error) {
+    console.error('JWT verification failed:', error.message);
+    throw new Error('Invalid token');
+  }
 }
 
 exports.handler = async (event) => {
@@ -75,8 +86,17 @@ exports.handler = async (event) => {
     };
   } catch (error) {
     console.error('Notes function error:', error);
+
+    // Handle different types of authentication errors
+    const isAuthError = error.message === 'No token provided' ||
+      error.message === 'Invalid token format' ||
+      error.message === 'Invalid token' ||
+      error.name === 'JsonWebTokenError' ||
+      error.name === 'TokenExpiredError' ||
+      error.name === 'NotBeforeError';
+
     return {
-      statusCode: error.message === 'No token provided' || error.name === 'JsonWebTokenError' ? 401 : 500,
+      statusCode: isAuthError ? 401 : 500,
       headers: corsHeaders,
       body: JSON.stringify({ error: error.message || 'Internal server error' }),
     };
@@ -89,7 +109,7 @@ async function handleGetNotes(userId, queryParams) {
 
     // Get user's note IDs
     const noteIds = await redis.lrange(`user:${userId}:notes`, 0, -1);
-    
+
     if (noteIds.length === 0) {
       return {
         statusCode: 200,
@@ -115,7 +135,7 @@ async function handleGetNotes(userId, queryParams) {
     // Apply filters
     if (search) {
       const searchLower = search.toLowerCase();
-      notes = notes.filter(note => 
+      notes = notes.filter(note =>
         note.title.toLowerCase().includes(searchLower) ||
         note.content.toLowerCase().includes(searchLower)
       );
@@ -127,7 +147,7 @@ async function handleGetNotes(userId, queryParams) {
 
     if (tags) {
       const tagArray = tags.split(',').map(tag => tag.trim());
-      notes = notes.filter(note => 
+      notes = notes.filter(note =>
         note.tags.some(tag => tagArray.includes(tag))
       );
     }
@@ -136,12 +156,12 @@ async function handleGetNotes(userId, queryParams) {
     notes.sort((a, b) => {
       let aValue = a[sortBy];
       let bValue = b[sortBy];
-      
+
       if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
         aValue = new Date(aValue);
         bValue = new Date(bValue);
       }
-      
+
       if (sortOrder === 'asc') {
         return aValue > bValue ? 1 : -1;
       } else {
@@ -175,7 +195,7 @@ async function handleGetNotes(userId, queryParams) {
 async function handleGetNote(noteId, userId) {
   try {
     const noteData = await redis.get(`note:${noteId}`);
-    
+
     if (!noteData) {
       return {
         statusCode: 404,
@@ -185,7 +205,7 @@ async function handleGetNote(noteId, userId) {
     }
 
     const note = typeof noteData === 'string' ? JSON.parse(noteData) : noteData;
-    
+
     // Verify ownership
     if (note.userId !== userId) {
       return {
@@ -236,7 +256,7 @@ async function handleCreateNote(event, userId) {
 
     // Store note
     await redis.set(`note:${noteId}`, JSON.stringify(note));
-    
+
     // Add to user's notes list
     await redis.lpush(`user:${userId}:notes`, noteId);
 
@@ -264,7 +284,7 @@ async function handleCreateNote(event, userId) {
 async function handleUpdateNote(event, noteId, userId) {
   try {
     const noteData = await redis.get(`note:${noteId}`);
-    
+
     if (!noteData) {
       return {
         statusCode: 404,
@@ -274,7 +294,7 @@ async function handleUpdateNote(event, noteId, userId) {
     }
 
     const existingNote = typeof noteData === 'string' ? JSON.parse(noteData) : noteData;
-    
+
     // Verify ownership
     if (existingNote.userId !== userId) {
       return {
@@ -334,7 +354,7 @@ async function handleUpdateNote(event, noteId, userId) {
 async function handleDeleteNote(noteId, userId) {
   try {
     const noteData = await redis.get(`note:${noteId}`);
-    
+
     if (!noteData) {
       return {
         statusCode: 404,
@@ -344,7 +364,7 @@ async function handleDeleteNote(noteId, userId) {
     }
 
     const note = typeof noteData === 'string' ? JSON.parse(noteData) : noteData;
-    
+
     // Verify ownership
     if (note.userId !== userId) {
       return {
@@ -357,11 +377,11 @@ async function handleDeleteNote(noteId, userId) {
     // Remove from all indices
     await redis.del(`note:${noteId}`);
     await redis.lrem(`user:${userId}:notes`, 0, noteId);
-    
+
     if (note.category !== 'general') {
       await redis.srem(`category:${note.category}:notes`, noteId);
     }
-    
+
     for (const tag of note.tags) {
       await redis.srem(`tag:${tag}:notes`, noteId);
     }

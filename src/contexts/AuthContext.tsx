@@ -20,17 +20,20 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkAuth = async () => {
       const storedToken = localStorage.getItem('authToken');
       const savedUser = localStorage.getItem('user');
-      
-      if (storedToken && savedUser) {
+
+      // Validate token format before using it
+      if (storedToken && storedToken.trim() !== '' && storedToken !== 'null' && storedToken !== 'undefined' && savedUser) {
         try {
-          setUser(JSON.parse(savedUser));
+          const parsedUser = JSON.parse(savedUser);
+          setUser(parsedUser);
           setToken(storedToken);
-          // Optionally verify token with backend
+          // Verify token with backend
           const response = await api.get('/auth/me');
           if (response.data.user) {
             setUser(response.data.user);
           }
         } catch (error) {
+          console.warn('Auth token validation failed:', error);
           // Token is invalid, clear storage
           localStorage.removeItem('authToken');
           localStorage.removeItem('user');
@@ -47,7 +50,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     try {
       const response = await api.post('/auth/login', { email, password });
-      
+
       if (response.data.user && response.data.token) {
         const { user: userData, token: authToken } = response.data;
         localStorage.setItem('authToken', authToken);
@@ -65,7 +68,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (email: string, password: string, name: string) => {
     try {
       const response = await api.post('/auth/register', { email, password, username: name });
-      
+
       if (response.data.user && response.data.token) {
         const { user: userData, token: authToken } = response.data;
         localStorage.setItem('authToken', authToken);
@@ -92,7 +95,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         // Make API call to update user in the database
         const response = await api.put('/auth/profile', userData);
-        
+
         if (response.data.user) {
           const updatedUser = response.data.user;
           setUser(updatedUser);
