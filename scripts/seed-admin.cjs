@@ -1,6 +1,6 @@
 const { Redis } = require('@upstash/redis');
 const bcrypt = require('bcryptjs');
-require('dotenv').config({ path: '.env.development' });
+require('dotenv').config({ path: '.env' });
 
 console.log('🔧 Environment check:');
 console.log('  UPSTASH_REDIS_REST_URL:', process.env.UPSTASH_REDIS_REST_URL ? 'Set ✅' : 'Missing ❌');
