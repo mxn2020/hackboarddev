@@ -65,8 +65,8 @@ A production-ready React application template built for rapid development during
 
 ### Method 2: Traditional Setup
 ```bash
-git clone https://github.com/yourusername/hackathon-template
-cd hackathon-template
+git clone https://github.com/mxn2020/boltdotnew-template-netlify-redis
+cd boltdotnew-template-netlify-redis
 npm install
 ```
 
@@ -83,19 +83,27 @@ npm install
 3. Note your Netlify URL (e.g., `https://your-app.netlify.app`)
 
 ### 3. Environment Variables
-Create `.env` file in root:
+Copy the example environment file and configure it:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` and update the required values:
 
 ```env
-# Upstash Redis Configuration
+# Upstash Redis Configuration (required)
 UPSTASH_REDIS_REST_URL=https://your-redis-url.upstash.io
 UPSTASH_REDIS_REST_TOKEN=your-redis-token
 
-# JWT Secret (generate a random string)
+# JWT Secret (required - generate a random string)
 JWT_SECRET=your-super-secret-jwt-key
 
-# Frontend API URL
+# Frontend API URL (update for production)
 VITE_API_BASE_URL=https://your-app.netlify.app/.netlify/functions
 ```
+
+> 💡 The `.env.example` file contains all available configuration options with descriptions. Only the Redis and JWT settings are required to get started.
 
 ### 4. Netlify Environment Variables
 Copy all variables from `.env` to Netlify:
