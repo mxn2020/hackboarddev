@@ -5,6 +5,8 @@ import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { Note } from '../types';
 import { Save, ArrowLeft, Eye, EyeOff, Tag, Plus, X } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { cn } from '../utils/cn';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -13,7 +15,7 @@ const NoteEditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEditing = id && id !== 'new';
-  
+
   const [note, setNote] = useState<Partial<Note>>({
     title: '',
     content: '',
@@ -60,7 +62,7 @@ const NoteEditorPage: React.FC = () => {
 
     try {
       setSaving(true);
-      
+
       const noteData = {
         title: note.title.trim(),
         content: note.content.trim(),
@@ -134,14 +136,14 @@ const NoteEditorPage: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <Link 
-          to={isEditing ? `/notes/${id}` : '/notes'} 
+        <Link
+          to={isEditing ? `/notes/${id}` : '/notes'}
           className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           {isEditing ? 'Back to Note' : 'Back to Notes'}
         </Link>
-        
+
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -170,13 +172,13 @@ const NoteEditorPage: React.FC = () => {
         <div className="p-6 border-b border-gray-200 dark:border-gray-700 space-y-4">
           {/* Title */}
           <div>
-            <input
+            <Input
               type="text"
               placeholder="Note title..."
               value={note.title || ''}
               onChange={(e) => setNote(prev => ({ ...prev, title: e.target.value }))}
               onKeyPress={handleKeyPress}
-              className="w-full text-2xl font-bold bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              className="text-2xl font-bold bg-transparent border-none outline-none"
             />
           </div>
 
@@ -187,19 +189,20 @@ const NoteEditorPage: React.FC = () => {
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Category:
               </Label>
-              <select
-                value={note.category || 'general'}
-                onChange={(e) => setNote(prev => ({ ...prev, category: e.target.value }))}
-                className="px-3 py-1 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="general">General</option>
-                <option value="work">Work</option>
-                <option value="personal">Personal</option>
-                <option value="ideas">Ideas</option>
-                <option value="research">Research</option>
-                <option value="meeting">Meeting</option>
-                <option value="project">Project</option>
-              </select>
+              <Select value={note.category || 'general'} onValueChange={(value) => setNote(prev => ({ ...prev, category: value }))}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="general">General</SelectItem>
+                  <SelectItem value="work">Work</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="ideas">Ideas</SelectItem>
+                  <SelectItem value="research">Research</SelectItem>
+                  <SelectItem value="meeting">Meeting</SelectItem>
+                  <SelectItem value="project">Project</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Public Toggle */}
@@ -234,7 +237,7 @@ const NoteEditorPage: React.FC = () => {
             <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Tags:
             </Label>
-            
+
             {/* Existing Tags */}
             <div className="flex flex-wrap gap-2 mb-3">
               {note.tags?.map((tag) => (
@@ -257,7 +260,7 @@ const NoteEditorPage: React.FC = () => {
 
             {/* Add New Tag */}
             <div className="flex gap-2">
-              <input
+              <Input
                 type="text"
                 placeholder="Add a tag..."
                 value={newTag}
@@ -268,7 +271,7 @@ const NoteEditorPage: React.FC = () => {
                     handleAddTag();
                   }
                 }}
-                className="flex-1 px-3 py-1 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 text-sm"
               />
               <Button
                 type="button"

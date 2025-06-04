@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { Label } from '@/components/ui/label';
 
@@ -52,13 +53,12 @@ const LoginPage: React.FC = () => {
               <Label htmlFor="email" className="sr-only">
                 Email address
               </Label>
-              <input
+              <Input
                 id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="relative block w-full px-3 py-2 border border-border placeholder-muted-foreground text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -68,13 +68,12 @@ const LoginPage: React.FC = () => {
               <Label htmlFor="password" className="sr-only">
                 Password
               </Label>
-              <input
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="current-password"
                 required
-                className="relative block w-full px-3 py-2 border border-border placeholder-muted-foreground text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

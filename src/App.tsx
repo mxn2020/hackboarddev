@@ -1,3 +1,4 @@
+// src/App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -23,6 +24,9 @@ import SettingsPage from './pages/SettingsPage';
 import TestPage from './pages/TestPage';
 import NotFoundPage from './pages/NotFoundPage';
 
+// Admin Pages
+import FeatureFlagsPage from './pages/admin/FeatureFlagsPage';
+
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -36,6 +40,29 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
 
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
+// Admin Route Component
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user?.role !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 // Public Route Component (redirect if authenticated)
@@ -168,6 +195,16 @@ function AppContent() {
                   <BlogEditorPage />
                 </BlogAdminProvider>
               </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Routes */}
+          <Route
+            path="admin/feature-flags"
+            element={
+              <AdminRoute>
+                <FeatureFlagsPage />
+              </AdminRoute>
             }
           />
 

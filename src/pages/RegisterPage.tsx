@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { Label } from '../components/ui/label';
+import PasswordStrength from '../components/auth/PasswordStrength';
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -60,13 +62,12 @@ const RegisterPage: React.FC = () => {
               <Label htmlFor="name" className="sr-only">
                 Full name
               </Label>
-              <input
+              <Input
                 id="name"
                 name="name"
                 type="text"
                 autoComplete="name"
                 required
-                className="relative block w-full px-3 py-2 border border-border placeholder-muted-foreground text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background"
                 placeholder="Full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -76,13 +77,12 @@ const RegisterPage: React.FC = () => {
               <Label htmlFor="email" className="sr-only">
                 Email address
               </Label>
-              <input
+              <Input
                 id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="relative block w-full px-3 py-2 border border-border placeholder-muted-foreground text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -92,29 +92,32 @@ const RegisterPage: React.FC = () => {
               <Label htmlFor="password" className="sr-only">
                 Password
               </Label>
-              <input
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="new-password"
                 required
-                className="relative block w-full px-3 py-2 border border-border placeholder-muted-foreground text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              {password && (
+                <div className="mt-3">
+                  <PasswordStrength password={password} />
+                </div>
+              )}
             </div>
             <div>
               <Label htmlFor="confirmPassword" className="sr-only">
                 Confirm Password
               </Label>
-              <input
+              <Input
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
                 autoComplete="new-password"
                 required
-                className="relative block w-full px-3 py-2 border border-border placeholder-muted-foreground text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-background"
                 placeholder="Confirm password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 import { api } from '../utils/api';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { Note } from '../types';
-import { Search, Plus, Filter, Grid, List, Calendar, Tag, FileText } from 'lucide-react';
+import { Search, Plus, Grid, List, Calendar, Tag, FileText } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { cn } from '../utils/cn';
 
 const NotesPage: React.FC = () => {
-  const { user } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,7 +20,7 @@ const NotesPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState('desc');
 
   // Get unique categories and tags
-  const categories = Array.from(new Set(notes.map(note => note.category).filter(Boolean)));
+  const categories = Array.from(new Set(notes.map(note => note.category).filter(Boolean))) as string[];
   const allTags = Array.from(new Set(notes.flatMap(note => note.tags || [])));
 
   const fetchNotes = async () => {
@@ -47,8 +47,8 @@ const NotesPage: React.FC = () => {
   }, [searchTerm, selectedCategory, selectedTags, sortBy, sortOrder]);
 
   const handleTagToggle = (tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
+    setSelectedTags(prev =>
+      prev.includes(tag)
         ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
@@ -97,46 +97,48 @@ const NotesPage: React.FC = () => {
         {/* Search */}
         <div className="relative">
           <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
+          <Input
             type="text"
             placeholder="Search notes..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="pl-10"
           />
         </div>
 
         {/* Filters Row */}
         <div className="flex flex-wrap items-center gap-4">
           {/* Category Filter */}
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Categories</option>
-            {categories.map(category => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Categories</SelectItem>
+              {categories.map(category => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           {/* Sort */}
-          <select
-            value={`${sortBy}-${sortOrder}`}
-            onChange={(e) => {
-              const [field, order] = e.target.value.split('-');
-              setSortBy(field);
-              setSortOrder(order);
-            }}
-            className="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="updatedAt-desc">Recently Updated</option>
-            <option value="createdAt-desc">Recently Created</option>
-            <option value="title-asc">Title A-Z</option>
-            <option value="title-desc">Title Z-A</option>
-          </select>
+          <Select value={`${sortBy}-${sortOrder}`} onValueChange={(value) => {
+            const [field, order] = value.split('-');
+            setSortBy(field);
+            setSortOrder(order);
+          }}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="updatedAt-desc">Recently Updated</SelectItem>
+              <SelectItem value="createdAt-desc">Recently Created</SelectItem>
+              <SelectItem value="title-asc">Title A-Z</SelectItem>
+              <SelectItem value="title-desc">Title Z-A</SelectItem>
+            </SelectContent>
+          </Select>
 
           {/* View Mode */}
           <div className="flex rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
@@ -213,13 +215,13 @@ const NotesPage: React.FC = () => {
         </div>
       ) : (
         <div className={cn(
-          viewMode === 'grid' 
+          viewMode === 'grid'
             ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
             : 'space-y-4'
         )}>
           {notes.map((note) => (
-            <Link 
-              key={note.id} 
+            <Link
+              key={note.id}
               to={`/notes/${note.id}`}
               className={cn(
                 'block bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-600',
@@ -233,7 +235,7 @@ const NotesPage: React.FC = () => {
                   <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2 line-clamp-2">
                     {note.title}
                   </h3>
-                  
+
                   {viewMode === 'grid' && (
                     <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3 mb-3">
                       {note.content.substring(0, 150)}...

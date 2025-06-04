@@ -68,7 +68,7 @@ const BlogEditorPage: React.FC = () => {
       } else {
         await createPost(postData);
       }
-      
+
       navigate('/admin/blog');
     } catch (err) {
       setError(err instanceof Error ? err.message : `Failed to ${isEditing ? 'update' : 'create'} post`);
@@ -150,13 +150,12 @@ const BlogEditorPage: React.FC = () => {
           <Label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Featured Image URL
           </Label>
-          <input
+          <Input
             type="url"
             id="imageUrl"
             name="imageUrl"
             value={formData.imageUrl}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="https://example.com/image.jpg"
           />
         </div>
@@ -165,13 +164,12 @@ const BlogEditorPage: React.FC = () => {
           <Label htmlFor="tags" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Tags
           </Label>
-          <input
+          <Input
             type="text"
             id="tags"
             name="tags"
             value={formData.tags}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="javascript, react, tutorial (comma-separated)"
           />
           <p className="text-sm text-gray-500 mt-1">Separate tags with commas</p>
