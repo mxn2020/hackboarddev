@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "netlify dev",
+    "dev": "vite",
     "dev:vite": "vite",
     "dev:netlify": "netlify dev",
     "dev:stackblitz": "vite --host",
