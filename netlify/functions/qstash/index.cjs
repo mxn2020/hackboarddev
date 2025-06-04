@@ -2,6 +2,7 @@
 const { Redis } = require('@upstash/redis');
 const { Client, Receiver } = require('@upstash/qstash');
 const jwt = require('jsonwebtoken');
+const { parse } = require('cookie');
 
 // Initialize Redis and QStash
 const redis = new Redis({
@@ -19,6 +20,7 @@ const qstashReceiver = new Receiver({
 });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const AUTH_MODE = process.env.AUTH_MODE || 'cookie'; // 'cookie' or 'bearer'
 
 // CORS headers
 const corsHeaders = {
@@ -32,7 +34,7 @@ async function isQStashEnabled() {
   try {
     const flagsData = await redis.get('feature_flags');
     if (!flagsData) return false;
-    
+
     const flags = typeof flagsData === 'string' ? JSON.parse(flagsData) : flagsData;
     return flags.upstash_qstash?.enabled || false;
   } catch (error) {
@@ -43,19 +45,40 @@ async function isQStashEnabled() {
 
 // Authentication middleware
 async function authenticateUser(event) {
+  // Extract token based on auth mode
+  let token;
   const authHeader = event.headers.authorization || event.headers.Authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+  if (AUTH_MODE === 'bearer') {
+    // Bearer token mode - only check Authorization header
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  } else {
+    // Cookie mode - check both header and cookies for backward compatibility
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    } else {
+      // Check for token in cookies
+      const cookies = event.headers.cookie;
+      if (cookies) {
+        const parsedCookies = parse(cookies);
+        token = parsedCookies.auth_token;
+      }
+    }
+  }
+
+  if (!token) {
     throw new Error('No token provided');
   }
 
-  const token = authHeader.substring(7);
-  if (!token || token.trim() === '' || token === 'null' || token === 'undefined') {
+  if (token.trim() === '' || token === 'null' || token === 'undefined') {
     throw new Error('Invalid token format');
   }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    return decoded.userId;
+    return decoded.sub || decoded.userId; // Use 'sub' field which contains the user ID
   } catch (error) {
     console.error('JWT verification failed:', error.message);
     throw new Error('Invalid token');
@@ -88,7 +111,7 @@ exports.handler = async (event) => {
       return {
         statusCode: 503,
         headers: corsHeaders,
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           error: 'QStash feature is currently disabled',
           feature: 'upstash_qstash'
         }),
@@ -246,7 +269,7 @@ async function handleQStashWebhook(event) {
   try {
     // Verify the request is from QStash
     const signature = event.headers['upstash-signature'] || event.headers['Upstash-Signature'];
-    
+
     if (!signature) {
       return {
         statusCode: 401,
@@ -276,7 +299,7 @@ async function handleQStashWebhook(event) {
     // Update task status
     const taskKey = `task:${taskId}`;
     const existingTask = await redis.get(taskKey);
-    
+
     if (existingTask) {
       const task = typeof existingTask === 'string' ? JSON.parse(existingTask) : existingTask;
       task.status = 'processing';
@@ -362,7 +385,7 @@ async function handleQStashWebhook(event) {
 async function handleGetTasks(userId) {
   try {
     const taskIds = await redis.lrange(`user:${userId}:tasks`, 0, 49); // Get latest 50 tasks
-    
+
     if (taskIds.length === 0) {
       return {
         statusCode: 200,
@@ -405,14 +428,14 @@ async function handleGetTasks(userId) {
 // Task processing functions
 async function processWelcomeEmail(payload) {
   const { email, name } = payload;
-  
+
   // Simulate email sending (replace with actual email service)
   console.log(`Sending welcome email to ${email} for ${name}`);
-  
+
   // Here you would integrate with your email service
   // For now, we'll simulate a successful email send
   await new Promise(resolve => setTimeout(resolve, 1000));
-  
+
   return {
     success: true,
     message: `Welcome email sent to ${email}`,
@@ -422,23 +445,23 @@ async function processWelcomeEmail(payload) {
 
 async function processScheduledBlogPost(payload) {
   const { postId, action } = payload;
-  
+
   console.log(`Processing scheduled blog post: ${postId}, action: ${action}`);
-  
+
   if (action === 'publish') {
     // Get the blog post from Redis
     const postData = await redis.hgetall(`blog:post:${postId}`);
-    
+
     if (!postData || !postData.id) {
       throw new Error(`Blog post ${postId} not found`);
     }
-    
+
     // Update post status to published if it was scheduled
     if (postData.status === 'scheduled') {
       await redis.hset(`blog:post:${postId}`, 'status', 'published');
       await redis.hset(`blog:post:${postId}`, 'publishedDate', new Date().toISOString());
     }
-    
+
     return {
       success: true,
       message: `Blog post ${postId} published successfully`,
@@ -446,26 +469,26 @@ async function processScheduledBlogPost(payload) {
       timestamp: new Date().toISOString()
     };
   }
-  
+
   throw new Error(`Unknown blog post action: ${action}`);
 }
 
 async function processCleanupTask(payload) {
   const { type, olderThan } = payload;
-  
+
   console.log(`Processing cleanup task: ${type}, olderThan: ${olderThan}`);
-  
+
   let cleaned = 0;
-  
+
   if (type === 'expired_tasks') {
     // Clean up old completed/failed tasks
     const cutoffDate = new Date(Date.now() - (olderThan || 7 * 24 * 60 * 60 * 1000)); // 7 days default
-    
+
     // This is a simplified cleanup - in production you'd want more sophisticated logic
     console.log(`Cleaning up tasks older than ${cutoffDate.toISOString()}`);
     cleaned = 0; // Placeholder
   }
-  
+
   return {
     success: true,
     message: `Cleanup completed for ${type}`,
@@ -476,9 +499,9 @@ async function processCleanupTask(payload) {
 
 async function processNotification(payload) {
   const { userId, type, message, data } = payload;
-  
+
   console.log(`Processing notification for user ${userId}: ${type} - ${message}`);
-  
+
   // Store notification in Redis
   const notificationId = `notification_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   const notification = {
@@ -490,13 +513,13 @@ async function processNotification(payload) {
     read: false,
     createdAt: new Date().toISOString()
   };
-  
+
   await redis.set(`notification:${notificationId}`, JSON.stringify(notification));
   await redis.lpush(`user:${userId}:notifications`, notificationId);
-  
+
   // Keep only the latest 100 notifications per user
   await redis.ltrim(`user:${userId}:notifications`, 0, 99);
-  
+
   return {
     success: true,
     message: `Notification sent to user ${userId}`,
@@ -547,4 +570,3 @@ async function scheduleWelcomeEmail(userId, { email, name }) {
 
   return task;
 }
-    

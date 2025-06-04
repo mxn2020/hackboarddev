@@ -29,7 +29,7 @@ export const DEFAULT_FEATURE_FLAGS: Omit<FeatureFlag, 'createdAt' | 'updatedAt'>
     status: 'active',
     adminOnly: false
   },
-  
+
   // Shipping Soon Features
   {
     id: 'upstash_vector_search',
@@ -112,7 +112,7 @@ export const DEFAULT_FEATURE_FLAGS: Omit<FeatureFlag, 'createdAt' | 'updatedAt'>
     status: 'shipping_soon',
     adminOnly: false
   },
-  
+
   // Experimental Features
   {
     id: 'advanced_analytics',
@@ -131,6 +131,15 @@ export const DEFAULT_FEATURE_FLAGS: Omit<FeatureFlag, 'createdAt' | 'updatedAt'>
     category: 'core',
     status: 'shipping_soon',
     adminOnly: true
+  },
+  {
+    id: 'bearer_token_auth',
+    name: 'Bearer Token Authentication',
+    description: 'Use Bearer tokens in Authorization headers instead of HTTP-only cookies for authentication. Provides more flexibility for API integrations.',
+    enabled: false,
+    category: 'core',
+    status: 'active',
+    adminOnly: false
   }
 ];
 

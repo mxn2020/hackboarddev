@@ -19,6 +19,23 @@ export default tseslint.config(
       'scripts/**/*.cjs'
     ]
   },
+  // Node.js files configuration
+  {
+    files: ['**/*.cjs', 'test-*.js', 'clear-*.js'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node,
+      sourceType: 'script'
+    },
+    rules: {
+      'no-console': 'off', // Allow console in Node.js scripts
+      'no-debugger': 'error',
+      'no-unused-vars': 'off',
+      'prefer-const': 'error',
+      'no-var': 'error',
+    },
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],

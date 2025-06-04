@@ -9,6 +9,20 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Helper function to check if Bearer token authentication is enabled
+const isBearerAuthEnabled = () => {
+  const featureFlags = localStorage.getItem('featureFlags');
+  if (featureFlags) {
+    try {
+      const flags = JSON.parse(featureFlags);
+      return flags.bearer_token_auth?.enabled === true;
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+};
+
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -20,7 +34,17 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Try to get user info from API (uses httpOnly cookies)
+        // For Bearer mode, check if we have a stored token first
+        const useBearerAuth = isBearerAuthEnabled();
+        if (useBearerAuth) {
+          const storedToken = localStorage.getItem('authToken');
+          if (!storedToken) {
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // Try to get user info from API
         const response = await api.get('/auth/me');
         if (response.data.user) {
           setUser(response.data.user);
@@ -60,7 +84,16 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.data.user && response.data.success) {
         const { user: userData, token: authToken } = response.data;
         setUser(userData);
-        setToken(authToken || 'cookie-based');
+
+        const useBearerAuth = isBearerAuthEnabled();
+        if (useBearerAuth && authToken) {
+          // Store token in localStorage for Bearer mode
+          localStorage.setItem('authToken', authToken);
+          setToken(authToken);
+        } else {
+          // Cookie mode - token is handled by httpOnly cookies
+          setToken('cookie-based');
+        }
       } else {
         throw new Error(response.data.error || 'Login failed');
       }
@@ -80,7 +113,16 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.data.user && response.data.success) {
         const { user: userData, token: authToken } = response.data;
         setUser(userData);
-        setToken(authToken || 'cookie-based');
+
+        const useBearerAuth = isBearerAuthEnabled();
+        if (useBearerAuth && authToken) {
+          // Store token in localStorage for Bearer mode
+          localStorage.setItem('authToken', authToken);
+          setToken(authToken);
+        } else {
+          // Cookie mode - token is handled by httpOnly cookies
+          setToken('cookie-based');
+        }
 
         // Schedule welcome email via QStash (non-blocking)
         scheduleWelcomeEmail(email, name);
@@ -104,6 +146,11 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.warn('Logout API call failed, proceeding with client-side cleanup:', error);
     } finally {
       // Always clear client-side data regardless of API call result
+      const useBearerAuth = isBearerAuthEnabled();
+      if (useBearerAuth) {
+        // Clear token from localStorage in Bearer mode
+        localStorage.removeItem('authToken');
+      }
       setUser(null);
       setToken(null);
     }

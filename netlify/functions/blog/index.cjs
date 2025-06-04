@@ -1,5 +1,8 @@
 const { Redis } = require('@upstash/redis');
 const jwt = require('jsonwebtoken');
+const { parse } = require('cookie');
+
+const AUTH_MODE = process.env.AUTH_MODE || 'cookie'; // 'cookie' or 'bearer'
 
 let redis;
 try {
@@ -17,12 +20,33 @@ try {
 // Helper to verify authentication
 const verifyAuth = (event) => {
   try {
+    // Extract token based on auth mode
+    let token;
     const authHeader = event.headers.authorization || event.headers.Authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+    if (AUTH_MODE === 'bearer') {
+      // Bearer token mode - only check Authorization header
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    } else {
+      // Cookie mode - check both header and cookies for backward compatibility
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      } else {
+        // Check for token in cookies
+        const cookies = event.headers.cookie;
+        if (cookies) {
+          const parsedCookies = parse(cookies);
+          token = parsedCookies.auth_token;
+        }
+      }
+    }
+
+    if (!token) {
       return null;
     }
-    
-    const token = authHeader.split(' ')[1];
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     return decoded;
   } catch (error) {
@@ -91,7 +115,7 @@ exports.handler = async (event, context) => {
   if (!redis) {
     return { statusCode: 500, headers, body: JSON.stringify({ success: false, error: 'Redis not available' }) };
   }
-  
+
   // Seed posts on first call - DISABLED for role-based system
   // await seedBlogPosts();
 
@@ -103,7 +127,7 @@ exports.handler = async (event, context) => {
     pathForParsing = pathForParsing.replace('/api/blog', '');
   }
   const pathParts = pathForParsing.split('/').filter(Boolean);
-  
+
   try {
     if (event.httpMethod === 'GET') {
       if (pathParts.length === 0) { // GET /blog (list all posts)
@@ -221,13 +245,13 @@ exports.handler = async (event, context) => {
       // Check permissions: user can only edit their own posts, admin can edit any post
       const isAdmin = user.role === 'admin';
       const isOwner = existingPost.authorId === user.userId;
-      
+
       if (!isAdmin && !isOwner) {
         return { statusCode: 403, headers, body: JSON.stringify({ success: false, error: 'You can only edit your own blog posts' }) };
       }
 
       const { title, content, summary, tags, imageUrl } = data;
-      
+
       // Parse existing tags
       let existingTags = [];
       try {
@@ -235,7 +259,7 @@ exports.handler = async (event, context) => {
       } catch {
         existingTags = [];
       }
-      
+
       const updatedPost = {
         ...existingPost,
         ...(title && { title }),
@@ -260,7 +284,7 @@ exports.handler = async (event, context) => {
           updatedPost.slug = newSlug;
           await redis.hset(`blog:post:${newSlug}`, updatedPost);
           await redis.del(`blog:post:${slug}`);
-          
+
           // Update posts list
           await redis.lrem('blog:posts_list', 1, slug);
           await redis.lpush('blog:posts_list', newSlug);
@@ -277,7 +301,7 @@ exports.handler = async (event, context) => {
       }
 
       await redis.hset(`blog:post:${slug}`, updatedPost);
-      
+
       // Parse tags back for response
       const responsePost = { ...updatedPost };
       try {
@@ -303,7 +327,7 @@ exports.handler = async (event, context) => {
       // Check permissions: user can only delete their own posts, admin can delete any post
       const isAdmin = user.role === 'admin';
       const isOwner = existingPost.authorId === user.userId;
-      
+
       if (!isAdmin && !isOwner) {
         return { statusCode: 403, headers, body: JSON.stringify({ success: false, error: 'You can only delete your own blog posts' }) };
       }

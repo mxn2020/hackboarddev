@@ -1,5 +1,20 @@
 import axios from 'axios';
 
+// Check if Bearer token authentication is enabled via feature flag
+const isBearerAuthEnabled = () => {
+  // Check localStorage for feature flag state
+  const featureFlags = localStorage.getItem('featureFlags');
+  if (featureFlags) {
+    try {
+      const flags = JSON.parse(featureFlags);
+      return flags.bearer_token_auth?.enabled === true;
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+};
+
 // Create axios instance with base configuration
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/.netlify/functions',
@@ -13,12 +28,18 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    // Try to get token from localStorage as fallback
-    const token = localStorage.getItem('authToken');
-    // Only add token if it's valid (not null, undefined, empty, or the string "null"/"undefined")
-    if (token && token.trim() !== '' && token !== 'null' && token !== 'undefined') {
-      config.headers.Authorization = `Bearer ${token}`;
+    const useBearerAuth = isBearerAuthEnabled();
+
+    if (useBearerAuth) {
+      // Bearer token mode - get token from localStorage
+      const token = localStorage.getItem('authToken');
+      if (token && token.trim() !== '' && token !== 'null' && token !== 'undefined') {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
+    // In cookie mode, we rely on withCredentials: true for HttpOnly cookies
+    // No additional headers needed
+
     return config;
   },
   (error) => {
@@ -34,7 +55,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized access
-      localStorage.removeItem('authToken');
+      const useBearerAuth = isBearerAuthEnabled();
+      if (useBearerAuth) {
+        localStorage.removeItem('authToken');
+      }
       localStorage.removeItem('user');
       // Don't automatically redirect to avoid infinite loops
       // Let the component handle the redirect

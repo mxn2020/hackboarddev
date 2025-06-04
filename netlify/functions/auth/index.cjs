@@ -27,6 +27,7 @@ const redis = new Redis({
 });
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const AUTH_MODE = process.env.AUTH_MODE || 'cookie'; // 'cookie' or 'bearer'
 
 // Validate JWT secret exists and is strong enough
 if (!JWT_SECRET || JWT_SECRET.length < 32) {
@@ -39,6 +40,51 @@ const getClientIP = (event) => {
     event.headers['x-real-ip'] ||
     event.requestContext?.identity?.sourceIp ||
     'unknown';
+};
+
+// Helper function to extract token based on auth mode
+const extractToken = (event) => {
+  let token;
+  const authHeader = event.headers.authorization || event.headers.Authorization;
+
+  if (AUTH_MODE === 'bearer') {
+    // Bearer token mode - only check Authorization header
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  } else {
+    // Cookie mode - check both header and cookies for backward compatibility
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    } else {
+      // Check for token in cookies
+      const cookies = event.headers.cookie;
+      if (cookies) {
+        const parsedCookies = parse(cookies);
+        token = parsedCookies.auth_token;
+      }
+    }
+  }
+
+  return token;
+};
+
+// Helper function to set authentication response based on auth mode
+const setAuthResponse = (response, token) => {
+  if (AUTH_MODE === 'bearer') {
+    // Bearer mode - return token in response body only
+    return response;
+  } else {
+    // Cookie mode - set HTTP-only cookie
+    const cookieValue = setSecureCookie(token);
+    return {
+      ...response,
+      headers: {
+        ...response.headers,
+        'Set-Cookie': cookieValue,
+      },
+    };
+  }
 };
 
 // CORS headers with enhanced security
@@ -214,18 +260,18 @@ async function handleRegister(event) {
     // Return user data without password
     const { password: _, ...userWithoutPassword } = user;
 
-    return {
+    const response = {
       statusCode: 201,
-      headers: {
-        ...corsHeaders,
-        'Set-Cookie': setSecureCookie(token)
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
+        success: true,
         user: userWithoutPassword,
-        token,
+        token: AUTH_MODE === 'bearer' ? token : undefined, // Only include token in body for Bearer mode
         message: 'Registration successful'
       }),
     };
+
+    return setAuthResponse(response, token);
   } catch (error) {
     console.error('Register error:', error);
     return {
@@ -349,18 +395,18 @@ async function handleLogin(event) {
     // Return user data without password
     const { password: _, ...userWithoutPassword } = updatedUser;
 
-    return {
+    const response = {
       statusCode: 200,
-      headers: {
-        ...corsHeaders,
-        'Set-Cookie': setSecureCookie(token)
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
+        success: true,
         user: userWithoutPassword,
-        token,
+        token: AUTH_MODE === 'bearer' ? token : undefined, // Only include token in body for Bearer mode
         message: 'Login successful'
       }),
     };
+
+    return setAuthResponse(response, token);
   } catch (error) {
     console.error('Login error:', error);
     return {
@@ -373,20 +419,8 @@ async function handleLogin(event) {
 
 async function handleGetMe(event) {
   try {
-    // Check both Authorization header and cookies
-    let token;
-    const authHeader = event.headers.authorization || event.headers.Authorization;
-
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.substring(7);
-    } else {
-      // Check for token in cookies
-      const cookies = event.headers.cookie;
-      if (cookies) {
-        const parsedCookies = parse(cookies);
-        token = parsedCookies.auth_token;
-      }
-    }
+    // Extract token based on auth mode
+    const token = extractToken(event);
 
     if (!token) {
       return {

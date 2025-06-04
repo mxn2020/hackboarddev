@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Bell, Moon, Sun, Monitor, Shield, Key, Eye, EyeOff, Save, Mail } from 'lucide-react';
+import { Bell, Moon, Sun, Monitor, Shield, Key, Eye, EyeOff, Save, Mail, Lock, Cookie } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import PasswordStrength from '../components/auth/PasswordStrength';
+import { api } from '../utils/api';
 
 const SettingsPage: React.FC = () => {
   const { user, updateUser, changePassword } = useAuth();
@@ -42,12 +43,76 @@ const SettingsPage: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
 
+  // Authentication mode settings
+  const [authMode, setAuthMode] = useState<'cookie' | 'bearer'>('cookie');
+  const [isUpdatingAuthMode, setIsUpdatingAuthMode] = useState(false);
+
+  // Check current auth mode from feature flags
+  useEffect(() => {
+    const checkAuthMode = () => {
+      const featureFlags = localStorage.getItem('featureFlags');
+      if (featureFlags) {
+        try {
+          const flags = JSON.parse(featureFlags);
+          setAuthMode(flags.bearer_token_auth?.enabled ? 'bearer' : 'cookie');
+        } catch (e) {
+          setAuthMode('cookie');
+        }
+      }
+    };
+    checkAuthMode();
+  }, []);
+
   const handleSecurityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setSecuritySettings({
       ...securitySettings,
       [name]: value,
     });
+  };
+
+  const handleAuthModeChange = async (newMode: 'cookie' | 'bearer') => {
+    if (newMode === authMode) return;
+
+    setIsUpdatingAuthMode(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    try {
+      // Get current feature flags
+      const featureFlags = JSON.parse(localStorage.getItem('featureFlags') || '{}');
+
+      // Update the Bearer token auth flag
+      featureFlags.bearer_token_auth = {
+        ...featureFlags.bearer_token_auth,
+        enabled: newMode === 'bearer'
+      };
+
+      // Save updated flags to localStorage
+      localStorage.setItem('featureFlags', JSON.stringify(featureFlags));
+
+      // Update the backend feature flag via API
+      try {
+        await api.put('/feature-flags/bearer_token_auth', {
+          enabled: newMode === 'bearer'
+        });
+      } catch (apiError) {
+        console.warn('Failed to update server-side feature flag:', apiError);
+        // Continue with local change even if server update fails
+      }
+
+      setAuthMode(newMode);
+      setSuccessMessage(
+        `Authentication mode changed to ${newMode === 'bearer' ? 'Bearer Token' : 'HTTP-only Cookie'}. ` +
+        'You may need to log out and back in for the change to take full effect.'
+      );
+
+    } catch (error) {
+      console.error('Error updating auth mode:', error);
+      setErrorMessage('Failed to update authentication mode. Please try again.');
+    } finally {
+      setIsUpdatingAuthMode(false);
+    }
   };
 
   const saveGeneralSettings = async (e: React.FormEvent) => {
@@ -399,6 +464,61 @@ const SettingsPage: React.FC = () => {
                     <Key className="w-4 h-4 mr-2" />
                     Change Password
                   </Button>
+                </div>
+
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                  <Label className="text-base font-medium text-gray-900 dark:text-gray-100 flex items-center">
+                    <Lock className="mr-2 h-5 w-5 text-gray-400 dark:text-gray-500" />
+                    Authentication Mode
+                  </Label>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Choose how you authenticate with the application</p>
+
+                  <RadioGroup
+                    value={authMode}
+                    onValueChange={(value) => handleAuthModeChange(value as 'cookie' | 'bearer')}
+                    className="space-y-4"
+                  >
+                    <div className="flex items-start space-x-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                      <RadioGroupItem value="cookie" id="auth-cookie" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="auth-cookie" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          <Cookie className="mr-2 h-4 w-4 text-gray-400 dark:text-gray-500" />
+                          HTTP-only Cookie Authentication
+                        </Label>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Secure authentication using HTTP-only cookies. More secure against XSS attacks but less flexible for API integrations.
+                          Cookies are automatically managed by your browser.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                      <RadioGroupItem value="bearer" id="auth-bearer" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="auth-bearer" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          <Key className="mr-2 h-4 w-4 text-gray-400 dark:text-gray-500" />
+                          Bearer Token Authentication
+                        </Label>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Authentication using Bearer tokens in request headers. More flexible for API integrations and third-party apps but requires careful token management.
+                        </p>
+                      </div>
+                    </div>
+                  </RadioGroup>
+
+                  <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                    <p className="text-xs text-amber-800 dark:text-amber-200">
+                      <strong>Note:</strong> Changing authentication mode may require you to log out and back in for the change to take full effect.
+                      Your current session may continue to work until it expires.
+                    </p>
+                  </div>
+
+                  {isUpdatingAuthMode && (
+                    <div className="mt-3 flex items-center text-sm text-blue-600 dark:text-blue-400">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                      Updating authentication mode...
+                    </div>
+                  )}
                 </div>
               </form>
             )}

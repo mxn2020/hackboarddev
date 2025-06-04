@@ -1,6 +1,7 @@
 const { Redis } = require('@upstash/redis');
 const jwt = require('jsonwebtoken');
 const { nanoid } = require('nanoid');
+const { parse } = require('cookie');
 
 // Initialize Redis
 const redis = new Redis({
@@ -9,6 +10,7 @@ const redis = new Redis({
 });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const AUTH_MODE = process.env.AUTH_MODE || 'cookie'; // 'cookie' or 'bearer'
 
 // CORS headers
 const corsHeaders = {
@@ -19,12 +21,32 @@ const corsHeaders = {
 
 // Authentication middleware
 async function authenticateUser(event) {
+  // Extract token based on auth mode
+  let token;
   const authHeader = event.headers.authorization || event.headers.Authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new Error('No token provided');
+
+  if (AUTH_MODE === 'bearer') {
+    // Bearer token mode - only check Authorization header
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  } else {
+    // Cookie mode - check both header and cookies for backward compatibility
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    } else {
+      // Check for token in cookies
+      const cookies = event.headers.cookie;
+      if (cookies) {
+        const parsedCookies = parse(cookies);
+        token = parsedCookies.auth_token;
+      }
+    }
   }
 
-  const token = authHeader.substring(7);
+  if (!token) {
+    throw new Error('No token provided');
+  }
 
   // Check if token is valid and not just empty or malformed
   if (!token || token.trim() === '' || token === 'null' || token === 'undefined') {
@@ -33,7 +55,7 @@ async function authenticateUser(event) {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    return decoded.userId;
+    return decoded.sub; // Use 'sub' field which contains the user ID
   } catch (error) {
     console.error('JWT verification failed:', error.message);
     throw new Error('Invalid token');

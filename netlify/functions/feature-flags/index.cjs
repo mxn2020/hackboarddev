@@ -1,6 +1,7 @@
 // netlify/functions/feature-flags/index.cjs
 const { Redis } = require('@upstash/redis');
 const jwt = require('jsonwebtoken');
+const { parse } = require('cookie');
 
 // Initialize Redis
 const redis = new Redis({
@@ -9,6 +10,7 @@ const redis = new Redis({
 });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const AUTH_MODE = process.env.AUTH_MODE || 'cookie'; // 'cookie' or 'bearer'
 
 // CORS headers
 const corsHeaders = {
@@ -150,32 +152,65 @@ const DEFAULT_FEATURE_FLAGS = [
     adminOnly: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'bearer_token_auth',
+    name: 'Bearer Token Authentication',
+    description: 'Use Bearer tokens in Authorization headers instead of HTTP-only cookies for authentication. Provides more flexibility for API integrations.',
+    enabled: false,
+    category: 'core',
+    status: 'active',
+    adminOnly: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }
 ];
 
 // Authentication middleware
 async function authenticateUser(event) {
+  // Extract token based on auth mode
+  let token;
   const authHeader = event.headers.authorization || event.headers.Authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+  if (AUTH_MODE === 'bearer') {
+    // Bearer token mode - only check Authorization header
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  } else {
+    // Cookie mode - check both header and cookies for backward compatibility
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    } else {
+      // Check for token in cookies
+      const cookies = event.headers.cookie;
+      if (cookies) {
+        const parsedCookies = parse(cookies);
+        token = parsedCookies.auth_token;
+      }
+    }
+  }
+
+  if (!token) {
     throw new Error('No token provided');
   }
 
-  const token = authHeader.substring(7);
-  if (!token || token.trim() === '' || token === 'null' || token === 'undefined') {
+  if (token.trim() === '' || token === 'null' || token === 'undefined') {
     throw new Error('Invalid token format');
   }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    
-    // Get user data to check role
-    const userData = await redis.get(`user:${decoded.userId}`);
+
+    // Get user data to check role - use 'sub' field which contains the user ID
+    const userId = decoded.sub || decoded.userId;
+    const userData = await redis.get(`user:${userId}`);
     if (!userData) {
       throw new Error('User not found');
     }
 
     const user = typeof userData === 'string' ? JSON.parse(userData) : userData;
-    return { userId: decoded.userId, role: user.role || 'user', user };
+    return { userId, role: user.role || 'user', user };
   } catch (error) {
     console.error('JWT verification failed:', error.message);
     throw new Error('Invalid token');
@@ -267,7 +302,7 @@ exports.handler = async (event) => {
 async function handleGetFeatureFlags(event) {
   try {
     let userRole = 'user';
-    
+
     // Try to get user role if authenticated
     try {
       const authUser = await authenticateUser(event);
@@ -278,7 +313,7 @@ async function handleGetFeatureFlags(event) {
 
     const flagsData = await redis.get('feature_flags');
     let flags = {};
-    
+
     if (flagsData) {
       flags = typeof flagsData === 'string' ? JSON.parse(flagsData) : flagsData;
     }
@@ -309,10 +344,10 @@ async function handleGetFeatureFlags(event) {
 async function handleUpdateFeatureFlag(flagId, event) {
   try {
     const updates = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
-    
+
     const flagsData = await redis.get('feature_flags');
     let flags = {};
-    
+
     if (flagsData) {
       flags = typeof flagsData === 'string' ? JSON.parse(flagsData) : flagsData;
     }
@@ -358,7 +393,7 @@ async function handleResetFeatureFlags() {
         updatedAt: new Date().toISOString()
       };
     });
-    
+
     await redis.set('feature_flags', JSON.stringify(flagsMap));
 
     return {
