@@ -17,27 +17,27 @@ console.log('🔗 Redis initialized');
 async function clearAllBlogPosts() {
   try {
     console.log('🧹 Clearing all existing blog posts...');
-    
+
     // Get all blog post slugs
     const postSlugs = await redis.lrange('blog:posts_list', 0, -1);
     console.log('  📋 Retrieved posts list from Redis');
-    
+
     if (postSlugs && postSlugs.length > 0) {
       console.log(`Found ${postSlugs.length} blog posts to delete`);
-      
+
       // Delete each blog post
       for (const slug of postSlugs) {
         await redis.del(`blog:post:${slug}`);
         console.log(`  ✅ Deleted post: ${slug}`);
       }
-      
+
       // Clear the posts list
       await redis.del('blog:posts_list');
       console.log('  ✅ Cleared posts list');
     } else {
       console.log('No blog posts found to delete');
     }
-    
+
     console.log('✅ Blog posts cleared successfully\n');
   } catch (error) {
     console.error('❌ Error clearing blog posts:', error);
@@ -48,16 +48,16 @@ async function clearAllBlogPosts() {
 async function createAdminUser() {
   try {
     console.log('👤 Creating admin user...');
-    
+
     const adminEmail = 'admin@example.com';
     const adminPassword = 'admin123';
     const adminName = 'Admin User';
-    
+
     // Check if admin already exists
     const existingAdminId = await redis.get(`user:email:${adminEmail}`);
     if (existingAdminId) {
       console.log('⚠️  Admin user already exists');
-      
+
       // Update existing user to ensure they have admin role
       const existingUserData = await redis.get(`user:${existingAdminId}`);
       if (existingUserData) {
@@ -68,11 +68,11 @@ async function createAdminUser() {
       }
       return;
     }
-    
+
     // Create admin user
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
     const adminId = `user_${Date.now()}_admin`;
-    
+
     const adminUser = {
       id: adminId,
       username: adminName,
@@ -83,11 +83,11 @@ async function createAdminUser() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    
+
     // Store admin user
     await redis.set(`user:${adminId}`, JSON.stringify(adminUser));
     await redis.set(`user:email:${adminEmail}`, adminId);
-    
+
     console.log('✅ Admin user created successfully');
     console.log(`   📧 Email: ${adminEmail}`);
     console.log(`   🔑 Password: ${adminPassword}`);
@@ -101,7 +101,7 @@ async function createAdminUser() {
 async function updateExistingUsers() {
   try {
     console.log('🔄 Updating existing users to add role field...');
-    
+
     // Get all user keys - use a more specific pattern
     const userKeys = [];
     try {
@@ -111,16 +111,16 @@ async function updateExistingUsers() {
       console.log('No user keys found with pattern user:user_*, trying alternate pattern...');
       // Try different pattern if needed
     }
-    
+
     if (userKeys && userKeys.length > 0) {
       console.log(`Found ${userKeys.length} existing users to update`);
-      
+
       for (const userKey of userKeys) {
         try {
           const userData = await redis.get(userKey);
           if (userData) {
             const user = typeof userData === 'string' ? JSON.parse(userData) : userData;
-            
+
             // Add role if it doesn't exist
             if (!user.role) {
               user.role = 'user'; // Default role for existing users
@@ -137,7 +137,7 @@ async function updateExistingUsers() {
     } else {
       console.log('No existing users found to update');
     }
-    
+
     console.log('✅ Existing users updated successfully\n');
   } catch (error) {
     console.error('⚠️  Warning updating existing users (continuing anyway):', error.message);
@@ -148,11 +148,11 @@ async function updateExistingUsers() {
 async function seedDatabase() {
   try {
     console.log('🌱 Starting database seeding...\n');
-    
+
     await clearAllBlogPosts();
     await updateExistingUsers();
     await createAdminUser();
-    
+
     console.log('🎉 Database seeding completed successfully!');
     console.log('\n📝 What was done:');
     console.log('  - Cleared all existing blog posts');
@@ -161,7 +161,7 @@ async function seedDatabase() {
     console.log('\n🚀 You can now:');
     console.log('  - Login as admin to manage all blog posts');
     console.log('  - Regular users can only edit/delete their own posts');
-    
+
   } catch (error) {
     console.error('💥 Seeding failed:', error);
     process.exit(1);
