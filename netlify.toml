@@ -2,17 +2,13 @@
 
 [build]
   publish = "dist"
-  command = "npm install && npm run build"
+  command = "rm -rf node_modules package-lock.json && npm install && npm run build"
   
 [build.environment]
   # Use Node.js 20 for modern package compatibility
   NODE_VERSION = "20"
   # Ensure npm doesn't use frozen lockfile in CI
   NPM_FLAGS = "--no-frozen-lockfile"
-  # Skip optional dependencies that might cause issues
-  NPM_CONFIG_OPTIONAL = "false"
-  # Increase npm timeout
-  NPM_CONFIG_TIMEOUT = "300000"
   # Disable Edge Functions runtime
   NETLIFY_EXPERIMENTAL_EDGE_FUNCTIONS = "false"
   # Force traditional functions
