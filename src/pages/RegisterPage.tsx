@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { Label } from '../components/ui/label';
 import PasswordStrength from '../components/auth/PasswordStrength';
+import { AlertCircle } from 'lucide-react';
+
+interface LocationState {
+  from?: string;
+  message?: string;
+}
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,9 +20,19 @@ const RegisterPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [redirectMessage, setRedirectMessage] = useState<string | null>(null);
 
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if we have a redirect message from another page
+  React.useEffect(() => {
+    const state = location.state as LocationState;
+    if (state?.message) {
+      setRedirectMessage(state.message);
+    }
+  }, [location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +47,10 @@ const RegisterPage: React.FC = () => {
 
     try {
       await register(email, password, name);
-      navigate('/hackboard');
+      
+      // Redirect to the page they were trying to access, or default to hackboard
+      const state = location.state as LocationState;
+      navigate(state?.from || '/hackboard');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
@@ -56,6 +75,14 @@ const RegisterPage: React.FC = () => {
             </Link>
           </p>
         </div>
+
+        {redirectMessage && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 flex items-start">
+            <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 mr-3" />
+            <p className="text-amber-800 dark:text-amber-200 text-sm">{redirectMessage}</p>
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>

@@ -97,7 +97,6 @@ function AppContent() {
         {/* Routes with MainLayout */}
         <Route element={<MainLayout />}>
           {/* Public Routes */}
-          <Route path="/hackboard" element={<HackboardPage />} />
           <Route
             path="login"
             element={
@@ -112,6 +111,16 @@ function AppContent() {
               <PublicRoute>
                 <RegisterPage />
               </PublicRoute>
+            }
+          />
+
+          {/* Protected Routes */}
+          <Route
+            path="hackboard"
+            element={
+              <ProtectedRoute>
+                <HackboardPage />
+              </ProtectedRoute>
             }
           />
 

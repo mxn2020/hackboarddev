@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../utils/api';
 import { 
@@ -37,6 +37,10 @@ import { Badge } from '../components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Separator } from '../components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import CreatePostModal from '../components/hackboard/CreatePostModal';
+import CreateTeamRequestModal from '../components/hackboard/CreateTeamRequestModal';
+import PostCard from '../components/hackboard/PostCard';
+import TeamRequestCard from '../components/hackboard/TeamRequestCard';
 
 // Types for our community board
 interface Post {
@@ -210,13 +214,28 @@ const POPULAR_TAGS = [
 ];
 
 const HackboardPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
   const [teamRequests, setTeamRequests] = useState<TeamRequest[]>(MOCK_TEAM_REQUESTS);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  const [isCreateTeamRequestModalOpen, setIsCreateTeamRequestModalOpen] = useState(false);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/hackboard', message: 'Please log in to access the community board.' } });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // If not authenticated, don't render the page content
+  if (!isAuthenticated) {
+    return null;
+  }
 
   // Format date to relative time (e.g., "2 hours ago")
   const formatRelativeTime = (dateString: string) => {
@@ -279,6 +298,52 @@ const HackboardPage: React.FC = () => {
     }
   };
 
+  // Handle post creation
+  const handleCreatePost = (postData: any) => {
+    const newPost: Post = {
+      id: `post_${Date.now()}`,
+      title: postData.title,
+      content: postData.content,
+      author: {
+        id: user?.id || 'unknown',
+        name: user?.name || 'Anonymous',
+        avatar: undefined
+      },
+      category: postData.category,
+      tags: postData.tags,
+      likes: 0,
+      comments: 0,
+      createdAt: new Date().toISOString(),
+      isBookmarked: false
+    };
+
+    setPosts([newPost, ...posts]);
+    setIsCreatePostModalOpen(false);
+  };
+
+  // Handle team request creation
+  const handleCreateTeamRequest = (requestData: any) => {
+    const newRequest: TeamRequest = {
+      id: `request_${Date.now()}`,
+      author: {
+        id: user?.id || 'unknown',
+        name: user?.name || 'Anonymous',
+        avatar: undefined
+      },
+      skills: requestData.skills,
+      description: requestData.description,
+      createdAt: new Date().toISOString()
+    };
+
+    setTeamRequests([newRequest, ...teamRequests]);
+    setIsCreateTeamRequestModalOpen(false);
+  };
+
+  // Connect with team request
+  const handleConnectTeamRequest = (requestId: string) => {
+    alert(`Connection request sent to team ${requestId}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a14] to-[#1a1a2e]">
       {/* Hero Section */}
@@ -302,11 +367,18 @@ const HackboardPage: React.FC = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-6 py-3 rounded-full">
+              <Button 
+                className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-6 py-3 rounded-full"
+                onClick={() => setIsCreatePostModalOpen(true)}
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Post
               </Button>
-              <Button variant="outline" className="border-amber-500/50 text-amber-300 hover:bg-amber-500/10 px-6 py-3 rounded-full">
+              <Button 
+                variant="outline" 
+                className="border-amber-500/50 text-amber-300 hover:bg-amber-500/10 px-6 py-3 rounded-full"
+                onClick={() => setIsCreateTeamRequestModalOpen(true)}
+              >
                 <Users className="h-4 w-4 mr-2" />
                 Find Team Members
               </Button>
@@ -492,7 +564,10 @@ const HackboardPage: React.FC = () => {
                             ? "Try adjusting your filters or search term"
                             : "Be the first to start a conversation!"}
                         </p>
-                        <Button className="bg-amber-500 hover:bg-amber-600 text-black">
+                        <Button 
+                          className="bg-amber-500 hover:bg-amber-600 text-black"
+                          onClick={() => setIsCreatePostModalOpen(true)}
+                        >
                           <Plus className="h-4 w-4 mr-2" />
                           Create Post
                         </Button>
@@ -502,98 +577,13 @@ const HackboardPage: React.FC = () => {
                 ) : (
                   <div className="space-y-4">
                     {filteredPosts.map(post => (
-                      <Card key={post.id} className="bg-[#1a1a2e] border-[#2a2a3a] hover:border-amber-500/30 transition-colors">
-                        <CardHeader className="pb-3">
-                          <div className="flex justify-between items-start">
-                            <div className="flex items-center gap-3">
-                              <Avatar>
-                                <AvatarImage src={post.author.avatar} />
-                                <AvatarFallback className="bg-amber-500 text-black">
-                                  {post.author.name.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="font-medium text-gray-200">{post.author.name}</div>
-                                <div className="text-xs text-gray-400 flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {formatRelativeTime(post.createdAt)}
-                                </div>
-                              </div>
-                            </div>
-                            <div>
-                              <Badge className={`
-                                ${post.category === 'question' ? 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30' : ''}
-                                ${post.category === 'showcase' ? 'bg-purple-500/20 text-purple-300 hover:bg-purple-500/30' : ''}
-                                ${post.category === 'idea' ? 'bg-green-500/20 text-green-300 hover:bg-green-500/30' : ''}
-                                ${post.category === 'team' ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30' : ''}
-                                ${post.category === 'resource' ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30' : ''}
-                              `}>
-                                {post.category.charAt(0).toUpperCase() + post.category.slice(1)}
-                              </Badge>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <h3 className="text-xl font-semibold text-gray-100 mb-2 hover:text-amber-300 transition-colors">
-                            <Link to={`/hackboard/post/${post.id}`}>
-                              {post.title}
-                            </Link>
-                          </h3>
-                          <p className="text-gray-300 mb-4 line-clamp-2">
-                            {post.content}
-                          </p>
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {post.tags.map(tag => (
-                              <Badge 
-                                key={tag} 
-                                variant="outline" 
-                                className="border-amber-500/30 text-amber-300/70 hover:border-amber-500/50 hover:text-amber-300 cursor-pointer"
-                                onClick={() => handleTagSelect(tag)}
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                        </CardContent>
-                        <CardFooter className="border-t border-[#2a2a3a] pt-3 flex justify-between">
-                          <div className="flex gap-4">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-gray-400 hover:text-amber-300"
-                              onClick={() => likePost(post.id)}
-                            >
-                              <ThumbsUp className="h-4 w-4 mr-1" />
-                              {post.likes}
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-gray-400 hover:text-amber-300"
-                            >
-                              <MessageCircle className="h-4 w-4 mr-1" />
-                              {post.comments}
-                            </Button>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className={post.isBookmarked ? "text-amber-300" : "text-gray-400 hover:text-amber-300"}
-                              onClick={() => toggleBookmark(post.id)}
-                            >
-                              <Bookmark className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-gray-400 hover:text-amber-300"
-                            >
-                              <Share2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </CardFooter>
-                      </Card>
+                      <PostCard 
+                        key={post.id}
+                        post={post}
+                        onLike={likePost}
+                        onBookmark={toggleBookmark}
+                        onTagClick={handleTagSelect}
+                      />
                     ))}
                   </div>
                 )}
@@ -603,51 +593,11 @@ const HackboardPage: React.FC = () => {
               <TabsContent value="teams" className="mt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {teamRequests.map(request => (
-                    <Card key={request.id} className="bg-[#1a1a2e] border-[#2a2a3a] hover:border-amber-500/30 transition-colors">
-                      <CardHeader className="pb-3">
-                        <div className="flex justify-between items-start">
-                          <div className="flex items-center gap-3">
-                            <Avatar>
-                              <AvatarImage src={request.author.avatar} />
-                              <AvatarFallback className="bg-amber-500 text-black">
-                                {request.author.name.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="font-medium text-gray-200">{request.author.name}</div>
-                              <div className="text-xs text-gray-400 flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                {formatRelativeTime(request.createdAt)}
-                              </div>
-                            </div>
-                          </div>
-                          <Badge className="bg-amber-500/20 text-amber-300 hover:bg-amber-500/30">
-                            Team Request
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="mb-3">
-                          <div className="text-sm font-medium text-gray-400 mb-1">Skills I Bring:</div>
-                          <div className="flex flex-wrap gap-2">
-                            {request.skills.map(skill => (
-                              <Badge key={skill} className="bg-[#2a2a3a] text-gray-200">
-                                {skill}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="mb-4">
-                          <div className="text-sm font-medium text-gray-400 mb-1">Looking For:</div>
-                          <p className="text-gray-300">{request.description}</p>
-                        </div>
-                      </CardContent>
-                      <CardFooter className="border-t border-[#2a2a3a] pt-3">
-                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-black">
-                          Connect
-                        </Button>
-                      </CardFooter>
-                    </Card>
+                    <TeamRequestCard 
+                      key={request.id}
+                      request={request}
+                      onConnect={handleConnectTeamRequest}
+                    />
                   ))}
 
                   {/* Create Team Request Card */}
@@ -660,7 +610,10 @@ const HackboardPage: React.FC = () => {
                       <p className="text-gray-400 text-center mb-4">
                         Create a team request to find the perfect collaborators for your hackathon project.
                       </p>
-                      <Button className="bg-amber-500 hover:bg-amber-600 text-black">
+                      <Button 
+                        className="bg-amber-500 hover:bg-amber-600 text-black"
+                        onClick={() => setIsCreateTeamRequestModalOpen(true)}
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Create Team Request
                       </Button>
@@ -838,6 +791,19 @@ const HackboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <CreatePostModal 
+        isOpen={isCreatePostModalOpen}
+        onClose={() => setIsCreatePostModalOpen(false)}
+        onSubmit={handleCreatePost}
+      />
+
+      <CreateTeamRequestModal
+        isOpen={isCreateTeamRequestModalOpen}
+        onClose={() => setIsCreateTeamRequestModalOpen(false)}
+        onSubmit={handleCreateTeamRequest}
+      />
     </div>
   );
 };
