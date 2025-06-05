@@ -12,7 +12,10 @@ import {
   TestTube,
   Flag,
   Zap,
-  Users
+  Users,
+  MessageSquare,
+  Rocket,
+  Lightbulb
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -30,12 +33,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const qstashEnabled = useFeatureFlag('upstash_qstash');
 
   const navigation = [
+    { name: 'Community', href: '/', icon: MessageSquare },
+    { name: 'Team Matching', href: '/hackboard', icon: Users, badge: 'New' },
+    { name: 'Project Showcase', href: '/showcase', icon: Rocket },
+    { name: 'Resources', href: '/resources', icon: Lightbulb },
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'Notes', href: '/notes', icon: FileText },
-    { name: 'Blog Admin', href: '/admin/blog', icon: BookOpen, adminOnly: true },
-    { name: 'Public Blog', href: '/blog', icon: BookOpen },
+    { name: 'Blog', href: '/blog', icon: BookOpen },
     { name: 'Examples', href: '/examples', icon: FlaskConical },
-    { name: 'HackBoard', href: '/hackboard', icon: Users, badge: 'New' },
     { name: 'Profile', href: '/profile', icon: User },
     { name: 'Settings', href: '/settings', icon: Settings },
     { name: 'Test Suite', href: '/test', icon: TestTube },
@@ -83,13 +88,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed md:relative inset-y-0 left-0 z-30 w-64 bg-card border-r border-border transform transition-transform duration-200 ease-in-out ${
+        className={`fixed md:relative inset-y-0 left-0 z-30 w-64 bg-[#0a0a14] border-r border-[#2a2a3a] transform transition-transform duration-200 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border md:hidden">
-          <span className="text-lg font-semibold">Menu</span>
-          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+        <div className="flex items-center justify-between p-4 border-b border-[#2a2a3a] md:hidden">
+          <div className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-amber-500" />
+            <span className="text-lg font-semibold text-gray-100">HackBoard</span>
+          </div>
+          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-gray-400 hover:text-gray-100">
             <X className="h-5 w-5" />
           </Button>
         </div>
@@ -98,7 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           {allNavigation.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.href || 
-                           (item.href !== '/dashboard' && location.pathname.startsWith(item.href));
+                           (item.href !== '/' && location.pathname.startsWith(item.href));
             
             return (
               <Link
@@ -106,8 +114,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                 to={item.href}
                 className={`flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    ? 'bg-amber-500 text-black'
+                    : 'text-gray-400 hover:text-amber-300 hover:bg-[#1a1a2e]'
                 }`}
                 onClick={() => {
                   // Close sidebar on mobile after navigation
@@ -121,7 +129,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                   {item.name}
                 </div>
                 {item.badge && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className={`text-xs ${isActive ? 'bg-black/20 text-black' : 'bg-[#2a2a3a] text-amber-300'}`}>
                     {item.badge}
                   </Badge>
                 )}
@@ -132,16 +140,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
 
         {/* Admin Section Separator */}
         {isAdmin && (
-          <div className="px-4 py-2 border-t border-border mt-4">
+          <div className="px-4 py-2 border-t border-[#2a2a3a] mt-4">
             <div className="flex items-center gap-2 px-3 py-2">
-              <Flag className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <Flag className="h-4 w-4 text-gray-500" />
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Administration
               </span>
             </div>
             {qstashEnabled && (
               <div className="px-3 py-1">
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-300">
                   <Zap className="h-3 w-3 mr-1" />
                   QStash Active
                 </Badge>
