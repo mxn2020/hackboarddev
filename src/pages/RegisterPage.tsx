@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
+import Logo from '../components/shared/Logo';
 import { Label } from '../components/ui/label';
 import PasswordStrength from '../components/auth/PasswordStrength';
 import { AlertCircle } from 'lucide-react';
@@ -61,7 +62,10 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-transparent">
       <div className="max-w-md w-full space-y-8 p-8">
-        <div>
+        <div className="text-center">
+          <div className="flex justify-center mb-6">
+            <Logo size="lg" variant="dark" linkTo="/" />
+          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
             Create your account
           </h2>
