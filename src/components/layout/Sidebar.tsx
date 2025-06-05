@@ -11,7 +11,8 @@ import {
   FlaskConical,
   TestTube,
   Flag,
-  Zap
+  Zap,
+  Users
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -34,6 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     { name: 'Blog Admin', href: '/admin/blog', icon: BookOpen, adminOnly: true },
     { name: 'Public Blog', href: '/blog', icon: BookOpen },
     { name: 'Examples', href: '/examples', icon: FlaskConical },
+    { name: 'HackBoard', href: '/hackboard', icon: Users, badge: 'New' },
     { name: 'Profile', href: '/profile', icon: User },
     { name: 'Settings', href: '/settings', icon: Settings },
     { name: 'Test Suite', href: '/test', icon: TestTube },

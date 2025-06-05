@@ -23,6 +23,7 @@ import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import TestPage from './pages/TestPage';
 import NotFoundPage from './pages/NotFoundPage';
+import HackboardPage from './pages/HackboardPage';
 
 // Admin Pages
 import FeatureFlagsPage from './pages/admin/FeatureFlagsPage';
@@ -98,6 +99,9 @@ function AppContent() {
       <Routes>
         {/* Home Page has its own layout */}
         <Route path="/" element={<HomePage />} />
+
+        {/* Hackboard Page */}
+        <Route path="/hackboard" element={<HackboardPage />} />
 
         {/* Routes with MainLayout */}
         <Route element={<MainLayout />}>
