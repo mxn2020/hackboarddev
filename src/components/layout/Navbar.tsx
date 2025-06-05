@@ -64,7 +64,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
               <nav className="hidden md:flex items-center space-x-4">
                 {isAuthenticated && (
                   <>
-                    <NavLink to="/dashboard" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+                    <NavLink to="/dashboard\" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
                       <div className="flex items-center">
                         <HomeIcon className="h-4 w-4 mr-1" />
                         Dashboard
