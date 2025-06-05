@@ -114,7 +114,6 @@ function AppContent() {
             }
           />
 
-          {/* Protected Routes */}
           <Route
             path="hackboard"
             element={
