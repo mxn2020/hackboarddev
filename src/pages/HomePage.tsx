@@ -252,10 +252,10 @@ const HomePage: React.FC = () => {
       {/* Footer */}
       <div className="border-t border-[#2a2a3a] py-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-3 mb-4 md:mb-0">
               <div className="p-2 bg-amber-500/20 rounded-lg">
-                <Code className="h-6 w-6 text-amber-400" />
+              <Code className="h-6 w-6 text-amber-400" />
               </div>
               <span className="text-white font-semibold">HackBoard</span>
             </div>
@@ -263,10 +263,10 @@ const HomePage: React.FC = () => {
             <div className="flex space-x-6 text-gray-400">
               <Link to="/blog" className="hover:text-white transition-colors">Blog</Link>
               <Link to="/examples" className="hover:text-white transition-colors">Examples</Link>
-              <a href="#" className="hover:text-white transition-colors">GitHub</a>
-              <a href="#" className="hover:text-white transition-colors">Twitter</a>
+              <a href="https://github.com/mxn2020/hackboarddev" className="hover:text-white transition-colors">GitHub</a>
+              <a href="https://x.com/i/communities/1928861140651520478" className="hover:text-white transition-colors">X</a>
             </div>
-          </div>
+            </div>
           
           <div className="text-center mt-8 pt-8 border-t border-[#2a2a3a] text-gray-500">
             <p>&copy; 2025 HackBoard. Built with ❤️ for developers.</p>

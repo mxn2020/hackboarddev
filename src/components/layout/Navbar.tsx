@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
 import { PlusCircle, Settings, User, LogOut, Menu, Sun, Moon, BookOpen, Home as HomeIcon, Info, FileText, TestTube, Users, Zap, MessageSquare } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from 'next-themes';
 import { Button } from '../ui/button';
+import { useState } from 'react';
 
 interface NavbarProps {
   toggleSidebar: () => void;

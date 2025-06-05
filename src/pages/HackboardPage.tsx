@@ -69,7 +69,7 @@ interface TeamRequest {
 }
 
 const HackboardPage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
   const [teamRequests, setTeamRequests] = useState<TeamRequest[]>([]);
