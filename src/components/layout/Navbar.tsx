@@ -64,7 +64,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
               <nav className="hidden md:flex items-center space-x-4">
                 {isAuthenticated && (
                   <>
-                    <NavLink to="/" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-amber-300' : 'text-gray-300 hover:text-amber-300'}`}>
+                    <NavLink to="/\" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-amber-300' : 'text-gray-300 hover:text-amber-300'}`}>
                       <div className="flex items-center">
                         <MessageSquare className="h-4 w-4 mr-1" />
                         Community
