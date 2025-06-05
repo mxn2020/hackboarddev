@@ -33,13 +33,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const qstashEnabled = useFeatureFlag('upstash_qstash');
 
   const navigation = [
-    { name: 'Community Board', href: '/hackboard', icon: MessageSquare, badge: 'New'  },
-    { name: 'Team Matching', href: '/hackboard', icon: Users},
-    { name: 'Project Showcase', href: '/showcase', icon: Rocket },
-    { name: 'Resources', href: '/resources', icon: Lightbulb },
-    { name: 'Blog', href: '/blog', icon: BookOpen },
-    { name: 'Profile', href: '/profile', icon: User },
-    { name: 'Settings', href: '/settings', icon: Settings },
+    { name: 'Community Board', href: '/hackboard', icon: MessageSquare, badge: 'New', adminOnly: false  },
+    { name: 'Team Matching', href: '/hackboard', icon: Users, adminOnly: false},
+    { name: 'Project Showcase', href: '/showcase', icon: Rocket, adminOnly: false },
+    { name: 'Resources', href: '/resources', icon: Lightbulb, adminOnly: false },
+    { name: 'Blog', href: '/blog', icon: BookOpen, adminOnly: false },
+    { name: 'Profile', href: '/profile', icon: User, adminOnly: false },
+    { name: 'Settings', href: '/settings', icon: Settings, adminOnly: false },
   ];
 
   // Add admin-only routes with feature flag integration
@@ -61,10 +61,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   ];
 
   const isAdmin = user?.role === 'admin';
-
   // Filter navigation items based on user role
   const filteredNavigation = navigation.filter(item => 
-    !item.adminOnly || (item.adminOnly && isAdmin)
+    !item.adminOnly || isAdmin
   );
 
   const allNavigation = [
