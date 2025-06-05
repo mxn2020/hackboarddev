@@ -118,9 +118,9 @@ function AppContent() {
           <Route
             path="hackboard"
             element={
-              <ProtectedRoute>
+              <PublicRoute>
                 <HackboardPage />
-              </ProtectedRoute>
+              </PublicRoute>
             }
           />
 
