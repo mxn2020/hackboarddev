@@ -41,6 +41,7 @@ import CreatePostModal from '../components/hackboard/CreatePostModal';
 import CreateTeamRequestModal from '../components/hackboard/CreateTeamRequestModal';
 import PostCard from '../components/hackboard/PostCard';
 import TeamRequestCard from '../components/hackboard/TeamRequestCard';
+import LoadingSpinner from '../components/shared/LoadingSpinner';
 
 // Types for our community board
 interface Post {
@@ -72,158 +73,19 @@ interface TeamRequest {
   createdAt: string;
 }
 
-// Mock data for posts
-const MOCK_POSTS: Post[] = [
-  {
-    id: '1',
-    title: 'Looking for a designer for my AI-powered education platform',
-    content: 'I\'m building an AI tool that helps students learn programming concepts through interactive exercises. Need someone with UI/UX skills to make it look amazing!',
-    author: {
-      id: 'user1',
-      name: 'Alex Chen',
-      avatar: 'https://i.pravatar.cc/150?img=1'
-    },
-    category: 'team',
-    tags: ['ai', 'education', 'design'],
-    likes: 24,
-    comments: 8,
-    createdAt: '2025-06-04T15:32:00Z',
-    isBookmarked: true
-  },
-  {
-    id: '2',
-    title: 'Just launched my hackathon project - Feedback welcome!',
-    content: 'After 3 weeks of coding, I\'ve finally launched my project: a tool that helps remote teams build better connections through async video messages. Would love your feedback!',
-    author: {
-      id: 'user2',
-      name: 'Sophia Williams',
-      avatar: 'https://i.pravatar.cc/150?img=5'
-    },
-    category: 'showcase',
-    tags: ['remote-work', 'video', 'launched'],
-    likes: 56,
-    comments: 17,
-    createdAt: '2025-06-05T09:15:00Z'
-  },
-  {
-    id: '3',
-    title: 'How are you handling authentication in your projects?',
-    content: 'I\'m trying to decide between using Auth0, Clerk, or rolling my own auth system with JWT. What are you all using for your hackathon projects?',
-    author: {
-      id: 'user3',
-      name: 'Marcus Johnson',
-      avatar: 'https://i.pravatar.cc/150?img=3'
-    },
-    category: 'question',
-    tags: ['authentication', 'security', 'development'],
-    likes: 18,
-    comments: 32,
-    createdAt: '2025-06-03T21:45:00Z'
-  },
-  {
-    id: '4',
-    title: 'Idea: AI-powered personal finance coach for Gen Z',
-    content: 'What if we built an AI financial coach specifically designed for Gen Z? It could help with budgeting, investing, and financial literacy in a way that\'s engaging and not boring.',
-    author: {
-      id: 'user4',
-      name: 'Priya Patel',
-      avatar: 'https://i.pravatar.cc/150?img=4'
-    },
-    category: 'idea',
-    tags: ['fintech', 'ai', 'gen-z'],
-    likes: 42,
-    comments: 12,
-    createdAt: '2025-06-02T14:20:00Z'
-  },
-  {
-    id: '5',
-    title: 'Free resource: 50+ APIs you can use in your hackathon project',
-    content: 'I\'ve compiled a list of 50+ free APIs that you can integrate into your hackathon projects. Everything from weather data to AI image generation.',
-    author: {
-      id: 'user5',
-      name: 'David Kim',
-      avatar: 'https://i.pravatar.cc/150?img=7'
-    },
-    category: 'resource',
-    tags: ['api', 'resources', 'free'],
-    likes: 87,
-    comments: 14,
-    createdAt: '2025-06-01T11:10:00Z'
-  },
-  {
-    id: '6',
-    title: 'How do I deploy my Next.js app to Vercel?',
-    content: 'I\'m having trouble deploying my Next.js application to Vercel. I keep getting build errors related to environment variables. Has anyone else run into this?',
-    author: {
-      id: 'user6',
-      name: 'Emma Rodriguez',
-      avatar: 'https://i.pravatar.cc/150?img=9'
-    },
-    category: 'question',
-    tags: ['nextjs', 'vercel', 'deployment'],
-    likes: 12,
-    comments: 23,
-    createdAt: '2025-06-04T18:30:00Z'
-  }
-];
-
-// Mock data for team requests
-const MOCK_TEAM_REQUESTS: TeamRequest[] = [
-  {
-    id: '1',
-    author: {
-      id: 'user1',
-      name: 'Alex Chen',
-      avatar: 'https://i.pravatar.cc/150?img=1'
-    },
-    skills: ['UI/UX Designer', 'Frontend Developer'],
-    description: 'Looking for a backend developer and ML engineer to join my team. We\'re building an AI-powered education platform.',
-    createdAt: '2025-06-04T15:32:00Z'
-  },
-  {
-    id: '2',
-    author: {
-      id: 'user7',
-      name: 'Jamal Wilson',
-      avatar: 'https://i.pravatar.cc/150?img=12'
-    },
-    skills: ['Backend Developer', 'DevOps'],
-    description: 'Seeking a designer and frontend developer for a fintech app targeting small businesses.',
-    createdAt: '2025-06-03T12:15:00Z'
-  },
-  {
-    id: '3',
-    author: {
-      id: 'user8',
-      name: 'Olivia Martinez',
-      avatar: 'https://i.pravatar.cc/150?img=11'
-    },
-    skills: ['Product Manager', 'UX Researcher'],
-    description: 'Looking for developers to help build a sustainability tracking app. Great idea with market potential!',
-    createdAt: '2025-06-02T09:45:00Z'
-  }
-];
-
-// Popular tags for the community
-const POPULAR_TAGS = [
-  'ai', 'web3', 'design', 'mobile', 'api', 
-  'frontend', 'backend', 'database', 'cloud', 
-  'react', 'nextjs', 'typescript', 'python', 
-  'machine-learning', 'blockchain', 'fintech', 
-  'saas', 'productivity', 'education', 'health'
-];
-
 const HackboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
-  const [teamRequests, setTeamRequests] = useState<TeamRequest[]>(MOCK_TEAM_REQUESTS);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [teamRequests, setTeamRequests] = useState<TeamRequest[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isCreateTeamRequestModalOpen, setIsCreateTeamRequestModalOpen] = useState(false);
+  const [popularTags, setPopularTags] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -231,6 +93,63 @@ const HackboardPage: React.FC = () => {
       navigate('/login', { state: { from: '/hackboard', message: 'Please log in to access the community board.' } });
     }
   }, [isAuthenticated, navigate]);
+
+  // Fetch posts and team requests
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchPosts();
+      fetchTeamRequests();
+      fetchPopularTags();
+    }
+  }, [isAuthenticated]);
+
+  // Fetch posts with filters
+  const fetchPosts = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (activeCategory !== 'all') {
+        params.append('category', activeCategory);
+      }
+      if (searchTerm) {
+        params.append('search', searchTerm);
+      }
+      if (selectedTags.length > 0) {
+        params.append('tag', selectedTags[0]); // For simplicity, just use the first selected tag
+      }
+      
+      const response = await api.get(`/hackboard/posts?${params.toString()}`);
+      setPosts(response.data.posts || []);
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+      setError('Failed to load posts. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch team requests
+  const fetchTeamRequests = async () => {
+    try {
+      const response = await api.get('/hackboard/team-requests');
+      setTeamRequests(response.data.teamRequests || []);
+    } catch (err) {
+      console.error('Error fetching team requests:', err);
+    }
+  };
+
+  // Fetch popular tags
+  const fetchPopularTags = async () => {
+    try {
+      const response = await api.get('/hackboard/tags');
+      setPopularTags(response.data.tags || []);
+    } catch (err) {
+      console.error('Error fetching popular tags:', err);
+    }
+  };
 
   // If not authenticated, don't render the page content
   if (!isAuthenticated) {
@@ -250,43 +169,40 @@ const HackboardPage: React.FC = () => {
     return date.toLocaleDateString();
   };
 
-  // Filter posts based on active category, search term, and selected tags
-  const filteredPosts = posts.filter(post => {
-    // Filter by category
-    if (activeCategory !== 'all' && post.category !== activeCategory) {
-      return false;
-    }
-    
-    // Filter by search term
-    if (searchTerm && !post.title.toLowerCase().includes(searchTerm.toLowerCase()) && 
-        !post.content.toLowerCase().includes(searchTerm.toLowerCase())) {
-      return false;
-    }
-    
-    // Filter by selected tags
-    if (selectedTags.length > 0 && !selectedTags.some(tag => post.tags.includes(tag))) {
-      return false;
-    }
-    
-    return true;
-  });
-
   // Toggle bookmark status
-  const toggleBookmark = (postId: string) => {
-    setPosts(posts.map(post => 
-      post.id === postId 
-        ? { ...post, isBookmarked: !post.isBookmarked } 
-        : post
-    ));
+  const toggleBookmark = async (postId: string) => {
+    try {
+      const response = await api.post('/hackboard/bookmark', { postId });
+      
+      if (response.data.success) {
+        // Update local state
+        setPosts(posts.map(post => 
+          post.id === postId 
+            ? { ...post, isBookmarked: response.data.bookmarked } 
+            : post
+        ));
+      }
+    } catch (err) {
+      console.error('Error toggling bookmark:', err);
+    }
   };
 
   // Like a post
-  const likePost = (postId: string) => {
-    setPosts(posts.map(post => 
-      post.id === postId 
-        ? { ...post, likes: post.likes + 1 } 
-        : post
-    ));
+  const likePost = async (postId: string) => {
+    try {
+      const response = await api.post('/hackboard/like', { postId });
+      
+      if (response.data.success) {
+        // Update local state
+        setPosts(posts.map(post => 
+          post.id === postId 
+            ? { ...post, likes: response.data.likesCount } 
+            : post
+        ));
+      }
+    } catch (err) {
+      console.error('Error liking post:', err);
+    }
   };
 
   // Handle tag selection
@@ -296,47 +212,54 @@ const HackboardPage: React.FC = () => {
     } else {
       setSelectedTags([...selectedTags, tag]);
     }
+    
+    // Refetch posts with the new tag filter
+    fetchPosts();
   };
 
-  // Handle post creation
-  const handleCreatePost = (postData: any) => {
-    const newPost: Post = {
-      id: `post_${Date.now()}`,
-      title: postData.title,
-      content: postData.content,
-      author: {
-        id: user?.id || 'unknown',
-        name: user?.name || 'Anonymous',
-        avatar: undefined
-      },
-      category: postData.category,
-      tags: postData.tags,
-      likes: 0,
-      comments: 0,
-      createdAt: new Date().toISOString(),
-      isBookmarked: false
-    };
+  // Apply filters
+  useEffect(() => {
+    fetchPosts();
+  }, [activeCategory, searchTerm, selectedTags]);
 
-    setPosts([newPost, ...posts]);
-    setIsCreatePostModalOpen(false);
+  // Handle post creation
+  const handleCreatePost = async (postData: any) => {
+    try {
+      const response = await api.post('/hackboard/posts', {
+        title: postData.title,
+        content: postData.content,
+        category: postData.category,
+        tags: postData.tags
+      });
+      
+      if (response.data.success) {
+        // Add the new post to the list
+        setPosts([response.data.post, ...posts]);
+        setIsCreatePostModalOpen(false);
+      }
+    } catch (err) {
+      console.error('Error creating post:', err);
+      alert('Failed to create post. Please try again.');
+    }
   };
 
   // Handle team request creation
-  const handleCreateTeamRequest = (requestData: any) => {
-    const newRequest: TeamRequest = {
-      id: `request_${Date.now()}`,
-      author: {
-        id: user?.id || 'unknown',
-        name: user?.name || 'Anonymous',
-        avatar: undefined
-      },
-      skills: requestData.skills,
-      description: requestData.description,
-      createdAt: new Date().toISOString()
-    };
-
-    setTeamRequests([newRequest, ...teamRequests]);
-    setIsCreateTeamRequestModalOpen(false);
+  const handleCreateTeamRequest = async (requestData: any) => {
+    try {
+      const response = await api.post('/hackboard/team-requests', {
+        skills: requestData.skills,
+        description: requestData.description
+      });
+      
+      if (response.data.success) {
+        // Add the new team request to the list
+        setTeamRequests([response.data.teamRequest, ...teamRequests]);
+        setIsCreateTeamRequestModalOpen(false);
+      }
+    } catch (err) {
+      console.error('Error creating team request:', err);
+      alert('Failed to create team request. Please try again.');
+    }
   };
 
   // Connect with team request
@@ -456,20 +379,24 @@ const HackboardPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {POPULAR_TAGS.slice(0, 15).map(tag => (
-                    <Badge 
-                      key={tag}
-                      variant={selectedTags.includes(tag) ? "default" : "outline"}
-                      className={`cursor-pointer ${
-                        selectedTags.includes(tag) 
-                          ? 'bg-amber-500 text-black hover:bg-amber-600' 
-                          : 'border-amber-500/30 text-amber-300/70 hover:border-amber-500/50 hover:text-amber-300'
-                      }`}
-                      onClick={() => handleTagSelect(tag)}
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
+                  {popularTags.length > 0 ? (
+                    popularTags.slice(0, 15).map(tag => (
+                      <Badge 
+                        key={tag}
+                        variant={selectedTags.includes(tag) ? "default" : "outline"}
+                        className={`cursor-pointer ${
+                          selectedTags.includes(tag) 
+                            ? 'bg-amber-500 text-black hover:bg-amber-600' 
+                            : 'border-amber-500/30 text-amber-300/70 hover:border-amber-500/50 hover:text-amber-300'
+                        }`}
+                        onClick={() => handleTagSelect(tag)}
+                      >
+                        {tag}
+                      </Badge>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-400">No tags available yet</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -553,7 +480,25 @@ const HackboardPage: React.FC = () => {
 
               {/* Posts Tab */}
               <TabsContent value="posts" className="mt-6">
-                {filteredPosts.length === 0 ? (
+                {isLoading ? (
+                  <div className="flex justify-center py-12">
+                    <LoadingSpinner size="lg" />
+                  </div>
+                ) : error ? (
+                  <Card className="bg-[#1a1a2e] border-[#2a2a3a] text-center py-12">
+                    <CardContent>
+                      <div className="flex flex-col items-center">
+                        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+                        <h3 className="text-xl font-medium text-gray-300 mb-2">Error Loading Posts</h3>
+                        <p className="text-gray-400 mb-6">{error}</p>
+                        <Button onClick={fetchPosts} className="bg-amber-500 hover:bg-amber-600 text-black">
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Try Again
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : posts.length === 0 ? (
                   <Card className="bg-[#1a1a2e] border-[#2a2a3a] text-center py-12">
                     <CardContent>
                       <div className="flex flex-col items-center">
@@ -576,7 +521,7 @@ const HackboardPage: React.FC = () => {
                   </Card>
                 ) : (
                   <div className="space-y-4">
-                    {filteredPosts.map(post => (
+                    {posts.map(post => (
                       <PostCard 
                         key={post.id}
                         post={post}
@@ -592,13 +537,42 @@ const HackboardPage: React.FC = () => {
               {/* Team Matching Tab */}
               <TabsContent value="teams" className="mt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {teamRequests.map(request => (
-                    <TeamRequestCard 
-                      key={request.id}
-                      request={request}
-                      onConnect={handleConnectTeamRequest}
-                    />
-                  ))}
+                  {isLoading ? (
+                    <div className="flex justify-center py-12 col-span-2">
+                      <LoadingSpinner size="lg" />
+                    </div>
+                  ) : teamRequests.length === 0 ? (
+                    <div className="col-span-2">
+                      <Card className="bg-[#1a1a2e] border-[#2a2a3a] text-center py-12">
+                        <CardContent>
+                          <div className="flex flex-col items-center">
+                            <Users className="h-12 w-12 text-gray-500 mb-4" />
+                            <h3 className="text-xl font-medium text-gray-300 mb-2">No team requests found</h3>
+                            <p className="text-gray-400 mb-6">
+                              Be the first to create a team request!
+                            </p>
+                            <Button 
+                              className="bg-amber-500 hover:bg-amber-600 text-black"
+                              onClick={() => setIsCreateTeamRequestModalOpen(true)}
+                            >
+                              <Plus className="h-4 w-4 mr-2" />
+                              Create Team Request
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : (
+                    <>
+                      {teamRequests.map(request => (
+                        <TeamRequestCard 
+                          key={request.id}
+                          request={request}
+                          onConnect={handleConnectTeamRequest}
+                        />
+                      ))}
+                    </>
+                  )}
 
                   {/* Create Team Request Card */}
                   <Card className="bg-[#1a1a2e] border-[#2a2a3a] border-dashed hover:border-amber-500/30 transition-colors">
