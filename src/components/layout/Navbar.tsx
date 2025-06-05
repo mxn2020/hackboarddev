@@ -64,26 +64,24 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
               <nav className="hidden md:flex items-center space-x-4">
                 {isAuthenticated && (
                   <>
-                    <NavLink to="/dashboard\" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-amber-300' : 'text-gray-300 hover:text-amber-300'}`}>
+                    <NavLink to="/" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-amber-300' : 'text-gray-300 hover:text-amber-300'}`}>
                       <div className="flex items-center">
-                        <HomeIcon className="h-4 w-4 mr-1" />
-                        Dashboard
+                        <MessageSquare className="h-4 w-4 mr-1" />
+                        Community
                       </div>
                     </NavLink>
-                    <NavLink to="/notes" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-amber-300' : 'text-gray-300 hover:text-amber-300'}`}>
+                    <NavLink to="/hackboard" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-amber-300' : 'text-gray-300 hover:text-amber-300'}`}>
                       <div className="flex items-center">
-                        <FileText className="h-4 w-4 mr-1" />
-                        Notes
+                        <Users className="h-4 w-4 mr-1" />
+                        Team Matching
                       </div>
                     </NavLink>
-                    {user?.role === 'admin' && (
-                      <NavLink to="/admin/blog" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-amber-300' : 'text-gray-300 hover:text-amber-300'}`}>
-                        <div className="flex items-center">
-                          <BookOpen className="h-4 w-4 mr-1" />
-                          Blog Admin
-                        </div>
-                      </NavLink>
-                    )}
+                    <NavLink to="/blog" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-amber-300' : 'text-gray-300 hover:text-amber-300'}`}>
+                      <div className="flex items-center">
+                        <BookOpen className="h-4 w-4 mr-1" />
+                        Blog
+                      </div>
+                    </NavLink>
                   </>
                 )}
                 <NavLink to="/" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-amber-300' : 'text-gray-300 hover:text-amber-300'}`}>
@@ -98,10 +96,10 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
                     Team Matching
                   </div>
                 </NavLink>
-                <NavLink to="/examples" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-amber-300' : 'text-gray-300 hover:text-amber-300'}`}>
+                <NavLink to="/blog" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-amber-300' : 'text-gray-300 hover:text-amber-300'}`}>
                   <div className="flex items-center">
-                    <Info className="h-4 w-4 mr-1" />
-                    Resources
+                    <BookOpen className="h-4 w-4 mr-1" />
+                    Blog
                   </div>
                 </NavLink>
               </nav>
@@ -121,11 +119,6 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, showMenu = false, isFixe
 
             {isAuthenticated ? (
               <>
-                <Link to="/notes/new">
-                  <Button variant="ghost" size="icon" aria-label="New Note" className="text-gray-300 hover:text-amber-300">
-                    <PlusCircle className="h-5 w-5" />
-                  </Button>
-                </Link>
                 <div className="relative">
                   <Button variant="ghost" size="icon" onClick={toggleUserMenu} aria-label="User Menu" className="text-gray-300 hover:text-amber-300">
                     <div className="h-7 w-7 rounded-full bg-amber-500 flex items-center justify-center text-black uppercase text-xs">

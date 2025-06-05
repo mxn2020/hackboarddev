@@ -37,13 +37,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     { name: 'Team Matching', href: '/hackboard', icon: Users, badge: 'New' },
     { name: 'Project Showcase', href: '/showcase', icon: Rocket },
     { name: 'Resources', href: '/resources', icon: Lightbulb },
-    { name: 'Dashboard', href: '/dashboard', icon: Home },
-    { name: 'Notes', href: '/notes', icon: FileText },
     { name: 'Blog', href: '/blog', icon: BookOpen },
-    { name: 'Examples', href: '/examples', icon: FlaskConical },
     { name: 'Profile', href: '/profile', icon: User },
     { name: 'Settings', href: '/settings', icon: Settings },
-    { name: 'Test Suite', href: '/test', icon: TestTube },
   ];
 
   // Add admin-only routes with feature flag integration

@@ -8,20 +8,14 @@ import MainLayout from './components/layout/MainLayout';
 
 // Pages
 import HomePage from './pages/HomePage';
-import DashboardPage from './pages/DashboardPage';
-import NotesPage from './pages/NotesPage';
-import NoteDetailPage from './pages/NoteDetailPage';
-import NoteEditorPage from './pages/NoteEditorPage';
 import BlogListPage from './pages/BlogListPage';
 import BlogPostPage from './pages/BlogPostPage';
 import BlogAdminPage from './pages/BlogAdminPage';
 import BlogEditorPage from './pages/BlogEditorPage';
-import ExamplesPage from './pages/ExamplesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
-import TestPage from './pages/TestPage';
 import NotFoundPage from './pages/NotFoundPage';
 import HackboardPage from './pages/HackboardPage';
 
@@ -60,7 +54,7 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }
 
   if (user?.role !== 'admin') {
-    return <Navigate to="/dashboard\" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -78,7 +72,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     );
   }
 
-  return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
+  return !isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
 };
 
 function AppContent() {
@@ -126,49 +120,6 @@ function AppContent() {
           {/* Public Blog Routes */}
           <Route path="blog" element={<BlogListPage />} />
           <Route path="blog/:slug" element={<BlogPostPage />} />
-          <Route path="examples" element={<ExamplesPage />} />
-
-          {/* Protected Routes */}
-          <Route
-            path="dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="notes"
-            element={
-              <ProtectedRoute>
-                <NotesPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="notes/new"
-            element={
-              <ProtectedRoute>
-                <NoteEditorPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="notes/:id"
-            element={
-              <ProtectedRoute>
-                <NoteDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="notes/:id/edit"
-            element={
-              <ProtectedRoute>
-                <NoteEditorPage />
-              </ProtectedRoute>
-            }
-          />
 
           {/* Blog Admin Routes */}
           <Route
@@ -226,16 +177,6 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <SettingsPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Test Tools Route */}
-          <Route
-            path="test"
-            element={
-              <ProtectedRoute>
-                <TestPage />
               </ProtectedRoute>
             }
           />
