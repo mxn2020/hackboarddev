@@ -27,7 +27,7 @@
     "seed:admin": "node scripts/seed-admin.cjs",
     "seed:blog": "node scripts/seed-blog-posts.js",
     "create_admin": "node scripts/seed-admin.cjs",
-    "prepare": "[ -z \"$CI\" ] && husky || exit 0"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
