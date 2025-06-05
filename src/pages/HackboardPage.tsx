@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../utils/api';
 import { 
@@ -10,17 +10,14 @@ import {
   Search, 
   Plus, 
   Filter, 
-  ThumbsUp, 
   MessageCircle, 
-  Clock, 
-  Tag, 
-  Bookmark, 
-  Share2, 
   TrendingUp,
   Zap,
   Rocket,
   Code,
-  Coffee
+  Coffee,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -29,12 +26,10 @@ import {
   Card, 
   CardContent, 
   CardDescription, 
-  CardFooter, 
   CardHeader, 
   CardTitle 
 } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Separator } from '../components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import CreatePostModal from '../components/hackboard/CreatePostModal';
@@ -74,7 +69,7 @@ interface TeamRequest {
 }
 
 const HackboardPage: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
   const [teamRequests, setTeamRequests] = useState<TeamRequest[]>([]);
@@ -87,21 +82,31 @@ const HackboardPage: React.FC = () => {
   const [popularTags, setPopularTags] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
+  // Helper function to handle actions for unauthenticated users
+  const handleAuthenticatedAction = (action: () => void, actionName: string = 'perform this action') => {
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: '/hackboard', message: 'Please log in to access the community board.' } });
+      navigate('/login', { 
+        state: { 
+          from: '/hackboard', 
+          message: `Please log in to ${actionName}. Only authenticated users can interact with the board.` 
+        } 
+      });
+      return;
     }
-  }, [isAuthenticated, navigate]);
+    action();
+  };
 
-  // Fetch posts and team requests
+  // Fetch posts and team requests - Load for all users
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchPosts();
-      fetchTeamRequests();
-      fetchPopularTags();
-    }
-  }, [isAuthenticated]);
+    fetchPosts();
+    fetchTeamRequests();
+    fetchPopularTags();
+  }, []);
+
+  // Apply filters
+  useEffect(() => {
+    fetchPosts();
+  }, [activeCategory, searchTerm, selectedTags]);
 
   // Fetch posts with filters
   const fetchPosts = async () => {
@@ -151,70 +156,70 @@ const HackboardPage: React.FC = () => {
     }
   };
 
-  // If not authenticated, don't render the page content
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  // Format date to relative time (e.g., "2 hours ago")
-  const formatRelativeTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
-    return date.toLocaleDateString();
-  };
-
   // Toggle bookmark status
   const toggleBookmark = async (postId: string) => {
-    try {
-      const response = await api.post('/hackboard/bookmark', { postId });
-      
-      if (response.data.success) {
-        // Update local state
+    handleAuthenticatedAction(async () => {
+      try {
+        const response = await api.post('/hackboard/bookmark', { postId });
+        
+        if (response.data.success) {
+          // Update local state
+          setPosts(posts.map(post => 
+            post.id === postId 
+              ? { ...post, isBookmarked: response.data.bookmarked } 
+              : post
+          ));
+        }
+      } catch (err) {
+        console.error('Error toggling bookmark:', err);
+        // Fallback to local state update
         setPosts(posts.map(post => 
           post.id === postId 
-            ? { ...post, isBookmarked: response.data.bookmarked } 
+            ? { ...post, isBookmarked: !post.isBookmarked } 
             : post
         ));
       }
-    } catch (err) {
-      console.error('Error toggling bookmark:', err);
-    }
+    }, 'bookmark posts');
   };
 
   // Like a post
   const likePost = async (postId: string) => {
-    try {
-      const response = await api.post('/hackboard/like', { postId });
-      
-      if (response.data.success) {
-        // Update local state
+    handleAuthenticatedAction(async () => {
+      try {
+        const response = await api.post('/hackboard/like', { postId });
+        
+        if (response.data.success) {
+          // Update local state
+          setPosts(posts.map(post => 
+            post.id === postId 
+              ? { ...post, likes: response.data.likesCount } 
+              : post
+          ));
+        }
+      } catch (err) {
+        console.error('Error liking post:', err);
+        // Fallback to local state update
         setPosts(posts.map(post => 
           post.id === postId 
-            ? { ...post, likes: response.data.likesCount } 
+            ? { ...post, likes: post.likes + 1 } 
             : post
         ));
       }
-    } catch (err) {
-      console.error('Error liking post:', err);
-    }
+    }, 'like posts');
   };
 
   // Handle tag selection
   const handleTagSelect = (tag: string) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter(t => t !== tag));
-    } else {
-      setSelectedTags([...selectedTags, tag]);
-    }
-    
-    // Refetch posts with the new tag filter
-    fetchPosts();
+    handleAuthenticatedAction(() => {
+      if (selectedTags.includes(tag)) {
+        setSelectedTags(selectedTags.filter(t => t !== tag));
+      } else {
+        setSelectedTags([...selectedTags, tag]);
+      }
+      
+      // Refetch posts with the new tag filter
+      fetchPosts();
+    }, 'filter by tags');
   };
 
   // Apply filters
@@ -264,7 +269,9 @@ const HackboardPage: React.FC = () => {
 
   // Connect with team request
   const handleConnectTeamRequest = (requestId: string) => {
-    alert(`Connection request sent to team ${requestId}`);
+    handleAuthenticatedAction(() => {
+      alert(`Connection request sent to team ${requestId}`);
+    }, 'connect with teams');
   };
 
   return (
@@ -292,7 +299,10 @@ const HackboardPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-6 py-3 rounded-full"
-                onClick={() => setIsCreatePostModalOpen(true)}
+                onClick={() => handleAuthenticatedAction(
+                  () => setIsCreatePostModalOpen(true),
+                  'create a post'
+                )}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Post
@@ -300,7 +310,10 @@ const HackboardPage: React.FC = () => {
               <Button 
                 variant="outline" 
                 className="border-amber-500/50 text-amber-300 hover:bg-amber-500/10 px-6 py-3 rounded-full"
-                onClick={() => setIsCreateTeamRequestModalOpen(true)}
+                onClick={() => handleAuthenticatedAction(
+                  () => setIsCreateTeamRequestModalOpen(true),
+                  'find team members'
+                )}
               >
                 <Users className="h-4 w-4 mr-2" />
                 Find Team Members
@@ -424,7 +437,13 @@ const HackboardPage: React.FC = () => {
                   <span className="text-amber-300 font-bold">25</span>
                 </div>
                 <Separator className="bg-[#2a2a3a]" />
-                <Button className="w-full bg-amber-500 hover:bg-amber-600 text-black">
+                <Button 
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-black"
+                  onClick={() => handleAuthenticatedAction(
+                    () => alert('Registration successful!'),
+                    'register for the hackathon'
+                  )}
+                >
                   <Rocket className="h-4 w-4 mr-2" />
                   Register Now
                 </Button>
@@ -511,7 +530,10 @@ const HackboardPage: React.FC = () => {
                         </p>
                         <Button 
                           className="bg-amber-500 hover:bg-amber-600 text-black"
-                          onClick={() => setIsCreatePostModalOpen(true)}
+                          onClick={() => handleAuthenticatedAction(
+                            () => setIsCreatePostModalOpen(true),
+                            'create a post'
+                          )}
                         >
                           <Plus className="h-4 w-4 mr-2" />
                           Create Post
@@ -586,7 +608,10 @@ const HackboardPage: React.FC = () => {
                       </p>
                       <Button 
                         className="bg-amber-500 hover:bg-amber-600 text-black"
-                        onClick={() => setIsCreateTeamRequestModalOpen(true)}
+                        onClick={() => handleAuthenticatedAction(
+                          () => setIsCreateTeamRequestModalOpen(true),
+                          'create a team request'
+                        )}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Create Team Request
@@ -695,7 +720,14 @@ const HackboardPage: React.FC = () => {
               <p className="text-gray-400 mb-4">
                 Ready-to-use project templates to jumpstart your hackathon project development.
               </p>
-              <Button variant="link" className="text-amber-300 hover:text-amber-400 p-0">
+              <Button 
+                variant="link" 
+                className="text-amber-300 hover:text-amber-400 p-0"
+                onClick={() => handleAuthenticatedAction(
+                  () => window.open('#', '_blank'),
+                  'access templates'
+                )}
+              >
                 Browse Templates →
               </Button>
             </CardContent>
@@ -710,7 +742,14 @@ const HackboardPage: React.FC = () => {
               <p className="text-gray-400 mb-4">
                 Access the official hackathon.dev Builder Pack with premium tools and credits.
               </p>
-              <Button variant="link" className="text-amber-300 hover:text-amber-400 p-0">
+              <Button 
+                variant="link" 
+                className="text-amber-300 hover:text-amber-400 p-0"
+                onClick={() => handleAuthenticatedAction(
+                  () => window.open('#', '_blank'),
+                  'access the Builder Pack'
+                )}
+              >
                 Get Builder Pack →
               </Button>
             </CardContent>
@@ -725,7 +764,14 @@ const HackboardPage: React.FC = () => {
               <p className="text-gray-400 mb-4">
                 Explore curated project ideas and inspiration for your hackathon submission.
               </p>
-              <Button variant="link" className="text-amber-300 hover:text-amber-400 p-0">
+              <Button 
+                variant="link" 
+                className="text-amber-300 hover:text-amber-400 p-0"
+                onClick={() => handleAuthenticatedAction(
+                  () => window.open('#', '_blank'),
+                  'browse project ideas'
+                )}
+              >
                 Browse Ideas →
               </Button>
             </CardContent>
@@ -740,7 +786,14 @@ const HackboardPage: React.FC = () => {
               <p className="text-gray-400 mb-4">
                 Connect with other participants for virtual coffee chats and networking.
               </p>
-              <Button variant="link" className="text-amber-300 hover:text-amber-400 p-0">
+              <Button 
+                variant="link" 
+                className="text-amber-300 hover:text-amber-400 p-0"
+                onClick={() => handleAuthenticatedAction(
+                  () => window.open('#', '_blank'),
+                  'schedule coffee chats'
+                )}
+              >
                 Schedule a Chat →
               </Button>
             </CardContent>
@@ -756,10 +809,23 @@ const HackboardPage: React.FC = () => {
             Register now to compete for over $1M in prizes and set a Guinness World Record!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-8 py-3 rounded-full text-lg">
+            <Button 
+              className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-8 py-3 rounded-full text-lg"
+              onClick={() => handleAuthenticatedAction(
+                () => alert('Registration successful!'),
+                'register for the hackathon'
+              )}
+            >
               Register Now
             </Button>
-            <Button variant="outline" className="border-amber-500/50 text-amber-300 hover:bg-amber-500/10 px-8 py-3 rounded-full text-lg">
+            <Button 
+              variant="outline" 
+              className="border-amber-500/50 text-amber-300 hover:bg-amber-500/10 px-8 py-3 rounded-full text-lg"
+              onClick={() => handleAuthenticatedAction(
+                () => window.open('https://discord.gg/hackathon', '_blank'),
+                'join Discord'
+              )}
+            >
               Join Discord
             </Button>
           </div>
