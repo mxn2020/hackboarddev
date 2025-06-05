@@ -33,8 +33,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const qstashEnabled = useFeatureFlag('upstash_qstash');
 
   const navigation = [
-    { name: 'Community', href: '/', icon: MessageSquare },
-    { name: 'Team Matching', href: '/hackboard', icon: Users, badge: 'New' },
+    { name: 'Dashboard', href: '/dashboard', icon: Home },
+    { name: 'Community Board', href: '/hackboard', icon: MessageSquare, badge: 'New'  },
+    { name: 'Team Matching', href: '/hackboard', icon: Users},
     { name: 'Project Showcase', href: '/showcase', icon: Rocket },
     { name: 'Resources', href: '/resources', icon: Lightbulb },
     { name: 'Blog', href: '/blog', icon: BookOpen },

@@ -94,12 +94,10 @@ function AppContent() {
         {/* Home Page has its own layout */}
         <Route path="/" element={<HomePage />} />
 
-        {/* Hackboard Page */}
-        <Route path="/hackboard" element={<HackboardPage />} />
-
         {/* Routes with MainLayout */}
         <Route element={<MainLayout />}>
           {/* Public Routes */}
+          <Route path="/hackboard" element={<HackboardPage />} />
           <Route
             path="login"
             element={

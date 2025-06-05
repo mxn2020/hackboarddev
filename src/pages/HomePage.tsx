@@ -40,9 +40,9 @@ const HomePage: React.FC = () => {
                 {isAuthenticated ? (
                   <>
                     <span className="text-gray-300">Welcome back, {user?.name}!</span>
-                    <Link to="/dashboard">
+                    <Link to="/hackboard">
                       <Button className="bg-amber-500 hover:bg-amber-600 text-black">
-                        Go to Dashboard
+                        Go to the Board
                       </Button>
                     </Link>
                   </>
@@ -82,10 +82,10 @@ const HomePage: React.FC = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Link to={isAuthenticated ? "/dashboard" : "/register"}>
+                <Link to={isAuthenticated ? "/hackboard" : "/register"}>
                   <Button size="lg" className="bg-amber-500 hover:bg-amber-600 text-black px-8 py-3">
                     <Rocket className="h-5 w-5 mr-2" />
-                    {isAuthenticated ? "Go to Dashboard" : "Start Building"}
+                    {isAuthenticated ? "Go to Board" : "Start Building"}
                     <ArrowRight className="h-5 w-5 ml-2" />
                   </Button>
                 </Link>
@@ -231,10 +231,10 @@ const HomePage: React.FC = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to={isAuthenticated ? "/dashboard" : "/register"}>
+              <Link to={isAuthenticated ? "/hackboard" : "/register"}>
                 <Button size="lg" className="bg-amber-500 hover:bg-amber-600 text-black px-8 py-4">
                   <Rocket className="h-5 w-5 mr-2" />
-                  {isAuthenticated ? "Go to Dashboard" : "Get Started Free"}
+                  {isAuthenticated ? "Go to Board" : "Get Started Free"}
                 </Button>
               </Link>
               
