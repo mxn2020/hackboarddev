@@ -917,7 +917,7 @@ const TeamMatchingPage: React.FC = () => {
             >
               {isSendingConnection ? (
                 <>
-                  <LoadingSpinner size="sm" className="mr-2" />
+                  <LoadingSpinner size="sm\" className="mr-2" />
                   Sending...
                 </>
               ) : (
