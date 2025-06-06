@@ -76,28 +76,46 @@ exports.handler = async (event) => {
     const pathParts = path.split('/').filter(Boolean);
     const action = pathParts[pathParts.length - 1];
 
-    // Authenticate user for all requests
-    let userId;
-    try {
-      userId = await authenticateUser(event);
-    } catch (authError) {
-      return {
-        statusCode: 401,
-        headers: corsHeaders,
-        body: JSON.stringify({ error: authError.message || 'Authentication required' }),
-      };
-    }
+    // Define routes that don't require authentication (read-only)
+    const publicRoutes = ['posts', 'tags'];
+    const isPublicRoute = httpMethod === 'GET' && publicRoutes.includes(action);
 
-    // Get user data to include in responses
-    const userData = await redis.get(`user:${userId}`);
-    const user = userData ? (typeof userData === 'string' ? JSON.parse(userData) : userData) : null;
+    let userId = null;
+    let user = null;
 
-    if (!user) {
-      return {
-        statusCode: 404,
-        headers: corsHeaders,
-        body: JSON.stringify({ error: 'User not found' }),
-      };
+    if (!isPublicRoute) {
+      // Authenticate user for protected requests
+      try {
+        userId = await authenticateUser(event);
+      } catch (authError) {
+        return {
+          statusCode: 401,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: authError.message || 'Authentication required' }),
+        };
+      }
+
+      // Get user data to include in responses
+      const userData = await redis.get(`user:${userId}`);
+      user = userData ? (typeof userData === 'string' ? JSON.parse(userData) : userData) : null;
+
+      if (!user) {
+        return {
+          statusCode: 404,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'User not found' }),
+        };
+      }
+    } else {
+      // For public routes, try to get user data if authentication is provided (optional)
+      try {
+        userId = await authenticateUser(event);
+        const userData = await redis.get(`user:${userId}`);
+        user = userData ? (typeof userData === 'string' ? JSON.parse(userData) : userData) : null;
+      } catch (authError) {
+        // Ignore authentication errors for public routes
+        console.log('No authentication provided for public route, proceeding without user context');
+      }
     }
 
     switch (httpMethod) {
@@ -183,9 +201,13 @@ async function getPosts(event, userId) {
           }
         }
 
-        // Check if user has bookmarked this post
-        const isBookmarked = await redis.sismember(`user:${userId}:bookmarks`, post.id);
-        post.isBookmarked = !!isBookmarked;
+        // Check if user has bookmarked this post (only if user is authenticated)
+        if (userId) {
+          const isBookmarked = await redis.sismember(`user:${userId}:bookmarks`, post.id);
+          post.isBookmarked = !!isBookmarked;
+        } else {
+          post.isBookmarked = false;
+        }
 
         return post;
       })

@@ -37,6 +37,7 @@ import CreateTeamRequestModal from '../components/hackboard/CreateTeamRequestMod
 import PostCard, { Post } from '../components/hackboard/PostCard';
 import TeamRequestCard, { TeamRequest } from '../components/hackboard/TeamRequestCard';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
+import LoginPromptDialog from '../components/hackboard/LoginPromptDialog';
 
 const HackboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
@@ -51,6 +52,8 @@ const HackboardPage: React.FC = () => {
   const [isCreateTeamRequestModalOpen, setIsCreateTeamRequestModalOpen] = useState(false);
   const [popularTags, setPopularTags] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loginPromptOpen, setLoginPromptOpen] = useState(false);
+  const [loginPromptAction, setLoginPromptAction] = useState('');
   // Popular skills for demo
   const popularSkills = [
     'React', 'UI/UX', 'Backend', 'AI/ML', 'DevOps', 'Figma', 'Next.js', 'Python', 'TypeScript', 'Blockchain', 'Mobile', 'Data Science'
@@ -72,12 +75,21 @@ const HackboardPage: React.FC = () => {
     action();
   };
 
+  // Handle auth required for post interactions
+  const handleAuthRequired = (action: string) => {
+    setLoginPromptAction(action);
+    setLoginPromptOpen(true);
+  };
+
   // Fetch posts and team requests
   useEffect(() => {
+    // Always fetch posts and tags (for all users)
+    fetchPosts();
+    fetchPopularTags();
+    
+    // Only fetch team requests for authenticated users
     if (isAuthenticated) {
-      fetchPosts();
       fetchTeamRequests();
-      fetchPopularTags();
     }
   }, [isAuthenticated]);
 
@@ -198,16 +210,14 @@ const HackboardPage: React.FC = () => {
 
   // Handle tag selection
   const handleTagSelect = (tag: string) => {
-    handleAuthenticatedAction(() => {
-      if (selectedTags.includes(tag)) {
-        setSelectedTags(selectedTags.filter(t => t !== tag));
-      } else {
-        setSelectedTags([...selectedTags, tag]);
-      }
-      
-      // Refetch posts with the new tag filter
-      fetchPosts();
-    }, 'filter by tags');
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter(t => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+    
+    // Refetch posts with the new tag filter
+    fetchPosts();
   };
 
   // Apply filters
@@ -539,6 +549,8 @@ const HackboardPage: React.FC = () => {
                         onLike={likePost}
                         onBookmark={toggleBookmark}
                         onTagClick={handleTagSelect}
+                        isAuthenticated={isAuthenticated}
+                        onAuthRequired={handleAuthRequired}
                       />
                     ))}
                   </div>
@@ -867,6 +879,12 @@ const HackboardPage: React.FC = () => {
         onSubmit={handleCreateTeamRequest}
         initialSkills={prefillSkills}
         initialDescription={prefillDescription}
+      />
+
+      <LoginPromptDialog
+        open={loginPromptOpen}
+        onOpenChange={setLoginPromptOpen}
+        action={loginPromptAction}
       />
     </div>
   );

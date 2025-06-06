@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ThumbsUp, MessageCircle, Bookmark, Share2, Clock, Triangle } from 'lucide-react';
+import { MessageCircle, Bookmark, Share2, Clock, Triangle } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -29,9 +29,26 @@ interface PostCardProps {
   onLike: (id: string) => void;
   onBookmark: (id: string) => void;
   onTagClick: (tag: string) => void;
+  isAuthenticated?: boolean;
+  onAuthRequired?: (action: string) => void;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, onLike, onBookmark, onTagClick }) => {
+const PostCard: React.FC<PostCardProps> = ({ 
+  post, 
+  onLike, 
+  onBookmark, 
+  onTagClick, 
+  isAuthenticated = true,
+  onAuthRequired 
+}) => {
+  const handleInteraction = (action: () => void, actionName: string) => {
+    if (!isAuthenticated && onAuthRequired) {
+      onAuthRequired(actionName);
+      return;
+    }
+    action();
+  };
+
   // Format date to relative time
   const formatRelativeTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -106,8 +123,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onBookmark, onTagClic
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-gray-400 hover:text-amber-300"
-              onClick={() => onBookmark(post.id)}
+              className={`text-gray-400 hover:text-amber-300 ${!isAuthenticated ? 'opacity-50' : ''}`}
+              onClick={() => handleInteraction(() => onBookmark(post.id), 'bookmark posts')}
+              disabled={!isAuthenticated}
             >
               <Bookmark className={post.isBookmarked ? 'text-amber-300' : 'text-gray-400'} />
             </Button>
@@ -138,8 +156,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onBookmark, onTagClic
         <Button
           variant="ghost"
           size="icon"
-          className={`rounded-full text-2xl ${post.likes > 0 ? 'text-amber-400' : 'text-gray-400 hover:text-amber-400'}`}
-          onClick={() => onLike(post.id)}
+          className={`rounded-full text-2xl ${post.likes > 0 ? 'text-amber-400' : 'text-gray-400 hover:text-amber-400'} ${!isAuthenticated ? 'opacity-50' : ''}`}
+          onClick={() => handleInteraction(() => onLike(post.id), 'like posts')}
+          disabled={!isAuthenticated}
           aria-label="Upvote"
         >
           <Triangle className="h-7 w-7 rotate-0" fill={post.likes > 0 ? 'currentColor' : 'none'} />
