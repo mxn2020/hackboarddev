@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { 
   ArrowRight,
-  Code,
   Users,
   Zap,
   Rocket,
@@ -11,6 +10,7 @@ import {
   Award,
   Lightbulb
 } from 'lucide-react';
+import Logo from '../components/shared/Logo';
 import { Button } from '../components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -29,12 +29,7 @@ const HomePage: React.FC = () => {
           <div className="max-w-4xl mx-auto text-center">
             {/* Header */}
             <div className="flex items-center justify-between mb-12">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-amber-500/20 rounded-lg">
-                  <Code className="h-8 w-8 text-amber-400" />
-                </div>
-                <h1 className="text-2xl font-bold text-white">HackBoard</h1>
-              </div>
+              <Logo size="lg" variant="light" />
               
               <div className="flex items-center space-x-4">
                 {isAuthenticated ? (
@@ -117,7 +112,7 @@ const HomePage: React.FC = () => {
             <Card className="bg-[#1a1a2e] border-[#2a2a3a] hover:border-amber-500/50 transition-all duration-300 group">
               <CardHeader>
                 <div className="p-3 bg-amber-500/20 rounded-lg w-fit mb-4 group-hover:bg-amber-500/30 transition-colors">
-                  <Code className="h-6 w-6 text-amber-400" />
+                  <Rocket className="h-6 w-6 text-amber-400" />
                 </div>
                 <CardTitle className="text-white">Project Management</CardTitle>
                 <CardDescription className="text-gray-400">
@@ -252,13 +247,8 @@ const HomePage: React.FC = () => {
       {/* Footer */}
       <div className="border-t border-[#2a2a3a] py-12">
         <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <div className="p-2 bg-amber-500/20 rounded-lg">
-              <Code className="h-6 w-6 text-amber-400" />
-              </div>
-              <span className="text-white font-semibold">HackBoard</span>
-            </div>
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <Logo size="md" variant="light" className="mb-4 md:mb-0" />
             
             <div className="flex space-x-6 text-gray-400">
               <Link to="/blog" className="hover:text-white transition-colors">Blog</Link>
@@ -266,7 +256,7 @@ const HomePage: React.FC = () => {
               <a href="https://github.com/mxn2020/hackboarddev" className="hover:text-white transition-colors">GitHub</a>
               <a href="https://x.com/i/communities/1928861140651520478" className="hover:text-white transition-colors">X</a>
             </div>
-            </div>
+          </div>
           
           <div className="text-center mt-8 pt-8 border-t border-[#2a2a3a] text-gray-500">
             <p>&copy; 2025 HackBoard. Built with ❤️ for developers.</p>
