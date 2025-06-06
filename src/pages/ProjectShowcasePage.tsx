@@ -31,6 +31,8 @@ import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
+import CreateShowcaseModal from '../components/hackboard/CreateShowcaseModal';
+import { toast } from 'sonner';
 
 // Project type definition
 interface Project {
@@ -52,6 +54,7 @@ interface Project {
   createdAt: string;
   featured?: boolean;
   isLiked?: boolean;
+  approved: boolean;
 }
 
 // Categories for filtering
@@ -78,6 +81,7 @@ const ProjectShowcasePage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [activeTab, setActiveTab] = useState('all');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Fetch projects from API
   useEffect(() => {
@@ -130,6 +134,9 @@ const ProjectShowcasePage: React.FC = () => {
     
     // Apply sorting
     result = sortProjects(result, sortBy);
+    
+    // Only show approved projects
+    result = result.filter(project => project.approved);
     
     setFilteredProjects(result);
   }, [searchTerm, selectedCategory, sortBy, activeTab, projects]);
@@ -222,15 +229,39 @@ const ProjectShowcasePage: React.FC = () => {
     }
   };
 
-  // Submit a new project
-  const handleSubmitProject = () => {
-    if (!isAuthenticated) {
-      alert('Please log in to submit a project');
-      return;
+  // Helper: Detect seed/demo items
+  const isSeedProject = (project: Project) =>
+    project.author?.name === 'Demo User' || project.author?.id === 'seed';
+
+  // Helper: Only seed items?
+  const onlySeedProjects =
+    filteredProjects.length > 0 && filteredProjects.every(isSeedProject);
+
+  // Handle project submission
+  const handleCreateProject = async (projectData: any) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await api.post('/showcase/projects', projectData);
+      if (response.data.success) {
+        // Only add to list if approved
+        if (response.data.data.approved) {
+          setProjects([response.data.data, ...projects]);
+          toast.success('Project submitted and approved!');
+        } else {
+          toast.success('Project submitted and is pending approval. It will appear once approved.');
+        }
+        setIsCreateModalOpen(false);
+      } else {
+        setError(response.data.error || 'Failed to submit project');
+        toast.error(response.data.error || 'Failed to submit project');
+      }
+    } catch (err) {
+      setError('Failed to submit project. Please try again.');
+      toast.error('Failed to submit project. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    
-    // This would typically open a modal or navigate to a submission form
-    alert('Project submission form would open here');
   };
 
   return (
@@ -258,7 +289,7 @@ const ProjectShowcasePage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-6 py-3 rounded-full"
-                onClick={handleSubmitProject}
+                onClick={() => setIsCreateModalOpen(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Submit Your Project
@@ -369,130 +400,148 @@ const ProjectShowcasePage: React.FC = () => {
             </p>
             <Button 
               className="bg-amber-500 hover:bg-amber-600 text-black"
-              onClick={handleSubmitProject}
+              onClick={() => setIsCreateModalOpen(true)}
             >
               <Plus className="h-4 w-4 mr-2" />
               Submit Project
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProjects.map(project => (
-              <Card key={project.id} className="bg-[#1a1a2e] border-[#2a2a3a] hover:border-amber-500/30 transition-colors overflow-hidden">
-                {/* Project Image */}
-                <div className="aspect-video w-full overflow-hidden">
-                  <img 
-                    src={project.imageUrl} 
-                    alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                </div>
-                
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-xl text-gray-100 hover:text-amber-300 transition-colors">
-                        {project.title}
-                      </CardTitle>
-                      <div className="flex items-center gap-2 mt-1">
-                        <img 
-                          src={project.author.avatar} 
-                          alt={project.author.name}
-                          className="w-6 h-6 rounded-full"
-                        />
-                        <span className="text-sm text-gray-400">{project.author.name}</span>
-                      </div>
-                    </div>
-                    <Badge className={`
-                      ${project.category === 'productivity' ? 'bg-blue-500/20 text-blue-300' : ''}
-                      ${project.category === 'sustainability' ? 'bg-green-500/20 text-green-300' : ''}
-                      ${project.category === 'healthcare' ? 'bg-red-500/20 text-red-300' : ''}
-                      ${project.category === 'education' ? 'bg-purple-500/20 text-purple-300' : ''}
-                      ${project.category === 'community' ? 'bg-yellow-500/20 text-yellow-300' : ''}
-                      ${project.category === 'developer-tools' ? 'bg-indigo-500/20 text-indigo-300' : ''}
-                    `}>
-                      {project.category.charAt(0).toUpperCase() + project.category.slice(1)}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                
-                <CardContent>
-                  <p className="text-gray-300 text-sm line-clamp-3 mb-4">
-                    {project.description}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tags.map(tag => (
-                      <Badge 
-                        key={tag} 
-                        variant="outline" 
-                        className="border-amber-500/30 text-amber-300/70 hover:border-amber-500/50 hover:text-amber-300"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  
-                  <div className="flex gap-3 mt-4">
-                    {project.demoUrl && (
-                      <a 
-                        href={project.demoUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm text-amber-300 hover:text-amber-400 transition-colors"
-                      >
-                        <Globe className="h-4 w-4" />
-                        Demo
-                      </a>
-                    )}
-                    {project.repoUrl && (
-                      <a 
-                        href={project.repoUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm text-amber-300 hover:text-amber-400 transition-colors"
-                      >
-                        <Github className="h-4 w-4" />
-                        Code
-                      </a>
-                    )}
-                    <span className="text-xs text-gray-500 ml-auto">
-                      {formatRelativeTime(project.createdAt)}
-                    </span>
-                  </div>
-                </CardContent>
-                
-                <CardFooter className="border-t border-[#2a2a3a] pt-3 flex justify-between">
-                  <div className="flex gap-4">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className={`${project.isLiked ? 'text-amber-300' : 'text-gray-400 hover:text-amber-300'}`}
-                      onClick={() => handleLike(project.id)}
-                    >
-                      <ThumbsUp className="h-4 w-4 mr-1" />
-                      {project.likes}
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-gray-400 hover:text-amber-300"
-                    >
-                      <MessageSquare className="h-4 w-4 mr-1" />
-                      {project.comments}
-                    </Button>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-gray-400 hover:text-amber-300"
-                    onClick={() => handleShare(project)}
+          <div className="relative">
+            {onlySeedProjects && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#0a0a14]/80 pointer-events-none">
+                <Award className="h-16 w-16 text-gray-500 mb-4" />
+                <h3 className="text-xl font-medium text-gray-300 mb-2">No real projects yet</h3>
+                <p className="text-gray-400 mb-6 max-w-md">Be the first to submit your hackathon project and inspire the community!</p>
+                <Button className="bg-amber-500 hover:bg-amber-600 text-black" onClick={() => setIsCreateModalOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Submit Project
+                </Button>
+              </div>
+            )}
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${onlySeedProjects ? 'opacity-40 pointer-events-none select-none' : ''}`}>
+              {filteredProjects.map(project => {
+                const isSeed = isSeedProject(project);
+                return (
+                  <Card
+                    key={project.id}
+                    className={`bg-[#1a1a2e] border-[#2a2a3a] transition-colors overflow-hidden ${isSeed ? 'opacity-40 pointer-events-none select-none' : 'hover:border-amber-500/30'}`}
                   >
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+                    {/* Project Image + Upvote Button */}
+                    <div className="relative aspect-video w-full overflow-hidden">
+                      <img
+                        src={project.imageUrl}
+                        alt={project.title}
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      />
+                      <button
+                        className={`absolute top-3 right-3 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full shadow-lg text-base font-semibold transition-colors
+                          ${project.isLiked ? 'bg-amber-400 text-black' : 'bg-[#181825]/80 text-gray-200 hover:bg-amber-500/80 hover:text-black'}
+                          ${isSeed ? 'pointer-events-none opacity-50' : ''}`}
+                        onClick={() => handleLike(project.id)}
+                        disabled={isSeed}
+                        aria-label={project.isLiked ? 'Remove upvote' : 'Upvote'}
+                      >
+                        <ThumbsUp className={`h-5 w-5 ${project.isLiked ? 'fill-black' : 'fill-none'}`} />
+                        {project.likes}
+                      </button>
+                    </div>
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-xl text-gray-100 hover:text-amber-300 transition-colors">
+                            {project.title}
+                          </CardTitle>
+                          <div className="flex items-center gap-2 mt-1">
+                            <img
+                              src={project.author.avatar}
+                              alt={project.author.name}
+                              className="w-6 h-6 rounded-full"
+                            />
+                            <span className="text-sm text-gray-400">{project.author.name}</span>
+                          </div>
+                        </div>
+                        <Badge className={`
+                          ${project.category === 'productivity' ? 'bg-blue-500/20 text-blue-300' : ''}
+                          ${project.category === 'sustainability' ? 'bg-green-500/20 text-green-300' : ''}
+                          ${project.category === 'healthcare' ? 'bg-red-500/20 text-red-300' : ''}
+                          ${project.category === 'education' ? 'bg-purple-500/20 text-purple-300' : ''}
+                          ${project.category === 'community' ? 'bg-yellow-500/20 text-yellow-300' : ''}
+                          ${project.category === 'developer-tools' ? 'bg-indigo-500/20 text-indigo-300' : ''}
+                        `}>
+                          {project.category.charAt(0).toUpperCase() + project.category.slice(1)}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-300 text-sm line-clamp-3 mb-4">
+                        {project.description}
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {project.tags.map(tag => (
+                          <Badge
+                            key={tag}
+                            variant="outline"
+                            className="border-amber-500/30 text-amber-300/70 hover:border-amber-500/50 hover:text-amber-300"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="flex gap-3 mt-4">
+                        {project.demoUrl && (
+                          <a
+                            href={project.demoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-sm text-amber-300 hover:text-amber-400 transition-colors"
+                          >
+                            <Globe className="h-4 w-4" />
+                            Demo
+                          </a>
+                        )}
+                        {project.repoUrl && (
+                          <a
+                            href={project.repoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-sm text-amber-300 hover:text-amber-400 transition-colors"
+                          >
+                            <Github className="h-4 w-4" />
+                            Code
+                          </a>
+                        )}
+                        <span className="text-xs text-gray-500 ml-auto">
+                          {formatRelativeTime(project.createdAt)}
+                        </span>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="border-t border-[#2a2a3a] pt-3 flex justify-between">
+                      <div className="flex gap-4">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-400 hover:text-amber-300"
+                          disabled={isSeed}
+                        >
+                          <MessageSquare className="h-4 w-4 mr-1" />
+                          {project.comments}
+                        </Button>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-gray-400 hover:text-amber-300"
+                        onClick={() => handleShare(project)}
+                        disabled={isSeed}
+                      >
+                        <Share2 className="h-4 w-4" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
@@ -506,13 +555,20 @@ const ProjectShowcasePage: React.FC = () => {
           </p>
           <Button 
             className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-8 py-3 rounded-full text-lg"
-            onClick={handleSubmitProject}
+            onClick={() => setIsCreateModalOpen(true)}
           >
             <Rocket className="h-5 w-5 mr-2" />
             Submit Your Project
           </Button>
         </div>
       </div>
+
+      {/* Modal for project submission */}
+      <CreateShowcaseModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateProject}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../utils/api';
 import { 
@@ -51,6 +51,12 @@ const HackboardPage: React.FC = () => {
   const [isCreateTeamRequestModalOpen, setIsCreateTeamRequestModalOpen] = useState(false);
   const [popularTags, setPopularTags] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  // Popular skills for demo
+  const popularSkills = [
+    'React', 'UI/UX', 'Backend', 'AI/ML', 'DevOps', 'Figma', 'Next.js', 'Python', 'TypeScript', 'Blockchain', 'Mobile', 'Data Science'
+  ];
+  const [prefillSkills, setPrefillSkills] = useState<string[] | undefined>(undefined);
+  const [prefillDescription, setPrefillDescription] = useState<string | undefined>(undefined);
 
   // Helper function to handle actions for unauthenticated users
   const handleAuthenticatedAction = (action: () => void, actionName: string = 'perform this action') => {
@@ -278,6 +284,25 @@ const HackboardPage: React.FC = () => {
             <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
               Connect with fellow hackers, share your projects, find team members, and get inspired for the world's largest hackathon.
             </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <a
+                href="https://github.com/mxn2020/boltdotnew-template-netlify-redis"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full text-lg shadow transition-colors"
+              >
+                🚀 Starter Package
+              </a>
+              <a
+                href="https://hackathon.dev/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-6 py-3 rounded-full text-lg shadow transition-colors"
+              >
+                🛠️ Builder Pack
+              </a>
+            </div>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
@@ -541,6 +566,29 @@ const HackboardPage: React.FC = () => {
 
               {/* Team Matching Tab */}
               <TabsContent value="teams" className="mt-6">
+                {/* Popular Skills Section */}
+                <Card className="bg-[#1a1a2e] border-[#2a2a3a] mb-6">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-amber-300">Popular Skills</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {popularSkills.map(skill => (
+                        <Badge
+                          key={skill}
+                          className="cursor-pointer bg-amber-500/20 text-amber-300 hover:bg-amber-500/40"
+                          onClick={() => handleAuthenticatedAction(() => {
+                            setPrefillSkills([skill]);
+                            setPrefillDescription(`Looking for a teammate with strong ${skill} skills!`);
+                            setIsCreateTeamRequestModalOpen(true);
+                          }, 'create a team request')}
+                        >
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {isLoading ? (
                     <div className="flex justify-center py-12 col-span-2">
@@ -706,12 +754,15 @@ const HackboardPage: React.FC = () => {
               <Button 
                 variant="link" 
                 className="text-amber-300 hover:text-amber-400 p-0"
-                onClick={() => handleAuthenticatedAction(
-                  () => navigate('/resources'),
-                  'access templates'
-                )}
+                asChild
               >
-                Browse Templates →
+                <a
+                  href="https://github.com/mxn2020/boltdotnew-template-netlify-redis"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Browse Templates →
+                </a>
               </Button>
             </CardContent>
           </Card>
@@ -728,12 +779,15 @@ const HackboardPage: React.FC = () => {
               <Button 
                 variant="link" 
                 className="text-amber-300 hover:text-amber-400 p-0"
-                onClick={() => handleAuthenticatedAction(
-                  () => navigate('/resources'),
-                  'access the Builder Pack'
-                )}
+                asChild
               >
-                Get Builder Pack →
+                <a
+                  href="https://hackathon.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Get Builder Pack →
+                </a>
               </Button>
             </CardContent>
           </Card>
@@ -824,11 +878,120 @@ const HackboardPage: React.FC = () => {
 
       <CreateTeamRequestModal
         isOpen={isCreateTeamRequestModalOpen}
-        onClose={() => setIsCreateTeamRequestModalOpen(false)}
+        onClose={() => {
+          setIsCreateTeamRequestModalOpen(false);
+          setPrefillSkills(undefined);
+          setPrefillDescription(undefined);
+        }}
         onSubmit={handleCreateTeamRequest}
+        initialSkills={prefillSkills}
+        initialDescription={prefillDescription}
       />
     </div>
   );
 };
 
 export default HackboardPage;
+
+// --- Post Details Page with Comments ---
+export const HackboardPostPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const { user, isAuthenticated } = useAuth();
+  const [post, setPost] = React.useState<any>(null);
+  const [comments, setComments] = React.useState<any[]>([]);
+  const [commentText, setCommentText] = React.useState('');
+  const [loading, setLoading] = React.useState(true);
+  const [submitting, setSubmitting] = React.useState(false);
+
+  // Fetch post and comments
+  React.useEffect(() => {
+    const fetchPostAndComments = async () => {
+      setLoading(true);
+      try {
+        const postRes = await api.get(`/hackboard/posts/${id}`);
+        setPost(postRes.data.post);
+        const commentsRes = await api.get(`/hackboard/posts/${id}/comments`);
+        setComments(commentsRes.data.comments || []);
+      } catch (err) {
+        // handle error
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) fetchPostAndComments();
+  }, [id]);
+
+  // Add comment
+  const handleAddComment = async () => {
+    if (!commentText.trim()) return;
+    setSubmitting(true);
+    try {
+      const res = await api.post(`/hackboard/posts/${id}/comments`, { content: commentText });
+      if (res.data.success && res.data.comment) {
+        setComments([res.data.comment, ...comments]);
+        setCommentText('');
+      }
+    } catch (err) {
+      // handle error
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Format date to relative time
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    return date.toLocaleDateString();
+  };
+
+  if (loading) return <div className="text-center py-12 text-gray-300">Loading...</div>;
+  if (!post) return <div className="text-center py-12 text-gray-300">Post not found.</div>;
+
+  return (
+    <div className="container mx-auto px-4 py-12 max-w-2xl">
+      <h1 className="text-2xl font-bold text-white mb-2">{post.title}</h1>
+      <div className="text-gray-400 mb-6">By {post.author?.name} • {formatRelativeTime(post.createdAt)}</div>
+      <div className="text-lg text-gray-200 mb-8">{post.content}</div>
+      <hr className="border-[#2a2a3a] mb-8" />
+      <h2 className="text-xl font-semibold text-amber-300 mb-4">Comments</h2>
+      <div className="mb-6">
+        <textarea
+          className="w-full bg-[#181825] border border-[#2a2a3a] rounded-lg p-3 text-gray-200 mb-2 focus:border-amber-500/50"
+          rows={3}
+          placeholder={isAuthenticated ? 'Add a comment...' : 'Please sign in to comment.'}
+          value={commentText}
+          onChange={e => setCommentText(e.target.value)}
+          disabled={!isAuthenticated || submitting}
+        />
+        <button
+          className="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-6 py-2 rounded-lg disabled:opacity-50"
+          onClick={handleAddComment}
+          disabled={!isAuthenticated || submitting || !commentText.trim()}
+        >
+          {submitting ? 'Posting...' : 'Post Comment'}
+        </button>
+      </div>
+      <div className="space-y-4">
+        {comments.length === 0 ? (
+          <div className="text-gray-400">No comments yet.</div>
+        ) : (
+          comments.map(comment => (
+            <div key={comment.id} className="bg-[#1a1a2e] border border-[#2a2a3a] rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-semibold text-amber-300">{comment.author?.name || 'User'}</span>
+                <span className="text-xs text-gray-500">{formatRelativeTime(comment.createdAt)}</span>
+              </div>
+              <div className="text-gray-200">{comment.content}</div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};

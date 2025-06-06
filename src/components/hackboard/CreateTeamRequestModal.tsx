@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -18,16 +18,29 @@ interface CreateTeamRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (request: any) => void;
+  initialSkills?: string[];
+  initialDescription?: string;
 }
 
-const CreateTeamRequestModal: React.FC<CreateTeamRequestModalProps> = ({ isOpen, onClose, onSubmit }) => {
-  const [formData, setFormData] = useState({
-    description: '',
-    skills: [] as string[],
+const CreateTeamRequestModal: React.FC<CreateTeamRequestModalProps> = ({ isOpen, onClose, onSubmit, initialSkills = [], initialDescription = '' }) => {
+  const [formData, setFormData] = React.useState({
+    description: initialDescription,
+    skills: initialSkills,
     currentSkill: ''
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Reset form when modal opens or initial values change
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        description: initialDescription,
+        skills: initialSkills,
+        currentSkill: ''
+      });
+    }
+  }, [isOpen, initialSkills, initialDescription]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

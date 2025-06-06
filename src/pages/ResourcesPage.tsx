@@ -19,7 +19,9 @@ import {
   Headphones,
   Bookmark,
   Share2,
-  AlertCircle
+  AlertCircle,
+  Plus,
+  ThumbsUp
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -35,6 +37,9 @@ import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
+import CreateResourceModal from '../components/hackboard/CreateResourceModal';
+import { toast } from 'sonner';
+import { useAuth } from '../hooks/useAuth';
 
 // Resource type definition
 interface Resource {
@@ -43,7 +48,7 @@ interface Resource {
   description: string;
   url: string;
   imageUrl?: string;
-  type: 'article' | 'video' | 'tool' | 'template' | 'course' | 'book' | 'podcast' | 'library';
+  type: 'article' | 'video' | 'tool' | 'template' | 'course' | 'book' | 'podcast' | 'library' | 'project-idea';
   category: string;
   tags: string[];
   author: string;
@@ -52,6 +57,9 @@ interface Resource {
   stars?: number;
   isFree: boolean;
   isBookmarked?: boolean;
+  approved: boolean;
+  isLiked?: boolean;
+  likes?: number;
 }
 
 // Categories for filtering
@@ -76,10 +84,12 @@ const RESOURCE_TYPES = [
   { value: 'course', label: 'Courses', icon: BookOpen },
   { value: 'book', label: 'Books', icon: BookOpen },
   { value: 'podcast', label: 'Podcasts', icon: Headphones },
-  { value: 'library', label: 'Libraries', icon: Database }
+  { value: 'library', label: 'Libraries', icon: Database },
+  { value: 'project-idea', label: 'Project Ideas', icon: Lightbulb },
 ];
 
 const ResourcesPage: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const [resources, setResources] = useState<Resource[]>([]);
   const [filteredResources, setFilteredResources] = useState<Resource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,6 +99,8 @@ const ResourcesPage: React.FC = () => {
   const [selectedType, setSelectedType] = useState('all');
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [prefillType, setPrefillType] = useState<string | undefined>(undefined);
 
   // Fetch resources from API
   useEffect(() => {
@@ -149,6 +161,8 @@ const ResourcesPage: React.FC = () => {
       result = result.filter(resource => resource.featured);
     }
     
+    // Only show approved resources
+    result = result.filter(resource => resource.approved);
     setFilteredResources(result);
   }, [searchTerm, selectedCategory, selectedType, showFreeOnly, activeTab, resources]);
 
@@ -207,9 +221,65 @@ const ResourcesPage: React.FC = () => {
     }
   };
 
-  // Submit a new resource
-  const handleSubmitResource = () => {
-    alert('Resource submission form would open here');
+  // Handle resource submission
+  const handleCreateResource = async (resourceData: any) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await api.post('/showcase/resources', resourceData);
+      if (response.data.success) {
+        // Only add to list if approved
+        if (response.data.data.approved) {
+          setResources([response.data.data, ...resources]);
+          toast.success('Resource submitted and approved!');
+        } else {
+          toast.success('Resource submitted and is pending approval. It will appear once approved.');
+        }
+        setIsCreateModalOpen(false);
+      } else {
+        setError(response.data.error || 'Failed to submit resource');
+        toast.error(response.data.error || 'Failed to submit resource');
+      }
+    } catch (err) {
+      setError('Failed to submit resource. Please try again.');
+      toast.error('Failed to submit resource. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Helper: Detect seed/demo resources
+  const isSeedResource = (resource: Resource) =>
+    resource.author === 'Demo User' || resource.id === 'seed';
+
+  // Helper: Only seed items?
+  const onlySeedResources =
+    filteredResources.length > 0 && filteredResources.every(isSeedResource);
+
+  // Handle like a resource
+  const handleLike = async (resourceId: string) => {
+    if (!isAuthenticated) {
+      alert('Please log in to upvote resources');
+      return;
+    }
+    try {
+      const response = await api.post('/showcase/resource-like', { resourceId });
+      if (response.data.success) {
+        setResources(prevResources =>
+          prevResources.map(resource =>
+            resource.id === resourceId
+              ? {
+                  ...resource,
+                  likes: response.data.liked ? (resource.likes || 0) + 1 : (resource.likes || 1) - 1,
+                  isLiked: response.data.liked
+                }
+              : resource
+          )
+        );
+      }
+    } catch (err) {
+      alert('Failed to upvote resource. Please try again.');
+    }
   };
 
   return (
@@ -250,28 +320,42 @@ const ResourcesPage: React.FC = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
         {/* Resource Type Tabs */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-100 mb-4">Browse by Type</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
-            {RESOURCE_TYPES.map(type => {
-              const Icon = type.icon;
-              return (
-                <Button
-                  key={type.value}
-                  variant={selectedType === type.value ? "default" : "outline"}
-                  className={`flex flex-col items-center justify-center h-24 ${
-                    selectedType === type.value 
-                      ? "bg-amber-500 text-black border-amber-500" 
-                      : "border-[#2a2a3a] text-gray-300 hover:border-amber-500/50 hover:text-amber-300"
-                  }`}
-                  onClick={() => setSelectedType(type.value)}
-                >
-                  <Icon className="h-6 w-6 mb-2" />
-                  <span>{type.label}</span>
-                </Button>
-              );
-            })}
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-100 mb-4 sm:mb-0">Browse by Type</h2>
           </div>
+          <Button className="bg-amber-500 hover:bg-amber-600 text-black" onClick={() => {
+            setIsCreateModalOpen(true);
+            setPrefillType(undefined);
+          }}>
+            <Plus className="h-4 w-4 mr-2" />
+            Submit Resource
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
+          {RESOURCE_TYPES.map(type => {
+            const Icon = type.icon;
+            return (
+              <Button
+                key={type.value}
+                variant={selectedType === type.value ? "default" : "outline"}
+                className={`flex flex-col items-center justify-center h-24 ${
+                  selectedType === type.value 
+                    ? "bg-amber-500 text-black border-amber-500" 
+                    : "border-[#2a2a3a] text-gray-300 hover:border-amber-500/50 hover:text-amber-300"
+                }`}
+                onClick={() => {
+                  setSelectedType(type.value);
+                  setIsCreateModalOpen(true);
+                  setPrefillType(type.value);
+                }}
+              >
+                <Icon className="h-6 w-6 mb-2" />
+                <span>{type.label}</span>
+              </Button>
+            );
+          })}
         </div>
 
         {/* Filters Row */}
@@ -366,109 +450,147 @@ const ResourcesPage: React.FC = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredResources.map(resource => {
-              const TypeIcon = getResourceTypeIcon(resource.type);
-              return (
-                <Card key={resource.id} className="bg-[#1a1a2e] border-[#2a2a3a] hover:border-amber-500/30 transition-colors h-full flex flex-col">
-                  {resource.imageUrl && (
-                    <div className="aspect-video w-full overflow-hidden">
-                      <img 
-                        src={resource.imageUrl} 
-                        alt={resource.title}
-                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                      />
-                    </div>
-                  )}
-                  
-                  <CardHeader className="pb-2 flex-grow-0">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2">
-                        <Badge className={`
-                          ${resource.type === 'article' ? 'bg-blue-500/20 text-blue-300' : ''}
-                          ${resource.type === 'video' ? 'bg-red-500/20 text-red-300' : ''}
-                          ${resource.type === 'tool' ? 'bg-green-500/20 text-green-300' : ''}
-                          ${resource.type === 'template' ? 'bg-purple-500/20 text-purple-300' : ''}
-                          ${resource.type === 'course' ? 'bg-yellow-500/20 text-yellow-300' : ''}
-                          ${resource.type === 'book' ? 'bg-indigo-500/20 text-indigo-300' : ''}
-                          ${resource.type === 'podcast' ? 'bg-pink-500/20 text-pink-300' : ''}
-                          ${resource.type === 'library' ? 'bg-cyan-500/20 text-cyan-300' : ''}
-                        `}>
-                          <TypeIcon className="h-3 w-3 mr-1" />
-                          {resource.type.charAt(0).toUpperCase() + resource.type.slice(1)}
-                        </Badge>
-                        {resource.isFree && (
-                          <Badge className="bg-green-500/20 text-green-300">Free</Badge>
+          <div className="relative">
+            {onlySeedResources && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#0a0a14]/80 pointer-events-none">
+                <BookOpen className="h-16 w-16 text-gray-500 mb-4" />
+                <h3 className="text-xl font-medium text-gray-300 mb-2">Resources Coming Soon</h3>
+                <p className="text-gray-400 mb-6 max-w-md">Curated developer resources will be available here soon. Stay tuned!</p>
+              </div>
+            )}
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${onlySeedResources ? 'opacity-40 pointer-events-none select-none' : ''}`}>
+              {filteredResources.map(resource => {
+                const isSeed = isSeedResource(resource);
+                const TypeIcon = getResourceTypeIcon(resource.type);
+                return (
+                  <Card
+                    key={resource.id}
+                    className={`bg-[#1a1a2e] border-[#2a2a3a] transition-colors overflow-hidden ${isSeed ? 'opacity-40 pointer-events-none select-none' : 'hover:border-amber-500/30'}`}
+                  >
+                    {/* Resource Image + Upvote Button */}
+                    {resource.imageUrl ? (
+                      <div className="relative aspect-video w-full overflow-hidden">
+                        <img
+                          src={resource.imageUrl}
+                          alt={resource.title}
+                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        />
+                        <button
+                          className={`absolute top-3 right-3 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full shadow-lg text-base font-semibold transition-colors
+                            ${resource.isLiked ? 'bg-amber-400 text-black' : 'bg-[#181825]/80 text-gray-200 hover:bg-amber-500/80 hover:text-black'}
+                            ${isSeed ? 'pointer-events-none opacity-50' : ''}`}
+                          onClick={() => handleLike(resource.id)}
+                          disabled={isSeed}
+                          aria-label={resource.isLiked ? 'Remove upvote' : 'Upvote'}
+                        >
+                          <ThumbsUp className={`h-5 w-5 ${resource.isLiked ? 'fill-black' : 'fill-none'}`} />
+                          {resource.likes || 0}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative w-full">
+                        <button
+                          className={`absolute top-3 right-3 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full shadow-lg text-base font-semibold transition-colors
+                            ${resource.isLiked ? 'bg-amber-400 text-black' : 'bg-[#181825]/80 text-gray-200 hover:bg-amber-500/80 hover:text-black'}
+                            ${isSeed ? 'pointer-events-none opacity-50' : ''}`}
+                          onClick={() => handleLike(resource.id)}
+                          disabled={isSeed}
+                          aria-label={resource.isLiked ? 'Remove upvote' : 'Upvote'}
+                        >
+                          <ThumbsUp className={`h-5 w-5 ${resource.isLiked ? 'fill-black' : 'fill-none'}`} />
+                          {resource.likes || 0}
+                        </button>
+                      </div>
+                    )}
+                    <CardHeader className="pb-2 flex-grow-0">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-2">
+                          <Badge className={`
+                            ${resource.type === 'article' ? 'bg-blue-500/20 text-blue-300' : ''}
+                            ${resource.type === 'video' ? 'bg-red-500/20 text-red-300' : ''}
+                            ${resource.type === 'tool' ? 'bg-green-500/20 text-green-300' : ''}
+                            ${resource.type === 'template' ? 'bg-purple-500/20 text-purple-300' : ''}
+                            ${resource.type === 'course' ? 'bg-yellow-500/20 text-yellow-300' : ''}
+                            ${resource.type === 'book' ? 'bg-indigo-500/20 text-indigo-300' : ''}
+                            ${resource.type === 'podcast' ? 'bg-pink-500/20 text-pink-300' : ''}
+                            ${resource.type === 'library' ? 'bg-cyan-500/20 text-cyan-300' : ''}
+                          `}>
+                            <TypeIcon className="h-3 w-3 mr-1" />
+                            {resource.type.charAt(0).toUpperCase() + resource.type.slice(1)}
+                          </Badge>
+                          {resource.isFree && (
+                            <Badge className="bg-green-500/20 text-green-300">Free</Badge>
+                          )}
+                        </div>
+                        {resource.stars && (
+                          <div className="flex items-center gap-1 text-amber-300">
+                            <Star className="h-4 w-4 fill-amber-300" />
+                            <span className="text-sm">{resource.stars}</span>
+                          </div>
                         )}
                       </div>
-                      {resource.stars && (
-                        <div className="flex items-center gap-1 text-amber-300">
-                          <Star className="h-4 w-4 fill-amber-300" />
-                          <span className="text-sm">{resource.stars}</span>
-                        </div>
-                      )}
-                    </div>
-                    <CardTitle className="text-xl text-gray-100 mt-2">
-                      {resource.title}
-                    </CardTitle>
-                    <CardDescription className="text-gray-400 text-sm">
-                      By {resource.author} • {formatRelativeTime(resource.publishedDate)}
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent className="flex-grow">
-                    <p className="text-gray-300 text-sm line-clamp-3 mb-4">
-                      {resource.description}
-                    </p>
+                      <CardTitle className="text-xl text-gray-100 mt-2">
+                        {resource.title}
+                      </CardTitle>
+                      <CardDescription className="text-gray-400 text-sm">
+                        By {resource.author} • {formatRelativeTime(resource.publishedDate)}
+                      </CardDescription>
+                    </CardHeader>
                     
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {resource.tags.slice(0, 3).map(tag => (
-                        <Badge 
-                          key={tag} 
-                          variant="outline" 
-                          className="border-amber-500/30 text-amber-300/70 hover:border-amber-500/50 hover:text-amber-300"
+                    <CardContent className="flex-grow">
+                      <p className="text-gray-300 text-sm line-clamp-3 mb-4">
+                        {resource.description}
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {resource.tags.slice(0, 3).map(tag => (
+                          <Badge 
+                            key={tag} 
+                            variant="outline" 
+                            className="border-amber-500/30 text-amber-300/70 hover:border-amber-500/50 hover:text-amber-300"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                        {resource.tags.length > 3 && (
+                          <span className="text-xs text-gray-500">+{resource.tags.length - 3} more</span>
+                        )}
+                      </div>
+                    </CardContent>
+                    
+                    <CardFooter className="border-t border-[#2a2a3a] pt-3 mt-auto">
+                      <a 
+                        href={resource.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-amber-300 hover:text-amber-400 transition-colors mr-auto"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        View Resource
+                      </a>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className={`${resource.isBookmarked ? 'text-amber-300' : 'text-gray-400 hover:text-amber-300'}`}
+                          onClick={() => handleBookmark(resource.id)}
                         >
-                          {tag}
-                        </Badge>
-                      ))}
-                      {resource.tags.length > 3 && (
-                        <span className="text-xs text-gray-500">+{resource.tags.length - 3} more</span>
-                      )}
-                    </div>
-                  </CardContent>
-                  
-                  <CardFooter className="border-t border-[#2a2a3a] pt-3 mt-auto">
-                    <a 
-                      href={resource.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-amber-300 hover:text-amber-400 transition-colors mr-auto"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      View Resource
-                    </a>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className={`${resource.isBookmarked ? 'text-amber-300' : 'text-gray-400 hover:text-amber-300'}`}
-                        onClick={() => handleBookmark(resource.id)}
-                      >
-                        <Bookmark className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-gray-400 hover:text-amber-300"
-                        onClick={() => handleShare(resource)}
-                      >
-                        <Share2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
-              );
-            })}
+                          <Bookmark className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-gray-400 hover:text-amber-300"
+                          onClick={() => handleShare(resource)}
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -627,13 +749,24 @@ const ResourcesPage: React.FC = () => {
           </p>
           <Button 
             className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-8 py-3 rounded-full text-lg"
-            onClick={handleSubmitResource}
+            onClick={() => setIsCreateModalOpen(true)}
           >
             <Lightbulb className="h-5 w-5 mr-2" />
             Submit a Resource
           </Button>
         </div>
       </div>
+
+      {/* Modal for resource submission */}
+      <CreateResourceModal
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setPrefillType(undefined);
+        }}
+        onSubmit={handleCreateResource}
+        initialType={prefillType}
+      />
     </div>
   );
 };
