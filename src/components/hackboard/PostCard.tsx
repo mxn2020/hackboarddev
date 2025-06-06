@@ -142,7 +142,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onBookmark, onTagClic
           onClick={() => onLike(post.id)}
           aria-label="Upvote"
         >
-          <Triangle className="h-7 w-7 rotate-0" />
+          <Triangle className="h-7 w-7 rotate-0" fill={post.likes > 0 ? 'currentColor' : 'none'} />
         </Button>
         <span className="text-lg font-bold text-amber-400 mt-1">{post.likes}</span>
       </div>

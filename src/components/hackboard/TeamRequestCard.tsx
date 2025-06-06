@@ -98,7 +98,7 @@ const TeamRequestCard: React.FC<TeamRequestCardProps> = ({ request, onConnect, o
           onClick={() => onUpvote && onUpvote(request.id)}
           aria-label="Upvote"
         >
-          <Triangle className="h-7 w-7 rotate-0" />
+          <Triangle className="h-7 w-7 rotate-0" fill={request.isUpvoted ? 'currentColor' : 'none'} />
         </Button>
         <span className="text-lg font-bold text-amber-400 mt-1">{request.upvotes || 0}</span>
       </div>

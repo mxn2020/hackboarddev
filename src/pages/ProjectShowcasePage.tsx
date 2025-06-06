@@ -445,7 +445,7 @@ const ProjectShowcasePage: React.FC = () => {
                         aria-label="Upvote"
                         disabled={isSeed}
                       >
-                        <Triangle className="h-7 w-7 rotate-0" />
+                        <Triangle className="h-7 w-7 rotate-0" fill={project.isLiked ? 'currentColor' : 'none'} />
                       </Button>
                       <span className="text-lg font-bold text-amber-400 mt-1">{project.likes}</span>
                     </div>
