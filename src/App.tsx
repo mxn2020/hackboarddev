@@ -116,11 +116,7 @@ function AppContent() {
 
           <Route
             path="hackboard"
-            element={
-              <PublicRoute>
-                <HackboardPage />
-              </PublicRoute>
-            }
+            element={<HackboardPage />}
           />
 
           {/* Public Blog Routes */}
