@@ -47,7 +47,7 @@ const Header: React.FC = () => {
                 icon = <MessageSquare className="h-4 w-4 mr-1" />;
                 break;
               case 1: // Teams
-                href = '/hackboard';
+                href = '/team';
                 icon = <Users className="h-4 w-4 mr-1" />;
                 break;
               case 2: // Showcase
