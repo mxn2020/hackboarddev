@@ -285,25 +285,6 @@ const HackboardPage: React.FC = () => {
               Connect with fellow hackers, share your projects, find team members, and get inspired for the world's largest hackathon.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <a
-                href="https://github.com/mxn2020/boltdotnew-template-netlify-redis"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full text-lg shadow transition-colors"
-              >
-                🚀 Starter Package
-              </a>
-              <a
-                href="https://hackathon.dev/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-6 py-3 rounded-full text-lg shadow transition-colors"
-              >
-                🛠️ Builder Pack
-              </a>
-            </div>
-            
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-6 py-3 rounded-full"
