@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ThumbsUp, MessageCircle, Bookmark, Share2, Clock } from 'lucide-react';
+import { ThumbsUp, MessageCircle, Bookmark, Share2, Clock, Triangle } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -140,8 +140,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onBookmark, onTagClic
           size="icon"
           className={`rounded-full text-2xl ${post.likes > 0 ? 'text-amber-400' : 'text-gray-400 hover:text-amber-400'}`}
           onClick={() => onLike(post.id)}
+          aria-label="Upvote"
         >
-          <ThumbsUp className="h-7 w-7" />
+          <Triangle className="h-7 w-7 rotate-0" />
         </Button>
         <span className="text-lg font-bold text-amber-400 mt-1">{post.likes}</span>
       </div>

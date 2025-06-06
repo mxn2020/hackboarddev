@@ -21,7 +21,8 @@ import {
   Share2,
   AlertCircle,
   Plus,
-  ThumbsUp
+  ThumbsUp,
+  Triangle
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -475,33 +476,21 @@ const ResourcesPage: React.FC = () => {
                           alt={resource.title}
                           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                         />
-                        <button
-                          className={`absolute top-3 right-3 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full shadow-lg text-base font-semibold transition-colors
-                            ${resource.isLiked ? 'bg-amber-400 text-black' : 'bg-[#181825]/80 text-gray-200 hover:bg-amber-500/80 hover:text-black'}
-                            ${isSeed ? 'pointer-events-none opacity-50' : ''}`}
-                          onClick={() => handleLike(resource.id)}
-                          disabled={isSeed}
-                          aria-label={resource.isLiked ? 'Remove upvote' : 'Upvote'}
-                        >
-                          <ThumbsUp className={`h-5 w-5 ${resource.isLiked ? 'fill-black' : 'fill-none'}`} />
-                          {resource.likes || 0}
-                        </button>
                       </div>
-                    ) : (
-                      <div className="relative w-full">
-                        <button
-                          className={`absolute top-3 right-3 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full shadow-lg text-base font-semibold transition-colors
-                            ${resource.isLiked ? 'bg-amber-400 text-black' : 'bg-[#181825]/80 text-gray-200 hover:bg-amber-500/80 hover:text-black'}
-                            ${isSeed ? 'pointer-events-none opacity-50' : ''}`}
-                          onClick={() => handleLike(resource.id)}
-                          disabled={isSeed}
-                          aria-label={resource.isLiked ? 'Remove upvote' : 'Upvote'}
-                        >
-                          <ThumbsUp className={`h-5 w-5 ${resource.isLiked ? 'fill-black' : 'fill-none'}`} />
-                          {resource.likes || 0}
-                        </button>
-                      </div>
-                    )}
+                    ) : null}
+                    <div className="absolute top-3 right-3 z-10 flex flex-col items-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`rounded-full text-2xl ${resource.isLiked ? 'text-amber-400' : 'text-gray-400 hover:text-amber-400'}`}
+                        onClick={() => handleLike(resource.id)}
+                        aria-label="Upvote"
+                        disabled={isSeed}
+                      >
+                        <Triangle className="h-7 w-7 rotate-0" />
+                      </Button>
+                      <span className="text-lg font-bold text-amber-400 mt-1">{resource.likes || 0}</span>
+                    </div>
                     <CardHeader className="pb-2 flex-grow-0">
                       <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2">

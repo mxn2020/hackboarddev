@@ -15,7 +15,8 @@ import {
   Code,
   Rocket,
   Plus,
-  AlertCircle
+  AlertCircle,
+  Triangle
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -434,17 +435,19 @@ const ProjectShowcasePage: React.FC = () => {
                         alt={project.title}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                       />
-                      <button
-                        className={`absolute top-3 right-3 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full shadow-lg text-base font-semibold transition-colors
-                          ${project.isLiked ? 'bg-amber-400 text-black' : 'bg-[#181825]/80 text-gray-200 hover:bg-amber-500/80 hover:text-black'}
-                          ${isSeed ? 'pointer-events-none opacity-50' : ''}`}
+                    </div>
+                    <div className="absolute top-3 right-3 z-10 flex flex-col items-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`rounded-full text-2xl ${project.isLiked ? 'text-amber-400' : 'text-gray-400 hover:text-amber-400'}`}
                         onClick={() => handleLike(project.id)}
+                        aria-label="Upvote"
                         disabled={isSeed}
-                        aria-label={project.isLiked ? 'Remove upvote' : 'Upvote'}
                       >
-                        <ThumbsUp className={`h-5 w-5 ${project.isLiked ? 'fill-black' : 'fill-none'}`} />
-                        {project.likes}
-                      </button>
+                        <Triangle className="h-7 w-7 rotate-0" />
+                      </Button>
+                      <span className="text-lg font-bold text-amber-400 mt-1">{project.likes}</span>
                     </div>
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-start">
