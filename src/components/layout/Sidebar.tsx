@@ -35,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
 
   const navigation = [
     { name: 'Community Board', href: '/hackboard', icon: MessageSquare, badge: 'New', adminOnly: false  },
-    { name: 'Team Matching', href: '/hackboard', icon: Users, adminOnly: false},
+    { name: 'Team Matching', href: '/team', icon: Users, adminOnly: false},
     { name: 'Project Showcase', href: '/showcase', icon: Award, adminOnly: false },
     { name: 'Resources', href: '/resources', icon: Lightbulb, adminOnly: false },
     { name: 'Blog', href: '/blog', icon: BookOpen, adminOnly: false },
