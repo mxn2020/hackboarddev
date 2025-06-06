@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '../utils/api';
 import { 
   Search, 
   BookOpen, 
@@ -17,7 +18,8 @@ import {
   Video,
   Headphones,
   Bookmark,
-  Share2
+  Share2,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -49,124 +51,8 @@ interface Resource {
   featured?: boolean;
   stars?: number;
   isFree: boolean;
+  isBookmarked?: boolean;
 }
-
-// Mock data for resources
-const MOCK_RESOURCES: Resource[] = [
-  {
-    id: '1',
-    title: 'Ultimate React Starter Kit',
-    description: 'A comprehensive starter template for React applications with TypeScript, Tailwind CSS, and more. Includes authentication, routing, and API integration examples.',
-    url: 'https://github.com/example/react-starter-kit',
-    imageUrl: 'https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    type: 'template',
-    category: 'frontend',
-    tags: ['React', 'TypeScript', 'Tailwind CSS', 'Starter'],
-    author: 'React Masters',
-    publishedDate: '2025-05-10T14:20:00Z',
-    featured: true,
-    stars: 1245,
-    isFree: true
-  },
-  {
-    id: '2',
-    title: 'Building AI-Powered Applications',
-    description: 'Learn how to integrate AI capabilities into your web applications using modern JavaScript frameworks and APIs.',
-    url: 'https://example.com/ai-powered-apps',
-    imageUrl: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    type: 'course',
-    category: 'ai',
-    tags: ['AI', 'JavaScript', 'API', 'Machine Learning'],
-    author: 'AI Academy',
-    publishedDate: '2025-05-05T09:15:00Z',
-    stars: 487,
-    isFree: false
-  },
-  {
-    id: '3',
-    title: 'Serverless Architecture Patterns',
-    description: 'A comprehensive guide to serverless architecture patterns and best practices for modern web applications.',
-    url: 'https://example.com/serverless-patterns',
-    imageUrl: 'https://images.pexels.com/photos/1181271/pexels-photo-1181271.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    type: 'article',
-    category: 'backend',
-    tags: ['Serverless', 'AWS', 'Architecture', 'Cloud'],
-    author: 'Cloud Experts',
-    publishedDate: '2025-04-28T16:45:00Z',
-    featured: true,
-    isFree: true
-  },
-  {
-    id: '4',
-    title: 'Modern UI Design Principles',
-    description: 'Learn the fundamental principles of modern UI design and how to apply them to create beautiful, user-friendly interfaces.',
-    url: 'https://example.com/ui-design-principles',
-    imageUrl: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    type: 'video',
-    category: 'design',
-    tags: ['UI', 'Design', 'UX', 'Principles'],
-    author: 'Design Masters',
-    publishedDate: '2025-04-22T11:30:00Z',
-    stars: 892,
-    isFree: true
-  },
-  {
-    id: '5',
-    title: 'Database Optimization Techniques',
-    description: 'Advanced techniques for optimizing database performance in high-traffic web applications.',
-    url: 'https://example.com/database-optimization',
-    imageUrl: 'https://images.pexels.com/photos/325111/pexels-photo-325111.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    type: 'book',
-    category: 'database',
-    tags: ['Database', 'Performance', 'SQL', 'NoSQL'],
-    author: 'DB Experts',
-    publishedDate: '2025-04-18T08:20:00Z',
-    stars: 356,
-    isFree: false
-  },
-  {
-    id: '6',
-    title: 'Web3 Development Toolkit',
-    description: 'A comprehensive toolkit for building decentralized applications on the blockchain.',
-    url: 'https://example.com/web3-toolkit',
-    imageUrl: 'https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    type: 'tool',
-    category: 'web3',
-    tags: ['Web3', 'Blockchain', 'Ethereum', 'Smart Contracts'],
-    author: 'Blockchain Devs',
-    publishedDate: '2025-04-15T10:30:00Z',
-    featured: true,
-    stars: 723,
-    isFree: true
-  },
-  {
-    id: '7',
-    title: 'The Future of Web Development',
-    description: 'A podcast series exploring emerging trends and technologies in web development.',
-    url: 'https://example.com/future-web-dev-podcast',
-    imageUrl: 'https://images.pexels.com/photos/3944311/pexels-photo-3944311.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    type: 'podcast',
-    category: 'trends',
-    tags: ['Podcast', 'Trends', 'Future', 'Web Development'],
-    author: 'Tech Visionaries',
-    publishedDate: '2025-04-10T14:45:00Z',
-    isFree: true
-  },
-  {
-    id: '8',
-    title: 'Advanced Animation Library',
-    description: 'A powerful JavaScript library for creating complex animations with minimal code.',
-    url: 'https://example.com/animation-library',
-    imageUrl: 'https://images.pexels.com/photos/2777898/pexels-photo-2777898.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    type: 'library',
-    category: 'frontend',
-    tags: ['Animation', 'JavaScript', 'Library', 'UI'],
-    author: 'Animation Experts',
-    publishedDate: '2025-04-05T09:20:00Z',
-    stars: 1876,
-    isFree: true
-  }
-];
 
 // Categories for filtering
 const CATEGORIES = [
@@ -194,14 +80,40 @@ const RESOURCE_TYPES = [
 ];
 
 const ResourcesPage: React.FC = () => {
-  const [resources, setResources] = useState<Resource[]>(MOCK_RESOURCES);
-  const [filteredResources, setFilteredResources] = useState<Resource[]>(MOCK_RESOURCES);
-  const [isLoading, setIsLoading] = useState(false);
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [filteredResources, setFilteredResources] = useState<Resource[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+
+  // Fetch resources from API
+  useEffect(() => {
+    fetchResources();
+  }, []);
+
+  const fetchResources = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await api.get('/showcase/resources');
+      
+      if (response.data.success) {
+        setResources(response.data.data || []);
+      } else {
+        setError(response.data.error || 'Failed to load resources');
+      }
+    } catch (err) {
+      console.error('Error fetching resources:', err);
+      setError('Failed to load resources. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Filter resources based on search, category, type, and tab
   useEffect(() => {
@@ -260,12 +172,27 @@ const ResourcesPage: React.FC = () => {
     return resourceType.icon;
   };
 
-  // Bookmark a resource (mock implementation)
-  const handleBookmark = (resourceId: string) => {
-    alert(`Resource ${resourceId} bookmarked!`);
+  // Bookmark a resource
+  const handleBookmark = async (resourceId: string) => {
+    try {
+      const response = await api.post('/showcase/bookmark', { resourceId });
+      
+      if (response.data.success) {
+        setResources(prevResources => 
+          prevResources.map(resource => 
+            resource.id === resourceId 
+              ? { ...resource, isBookmarked: response.data.bookmarked } 
+              : resource
+          )
+        );
+      }
+    } catch (err) {
+      console.error('Error bookmarking resource:', err);
+      alert('Failed to bookmark resource. Please try again.');
+    }
   };
 
-  // Share a resource (mock implementation)
+  // Share a resource
   const handleShare = (resource: Resource) => {
     if (navigator.share) {
       navigator.share({
@@ -278,6 +205,11 @@ const ResourcesPage: React.FC = () => {
       // Fallback for browsers that don't support the Web Share API
       alert(`Share this resource: ${resource.title}\n${resource.url}`);
     }
+  };
+
+  // Submit a new resource
+  const handleSubmitResource = () => {
+    alert('Resource submission form would open here');
   };
 
   return (
@@ -386,6 +318,26 @@ const ResourcesPage: React.FC = () => {
             </TabsList>
           </Tabs>
         </div>
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 mb-8">
+            <div className="flex items-start">
+              <AlertCircle className="h-6 w-6 text-red-400 mt-0.5 mr-3" />
+              <div>
+                <h3 className="text-lg font-medium text-red-400 mb-2">Error Loading Resources</h3>
+                <p className="text-gray-300">{error}</p>
+                <Button 
+                  onClick={fetchResources} 
+                  variant="outline" 
+                  className="mt-4 border-red-500/30 text-red-400 hover:bg-red-500/10"
+                >
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Resources Grid */}
         {isLoading ? (
@@ -499,7 +451,7 @@ const ResourcesPage: React.FC = () => {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="text-gray-400 hover:text-amber-300"
+                        className={`${resource.isBookmarked ? 'text-amber-300' : 'text-gray-400 hover:text-amber-300'}`}
                         onClick={() => handleBookmark(resource.id)}
                       >
                         <Bookmark className="h-4 w-4" />
@@ -675,7 +627,7 @@ const ResourcesPage: React.FC = () => {
           </p>
           <Button 
             className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-8 py-3 rounded-full text-lg"
-            onClick={() => alert('Resource submission form would open here')}
+            onClick={handleSubmitResource}
           >
             <Lightbulb className="h-5 w-5 mr-2" />
             Submit a Resource

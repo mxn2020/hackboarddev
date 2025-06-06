@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { api } from '../utils/api';
 import { 
   Search, 
   Filter, 
@@ -13,7 +14,8 @@ import {
   Globe,
   Code,
   Rocket,
-  Plus
+  Plus,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -49,122 +51,8 @@ interface Project {
   comments: number;
   createdAt: string;
   featured?: boolean;
+  isLiked?: boolean;
 }
-
-// Mock data for projects
-const MOCK_PROJECTS: Project[] = [
-  {
-    id: '1',
-    title: 'AI-Powered Task Manager',
-    description: 'A task management app that uses AI to prioritize and categorize your tasks automatically. Built with React, Node.js, and OpenAI.',
-    imageUrl: 'https://images.pexels.com/photos/7014337/pexels-photo-7014337.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    demoUrl: 'https://ai-task-manager.netlify.app',
-    repoUrl: 'https://github.com/username/ai-task-manager',
-    author: {
-      id: 'user1',
-      name: 'Alex Johnson',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
-    },
-    category: 'productivity',
-    tags: ['AI', 'React', 'Node.js', 'OpenAI'],
-    likes: 124,
-    comments: 18,
-    createdAt: '2025-05-15T10:30:00Z',
-    featured: true
-  },
-  {
-    id: '2',
-    title: 'EcoTrack - Carbon Footprint Calculator',
-    description: 'An app that helps users track and reduce their carbon footprint through daily activities. Features interactive visualizations and personalized recommendations.',
-    imageUrl: 'https://images.pexels.com/photos/957024/forest-trees-perspective-bright-957024.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    demoUrl: 'https://ecotrack-demo.vercel.app',
-    repoUrl: 'https://github.com/username/ecotrack',
-    author: {
-      id: 'user2',
-      name: 'Samantha Lee',
-      avatar: 'https://randomuser.me/api/portraits/women/44.jpg'
-    },
-    category: 'sustainability',
-    tags: ['Climate', 'React', 'D3.js', 'Firebase'],
-    likes: 87,
-    comments: 12,
-    createdAt: '2025-05-10T14:20:00Z'
-  },
-  {
-    id: '3',
-    title: 'MediConnect - Healthcare Platform',
-    description: 'A telemedicine platform connecting patients with healthcare providers. Features video consultations, appointment scheduling, and secure messaging.',
-    imageUrl: 'https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    demoUrl: 'https://mediconnect-health.netlify.app',
-    repoUrl: 'https://github.com/username/mediconnect',
-    author: {
-      id: 'user3',
-      name: 'Dr. Michael Chen',
-      avatar: 'https://randomuser.me/api/portraits/men/22.jpg'
-    },
-    category: 'healthcare',
-    tags: ['Telemedicine', 'WebRTC', 'React', 'Express'],
-    likes: 156,
-    comments: 24,
-    createdAt: '2025-05-05T09:15:00Z',
-    featured: true
-  },
-  {
-    id: '4',
-    title: 'FinLit - Financial Literacy Game',
-    description: 'An educational game teaching financial literacy concepts through interactive scenarios and challenges. Targeted at teenagers and young adults.',
-    imageUrl: 'https://images.pexels.com/photos/6693661/pexels-photo-6693661.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    demoUrl: 'https://finlit-game.vercel.app',
-    repoUrl: 'https://github.com/username/finlit',
-    author: {
-      id: 'user4',
-      name: 'Taylor Rodriguez',
-      avatar: 'https://randomuser.me/api/portraits/women/28.jpg'
-    },
-    category: 'education',
-    tags: ['Education', 'Game', 'React', 'Three.js'],
-    likes: 92,
-    comments: 15,
-    createdAt: '2025-04-28T16:45:00Z'
-  },
-  {
-    id: '5',
-    title: 'LocalEats - Community Food Sharing',
-    description: 'A platform connecting local food producers with consumers. Features include marketplace, subscription boxes, and community events calendar.',
-    imageUrl: 'https://images.pexels.com/photos/5677794/pexels-photo-5677794.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    demoUrl: 'https://localeats-community.netlify.app',
-    repoUrl: 'https://github.com/username/localeats',
-    author: {
-      id: 'user5',
-      name: 'Jamie Wilson',
-      avatar: 'https://randomuser.me/api/portraits/men/42.jpg'
-    },
-    category: 'community',
-    tags: ['Food', 'Marketplace', 'React', 'Node.js', 'MongoDB'],
-    likes: 78,
-    comments: 9,
-    createdAt: '2025-04-22T11:30:00Z'
-  },
-  {
-    id: '6',
-    title: 'CodeMentor AI - Programming Assistant',
-    description: 'An AI-powered programming assistant that helps developers debug code, learn new concepts, and improve their coding skills through interactive exercises.',
-    imageUrl: 'https://images.pexels.com/photos/4164418/pexels-photo-4164418.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    demoUrl: 'https://codementor-ai.vercel.app',
-    repoUrl: 'https://github.com/username/codementor-ai',
-    author: {
-      id: 'user6',
-      name: 'Raj Patel',
-      avatar: 'https://randomuser.me/api/portraits/men/55.jpg'
-    },
-    category: 'developer-tools',
-    tags: ['AI', 'Education', 'React', 'Python', 'GPT-4'],
-    likes: 215,
-    comments: 32,
-    createdAt: '2025-04-18T08:20:00Z',
-    featured: true
-  }
-];
 
 // Categories for filtering
 const CATEGORIES = [
@@ -181,14 +69,40 @@ const CATEGORIES = [
 ];
 
 const ProjectShowcasePage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
-  const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS);
-  const [filteredProjects, setFilteredProjects] = useState<Project[]>(MOCK_PROJECTS);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [activeTab, setActiveTab] = useState('all');
+
+  // Fetch projects from API
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await api.get('/showcase/projects');
+      
+      if (response.data.success) {
+        setProjects(response.data.data || []);
+      } else {
+        setError(response.data.error || 'Failed to load projects');
+      }
+    } catch (err) {
+      console.error('Error fetching projects:', err);
+      setError('Failed to load projects. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Filter projects based on search, category, and tab
   useEffect(() => {
@@ -253,23 +167,47 @@ const ProjectShowcasePage: React.FC = () => {
     return date.toLocaleDateString();
   };
 
-  // Like a project (mock implementation)
-  const handleLike = (projectId: string) => {
+  // Like a project
+  const handleLike = async (projectId: string) => {
     if (!isAuthenticated) {
       alert('Please log in to like projects');
       return;
     }
     
-    setProjects(prevProjects => 
-      prevProjects.map(project => 
-        project.id === projectId 
-          ? { ...project, likes: project.likes + 1 } 
-          : project
-      )
-    );
+    try {
+      const response = await api.post('/showcase/like', { projectId });
+      
+      if (response.data.success) {
+        setProjects(prevProjects => 
+          prevProjects.map(project => 
+            project.id === projectId 
+              ? { 
+                  ...project, 
+                  likes: response.data.liked ? project.likes + 1 : project.likes - 1,
+                  isLiked: response.data.liked
+                } 
+              : project
+          )
+        );
+      }
+    } catch (err) {
+      console.error('Error liking project:', err);
+      // Optimistic UI update fallback
+      setProjects(prevProjects => 
+        prevProjects.map(project => 
+          project.id === projectId 
+            ? { 
+                ...project, 
+                likes: project.isLiked ? project.likes - 1 : project.likes + 1,
+                isLiked: !project.isLiked
+              } 
+            : project
+        )
+      );
+    }
   };
 
-  // Share a project (mock implementation)
+  // Share a project
   const handleShare = (project: Project) => {
     if (navigator.share) {
       navigator.share({
@@ -282,6 +220,17 @@ const ProjectShowcasePage: React.FC = () => {
       // Fallback for browsers that don't support the Web Share API
       alert(`Share this project: ${project.title}\n${project.demoUrl || window.location.href}`);
     }
+  };
+
+  // Submit a new project
+  const handleSubmitProject = () => {
+    if (!isAuthenticated) {
+      alert('Please log in to submit a project');
+      return;
+    }
+    
+    // This would typically open a modal or navigate to a submission form
+    alert('Project submission form would open here');
   };
 
   return (
@@ -309,7 +258,7 @@ const ProjectShowcasePage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-6 py-3 rounded-full"
-                onClick={() => isAuthenticated ? alert('Project submission form would open here') : alert('Please log in to submit a project')}
+                onClick={handleSubmitProject}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Submit Your Project
@@ -384,6 +333,26 @@ const ProjectShowcasePage: React.FC = () => {
           </TabsList>
         </Tabs>
 
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 mb-8">
+            <div className="flex items-start">
+              <AlertCircle className="h-6 w-6 text-red-400 mt-0.5 mr-3" />
+              <div>
+                <h3 className="text-lg font-medium text-red-400 mb-2">Error Loading Projects</h3>
+                <p className="text-gray-300">{error}</p>
+                <Button 
+                  onClick={fetchProjects} 
+                  variant="outline" 
+                  className="mt-4 border-red-500/30 text-red-400 hover:bg-red-500/10"
+                >
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Projects Grid */}
         {isLoading ? (
           <div className="flex justify-center py-12">
@@ -400,7 +369,7 @@ const ProjectShowcasePage: React.FC = () => {
             </p>
             <Button 
               className="bg-amber-500 hover:bg-amber-600 text-black"
-              onClick={() => isAuthenticated ? alert('Project submission form would open here') : alert('Please log in to submit a project')}
+              onClick={handleSubmitProject}
             >
               <Plus className="h-4 w-4 mr-2" />
               Submit Project
@@ -498,7 +467,7 @@ const ProjectShowcasePage: React.FC = () => {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-gray-400 hover:text-amber-300"
+                      className={`${project.isLiked ? 'text-amber-300' : 'text-gray-400 hover:text-amber-300'}`}
                       onClick={() => handleLike(project.id)}
                     >
                       <ThumbsUp className="h-4 w-4 mr-1" />
@@ -537,7 +506,7 @@ const ProjectShowcasePage: React.FC = () => {
           </p>
           <Button 
             className="bg-amber-500 hover:bg-amber-600 text-black font-medium px-8 py-3 rounded-full text-lg"
-            onClick={() => isAuthenticated ? alert('Project submission form would open here') : alert('Please log in to submit a project')}
+            onClick={handleSubmitProject}
           >
             <Rocket className="h-5 w-5 mr-2" />
             Submit Your Project
