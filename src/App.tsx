@@ -18,6 +18,8 @@ import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import HackboardPage from './pages/HackboardPage';
+import ProjectShowcasePage from './pages/ProjectShowcasePage';
+import ResourcesPage from './pages/ResourcesPage';
 
 // Admin Pages
 import FeatureFlagsPage from './pages/admin/FeatureFlagsPage';
@@ -117,6 +119,18 @@ function AppContent() {
           <Route
             path="hackboard"
             element={<HackboardPage />}
+          />
+
+          {/* Project Showcase Route */}
+          <Route
+            path="showcase"
+            element={<ProjectShowcasePage />}
+          />
+
+          {/* Resources Route */}
+          <Route
+            path="resources"
+            element={<ResourcesPage />}
           />
 
           {/* Public Blog Routes */}

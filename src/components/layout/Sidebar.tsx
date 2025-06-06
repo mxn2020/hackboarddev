@@ -15,7 +15,8 @@ import {
   Users,
   MessageSquare,
   Rocket,
-  Lightbulb
+  Lightbulb,
+  Award
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -35,7 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const navigation = [
     { name: 'Community Board', href: '/hackboard', icon: MessageSquare, badge: 'New', adminOnly: false  },
     { name: 'Team Matching', href: '/hackboard', icon: Users, adminOnly: false},
-    { name: 'Project Showcase', href: '/showcase', icon: Rocket, adminOnly: false },
+    { name: 'Project Showcase', href: '/showcase', icon: Award, adminOnly: false },
     { name: 'Resources', href: '/resources', icon: Lightbulb, adminOnly: false },
     { name: 'Blog', href: '/blog', icon: BookOpen, adminOnly: false },
     { name: 'Profile', href: '/profile', icon: User, adminOnly: false },

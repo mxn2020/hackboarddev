@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Users, MessageSquare, Rocket } from 'lucide-react';
+import { Zap, Users, MessageSquare, Rocket, Award, Lightbulb } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useTheme } from 'next-themes';
 
@@ -37,15 +37,40 @@ const Header: React.FC = () => {
         </div>
 
         <nav className="hidden md:flex items-center gap-6">
-          {['Community', 'Teams', 'Resources'].map((item) => (
-            <a 
-              key={item}
-              href="#" 
-              className="text-sm font-medium text-gray-300 hover:text-amber-300 transition-colors duration-200"
-            >
-              {item}
-            </a>
-          ))}
+          {['Community', 'Teams', 'Showcase', 'Resources'].map((item, index) => {
+            let href = '/';
+            let icon = null;
+            
+            switch(index) {
+              case 0: // Community
+                href = '/hackboard';
+                icon = <MessageSquare className="h-4 w-4 mr-1" />;
+                break;
+              case 1: // Teams
+                href = '/hackboard';
+                icon = <Users className="h-4 w-4 mr-1" />;
+                break;
+              case 2: // Showcase
+                href = '/showcase';
+                icon = <Award className="h-4 w-4 mr-1" />;
+                break;
+              case 3: // Resources
+                href = '/resources';
+                icon = <Lightbulb className="h-4 w-4 mr-1" />;
+                break;
+            }
+            
+            return (
+              <Link 
+                key={item}
+                to={href}
+                className="text-sm font-medium text-gray-300 hover:text-amber-300 transition-colors duration-200 flex items-center"
+              >
+                {icon}
+                {item}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-3">
