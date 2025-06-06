@@ -478,7 +478,7 @@ const ResourcesPage: React.FC = () => {
                         />
                       </div>
                     ) : null}
-                    <div className="absolute top-3 right-3 z-10 flex flex-col items-center">
+                    <div className="flex flex-col items-center justify-center px-4 min-w-[64px] border-l border-[#2a2a3a] bg-[#181825]">
                       <Button
                         variant="ghost"
                         size="icon"
