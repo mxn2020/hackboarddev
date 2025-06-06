@@ -20,6 +20,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import HackboardPage from './pages/HackboardPage';
 import ProjectShowcasePage from './pages/ProjectShowcasePage';
 import ResourcesPage from './pages/ResourcesPage';
+import TeamMatchingPage from './pages/TeamMatchingPage';
 
 // Admin Pages
 import FeatureFlagsPage from './pages/admin/FeatureFlagsPage';
@@ -119,6 +120,12 @@ function AppContent() {
           <Route
             path="hackboard"
             element={<HackboardPage />}
+          />
+
+          {/* Team Matching Route */}
+          <Route
+            path="team"
+            element={<TeamMatchingPage />}
           />
 
           {/* Project Showcase Route */}

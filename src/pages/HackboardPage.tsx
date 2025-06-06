@@ -38,36 +38,6 @@ import PostCard from '../components/hackboard/PostCard';
 import TeamRequestCard from '../components/hackboard/TeamRequestCard';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 
-// Types for our community board
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  author: {
-    id: string;
-    name: string;
-    avatar?: string;
-  };
-  category: 'question' | 'showcase' | 'idea' | 'team' | 'resource';
-  tags: string[];
-  likes: number;
-  comments: number;
-  createdAt: string;
-  isBookmarked?: boolean;
-}
-
-interface TeamRequest {
-  id: string;
-  author: {
-    id: string;
-    name: string;
-    avatar?: string;
-  };
-  skills: string[];
-  description: string;
-  createdAt: string;
-}
-
 const HackboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -136,8 +106,10 @@ const HackboardPage: React.FC = () => {
   // Fetch team requests
   const fetchTeamRequests = async () => {
     try {
-      const response = await api.get('/hackboard/team-requests');
-      setTeamRequests(response.data.teamRequests || []);
+      const response = await api.get('/team/requests');
+      if (response.data.success) {
+        setTeamRequests(response.data.data || []);
+      }
     } catch (err) {
       console.error('Error fetching team requests:', err);
     }
@@ -261,14 +233,14 @@ const HackboardPage: React.FC = () => {
   // Handle team request creation
   const handleCreateTeamRequest = async (requestData: any) => {
     try {
-      const response = await api.post('/hackboard/team-requests', {
+      const response = await api.post('/team/requests', {
         skills: requestData.skills,
         description: requestData.description
       });
       
       if (response.data.success) {
         // Add the new team request to the list
-        setTeamRequests([response.data.teamRequest, ...teamRequests]);
+        setTeamRequests([response.data.data, ...teamRequests]);
         setIsCreateTeamRequestModalOpen(false);
       }
     } catch (err) {
@@ -280,7 +252,8 @@ const HackboardPage: React.FC = () => {
   // Connect with team request
   const handleConnectTeamRequest = (requestId: string) => {
     handleAuthenticatedAction(() => {
-      alert(`Connection request sent to team ${requestId}`);
+      // Navigate to the team matching page
+      navigate('/team', { state: { connectRequestId: requestId } });
     }, 'connect with teams');
   };
 
@@ -321,7 +294,7 @@ const HackboardPage: React.FC = () => {
                 variant="outline" 
                 className="border-amber-500/50 text-amber-300 hover:bg-amber-500/10 px-6 py-3 rounded-full"
                 onClick={() => handleAuthenticatedAction(
-                  () => setIsCreateTeamRequestModalOpen(true),
+                  () => navigate('/team'),
                   'find team members'
                 )}
               >
@@ -405,7 +378,7 @@ const HackboardPage: React.FC = () => {
                   {popularTags.length > 0 ? (
                     popularTags.slice(0, 15).map(tag => (
                       <Badge 
-                        key={tag}
+                        key={tag} 
                         variant={selectedTags.includes(tag) ? "default" : "outline"}
                         className={`cursor-pointer ${
                           selectedTags.includes(tag) 
@@ -585,10 +558,13 @@ const HackboardPage: React.FC = () => {
                             </p>
                             <Button 
                               className="bg-amber-500 hover:bg-amber-600 text-black"
-                              onClick={() => setIsCreateTeamRequestModalOpen(true)}
+                              onClick={() => handleAuthenticatedAction(
+                                () => navigate('/team'),
+                                'create a team request'
+                              )}
                             >
                               <Plus className="h-4 w-4 mr-2" />
-                              Create Team Request
+                              Go to Team Matching
                             </Button>
                           </div>
                         </CardContent>
@@ -596,38 +572,35 @@ const HackboardPage: React.FC = () => {
                     </div>
                   ) : (
                     <>
-                      {teamRequests.map(request => (
+                      {teamRequests.slice(0, 3).map(request => (
                         <TeamRequestCard 
                           key={request.id}
                           request={request}
-                          onConnect={handleConnectTeamRequest}
+                          onConnect={() => handleConnectTeamRequest(request.id)}
                         />
                       ))}
+                      
+                      {/* View More Card */}
+                      <Card className="bg-[#1a1a2e] border-[#2a2a3a] border-dashed hover:border-amber-500/30 transition-colors">
+                        <CardContent className="flex flex-col items-center justify-center h-full py-12">
+                          <div className="bg-[#2a2a3a] p-3 rounded-full mb-4">
+                            <Users className="h-6 w-6 text-amber-300" />
+                          </div>
+                          <h3 className="text-lg font-medium text-gray-200 mb-2">View More Team Requests</h3>
+                          <p className="text-gray-400 text-center mb-4">
+                            Find the perfect collaborators for your hackathon project.
+                          </p>
+                          <Button 
+                            className="bg-amber-500 hover:bg-amber-600 text-black"
+                            onClick={() => navigate('/team')}
+                          >
+                            <Users className="h-4 w-4 mr-2" />
+                            Go to Team Matching
+                          </Button>
+                        </CardContent>
+                      </Card>
                     </>
                   )}
-
-                  {/* Create Team Request Card */}
-                  <Card className="bg-[#1a1a2e] border-[#2a2a3a] border-dashed hover:border-amber-500/30 transition-colors">
-                    <CardContent className="flex flex-col items-center justify-center h-full py-12">
-                      <div className="bg-[#2a2a3a] p-3 rounded-full mb-4">
-                        <Users className="h-6 w-6 text-amber-300" />
-                      </div>
-                      <h3 className="text-lg font-medium text-gray-200 mb-2">Looking for team members?</h3>
-                      <p className="text-gray-400 text-center mb-4">
-                        Create a team request to find the perfect collaborators for your hackathon project.
-                      </p>
-                      <Button 
-                        className="bg-amber-500 hover:bg-amber-600 text-black"
-                        onClick={() => handleAuthenticatedAction(
-                          () => setIsCreateTeamRequestModalOpen(true),
-                          'create a team request'
-                        )}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create Team Request
-                      </Button>
-                    </CardContent>
-                  </Card>
                 </div>
               </TabsContent>
             </Tabs>
@@ -734,7 +707,7 @@ const HackboardPage: React.FC = () => {
                 variant="link" 
                 className="text-amber-300 hover:text-amber-400 p-0"
                 onClick={() => handleAuthenticatedAction(
-                  () => window.open('#', '_blank'),
+                  () => navigate('/resources'),
                   'access templates'
                 )}
               >
@@ -756,7 +729,7 @@ const HackboardPage: React.FC = () => {
                 variant="link" 
                 className="text-amber-300 hover:text-amber-400 p-0"
                 onClick={() => handleAuthenticatedAction(
-                  () => window.open('#', '_blank'),
+                  () => navigate('/resources'),
                   'access the Builder Pack'
                 )}
               >
@@ -778,7 +751,7 @@ const HackboardPage: React.FC = () => {
                 variant="link" 
                 className="text-amber-300 hover:text-amber-400 p-0"
                 onClick={() => handleAuthenticatedAction(
-                  () => window.open('#', '_blank'),
+                  () => navigate('/resources'),
                   'browse project ideas'
                 )}
               >
@@ -800,7 +773,7 @@ const HackboardPage: React.FC = () => {
                 variant="link" 
                 className="text-amber-300 hover:text-amber-400 p-0"
                 onClick={() => handleAuthenticatedAction(
-                  () => window.open('#', '_blank'),
+                  () => navigate('/team'),
                   'schedule coffee chats'
                 )}
               >
