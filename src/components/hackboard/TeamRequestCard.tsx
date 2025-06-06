@@ -5,7 +5,7 @@ import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Clock } from 'lucide-react';
 
-interface TeamRequest {
+export interface TeamRequest {
   id: string;
   author: {
     id: string;

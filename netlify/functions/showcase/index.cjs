@@ -309,19 +309,18 @@ exports.handler = async (event) => {
 async function getProjects(event) {
   try {
     const queryParams = event.queryStringParameters || {};
-    const { category, tag, featured, userId } = queryParams;
+    const { category, tag, featured, userId: queryParamsUserId } = queryParams;
 
     // Get all project IDs
     let projectIds;
-    
     if (featured === 'true') {
       projectIds = await redis.smembers('showcase:featured_projects');
     } else if (category && category !== 'all') {
       projectIds = await redis.smembers(`showcase:category:${category}`);
     } else if (tag) {
       projectIds = await redis.smembers(`showcase:tag:${tag.toLowerCase()}`);
-    } else if (userId) {
-      projectIds = await redis.smembers(`user:${userId}:projects`);
+    } else if (queryParamsUserId) {
+      projectIds = await redis.smembers(`user:${queryParamsUserId}:projects`);
     } else {
       projectIds = await redis.lrange('showcase:projects_list', 0, -1);
     }

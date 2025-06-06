@@ -34,8 +34,8 @@ import { Separator } from '../components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import CreatePostModal from '../components/hackboard/CreatePostModal';
 import CreateTeamRequestModal from '../components/hackboard/CreateTeamRequestModal';
-import PostCard from '../components/hackboard/PostCard';
-import TeamRequestCard from '../components/hackboard/TeamRequestCard';
+import PostCard, { Post } from '../components/hackboard/PostCard';
+import TeamRequestCard, { TeamRequest } from '../components/hackboard/TeamRequestCard';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 
 const HackboardPage: React.FC = () => {
