@@ -495,7 +495,8 @@ async function createProject(event, userId, user) {
       comments: 0,
       createdAt: now,
       updatedAt: now,
-      featured: false // New projects are not featured by default
+      featured: false, // New projects are not featured by default
+      approved: true // TEMP: Make all new showcase items visible immediately
     };
 
     // Store project data

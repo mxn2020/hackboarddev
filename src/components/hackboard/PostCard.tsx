@@ -115,7 +115,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onBookmark, onTagClic
               variant="ghost" 
               size="sm" 
               className="text-gray-400 hover:text-amber-300"
-              onClick={handleShare}
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/hackboard/post/${post.id}`);
+                toast.success('Post link copied to clipboard!');
+              }}
             >
               <Share2 className="h-4 w-4" />
             </Button>

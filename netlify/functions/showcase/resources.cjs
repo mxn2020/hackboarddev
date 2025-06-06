@@ -395,7 +395,8 @@ async function submitResource(event, userId, user) {
       publishedDate: now,
       featured: false, // New resources are not featured by default
       stars: 0,
-      isFree: !!isFree
+      isFree: !!isFree,
+      approved: true // TEMP: Make all new items visible immediately
     };
 
     // Store resource data
